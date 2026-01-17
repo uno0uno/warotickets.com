@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   CSS Variables / Design Tokens
+   ======================================== */
+:root {
+  /* Primary Colors */
+  --color-primary: #7c3aed;
+  --color-primary-dark: #6b21a8;
+  --color-primary-light: #a855f7;
+
+  /* Background */
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f8fafc;
+  --color-bg-tertiary: #f1f5f9;
+
+  /* Text */
+  --color-text: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #94a3b8;
+
+  /* Border */
+  --color-border: #e2e8f0;
+  --color-border-dark: #cbd5e1;
+
+  /* Status */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+}
+
+/* Dark mode */
+.dark {
+  --color-bg: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-bg-tertiary: #334155;
+
+  --color-text: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-tertiary: #94a3b8;
+
+  --color-border: #334155;
+  --color-border-dark: #475569;
+}
+
+/* ========================================
+   Base Styles
+   ======================================== */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-secondary-900 antialiased;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ========================================
+   Component Classes
+   ======================================== */
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-700 text-white hover:bg-primary-800 focus:ring-primary-500 shadow-lg hover:shadow-glow;
+  }
+
+  .btn-secondary {
+    @apply btn bg-white text-primary-700 border-2 border-primary-700 hover:bg-primary-50 focus:ring-primary-500;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-secondary-700 hover:bg-secondary-100 focus:ring-secondary-300;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-white rounded-2xl border border-secondary-200 shadow-soft;
+  }
+
+  .card-hover {
+    @apply card transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  /* Inputs */
+  .input,
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border border-secondary-300 bg-white text-secondary-900 placeholder:text-secondary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 text-sm font-medium rounded-full;
+  }
+
+  .badge-primary {
+    @apply badge bg-primary-100 text-primary-800;
+  }
+
+  .badge-success {
+    @apply badge bg-green-100 text-green-800;
+  }
+
+  .badge-warning {
+    @apply badge bg-yellow-100 text-yellow-800;
+  }
+
+  .badge-error {
+    @apply badge bg-red-100 text-red-800;
+  }
+
+  /* Section */
+  .section {
+    @apply py-16 md:py-24;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold font-heading text-secondary-900;
+  }
+
+  .section-subtitle {
+    @apply text-lg md:text-xl text-secondary-600 max-w-2xl;
+  }
+}
+
+/* ========================================
+   Utilities
+   ======================================== */
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400;
+  }
+
+  .bg-gradient-primary {
+    @apply bg-gradient-to-r from-primary-600 to-primary-400;
+  }
+
+  .bg-gradient-dark {
+    @apply bg-gradient-to-br from-secondary-900 to-secondary-800;
+  }
+}
+
+/* ========================================
+   Scrollbar
+   ======================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-secondary-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-secondary-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-secondary-400;
+}
