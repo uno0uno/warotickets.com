@@ -27,7 +27,7 @@ export const useTenantsStore = defineStore('tenants', () => {
 
     const uiStore = useUIStore()
     if (showGlobalLoading) {
-      uiStore.showLoading('Cargando tenants...')
+      uiStore.showLoading('Cargando tenants')
     }
 
     try {
@@ -38,7 +38,6 @@ export const useTenantsStore = defineStore('tenants', () => {
 
       if (tenantsResponse.success && tenantsResponse.data) {
         tenants.value = tenantsResponse.data
-        console.log('Tenants loaded:', tenants.value)
 
         // Try to get current tenant from session (may fail if no tenant selected yet)
         try {
@@ -50,25 +49,21 @@ export const useTenantsStore = defineStore('tenants', () => {
             const currentTenant = tenants.value.find(t => t.id === sessionResponse.currentTenant!.id)
             if (currentTenant) {
               selectedTenant.value = currentTenant
-              console.log('Current tenant from session:', currentTenant)
             }
           }
-        } catch (sessionErr) {
-          console.log('Could not get current tenant from session, using first tenant')
+        } catch {
+          // Use first tenant as fallback
         }
 
         // Fallback to first tenant if none selected
         if (!selectedTenant.value && tenants.value.length > 0) {
           selectedTenant.value = tenants.value[0]
-          console.log('Selected first tenant as default:', selectedTenant.value)
         }
       } else {
         error.value = tenantsResponse.message || 'Error loading tenants'
-        console.error('Tenants response not successful:', tenantsResponse)
       }
     } catch (err: any) {
       error.value = err?.data?.detail || err.message || 'Failed to fetch tenants'
-      console.error('Error fetching user tenants:', err)
     } finally {
       isLoading.value = false
       if (showGlobalLoading) {
@@ -93,7 +88,7 @@ export const useTenantsStore = defineStore('tenants', () => {
 
     isLoading.value = true
     error.value = null
-    uiStore.showLoading(`Cambiando a ${tenant.name}...`)
+    uiStore.showLoading(`Cambiando a ${tenant.name}`)
 
     try {
       const response = await $fetch<{ success: boolean; message?: string }>('/api/auth/switch-tenant', {
@@ -112,7 +107,6 @@ export const useTenantsStore = defineStore('tenants', () => {
       }
     } catch (err: any) {
       error.value = err?.data?.detail || err.message || 'Failed to switch tenant'
-      console.error('Error switching tenant:', err)
       return false
     } finally {
       isLoading.value = false

@@ -33,7 +33,7 @@
           <!-- Verificando sesion -->
           <div v-if="checkingSession" class="text-center space-y-4">
             <div class="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-primary-600 border-t-transparent"></div>
-            <p class="text-sm text-secondary-600">Verificando sesion...</p>
+            <p class="text-sm text-secondary-600">Verificando sesion</p>
           </div>
 
           <!-- Formulario de email -->
@@ -66,7 +66,7 @@
               >
                 <span v-if="loading" class="flex items-center justify-center gap-2">
                   <div class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                  Enviando...
+                  Enviando
                 </span>
                 <span v-else>Siguiente</span>
               </button>
@@ -118,7 +118,7 @@
               >
                 <span v-if="verifyingCode" class="flex items-center justify-center gap-2">
                   <div class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                  Verificando...
+                  Verificando
                 </span>
                 <span v-else>Verificar Codigo</span>
               </button>

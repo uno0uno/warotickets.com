@@ -18,7 +18,7 @@
       <!-- Loading State -->
       <div v-if="loading" class="space-y-4">
         <div class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary-600 border-t-transparent"></div>
-        <p class="text-secondary-600">Verificando tu acceso...</p>
+        <p class="text-secondary-600">Verificando tu acceso</p>
       </div>
 
       <!-- Success State -->
@@ -29,7 +29,7 @@
           </svg>
         </div>
         <h2 class="text-xl font-bold text-secondary-900">Acceso verificado</h2>
-        <p class="text-secondary-600">Redirigiendo...</p>
+        <p class="text-secondary-600">Redirigiendo</p>
       </div>
 
       <!-- Error State -->
@@ -54,7 +54,7 @@ definePageMeta({
   layout: false
 })
 
-useHead({ title: 'Verificando... - WaRo Tickets' })
+useHead({ title: 'Verificando - WaRo Tickets' })
 
 const route = useRoute()
 const config = useRuntimeConfig()

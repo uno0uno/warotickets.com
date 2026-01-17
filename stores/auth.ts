@@ -131,7 +131,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function logout() {
     const uiStore = useUIStore()
-    uiStore.showLoading('Cerrando sesion...')
+    uiStore.showLoading('Cerrando sesion')
 
     try {
       await $fetch('/api/auth/sign-out', {

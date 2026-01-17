@@ -29,7 +29,7 @@
         >
           <div class="flex items-center gap-2">
             <div class="w-2 h-2 bg-primary-500 rounded-full"></div>
-            <span v-if="tenantsStore.isLoading" class="text-secondary-400">Cargando...</span>
+            <span v-if="tenantsStore.isLoading" class="text-secondary-400">Cargando</span>
             <span v-else class="font-medium truncate">{{ tenantsStore.selectedTenant?.name || 'Seleccionar' }}</span>
           </div>
           <ChevronDownIcon :class="['w-4 h-4 text-secondary-400 transition-transform flex-shrink-0', showTenantDropdown ? 'rotate-180' : '']" />
@@ -43,7 +43,7 @@
           >
             <div class="py-1">
               <div v-if="tenantsStore.isLoading" class="px-3 py-2 text-sm text-secondary-400">
-                Cargando tenants...
+                Cargando tenants
               </div>
               <div v-else-if="tenantsStore.tenants.length === 0" class="px-3 py-2 text-sm text-secondary-400">
                 Sin tenants disponibles

@@ -47,8 +47,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
         replace: true
       })
     }
-  } catch (err) {
-    console.error('Auth middleware error:', err)
+  } catch {
     authStore.clearSession()
     return navigateTo(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`, {
       replace: true

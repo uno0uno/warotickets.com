@@ -7,7 +7,7 @@
           <span class="loader"></span>
 
           <!-- Loading message -->
-          <p class="loading-message">{{ uiStore.loadingMessage || 'Cargando...' }}</p>
+          <p class="loading-message">{{ uiStore.loadingMessage || 'Cargando' }}</p>
         </div>
       </div>
     </Transition>

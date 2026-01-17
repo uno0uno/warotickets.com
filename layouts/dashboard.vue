@@ -3,7 +3,7 @@
   <div v-if="initialLoading" class="h-screen w-screen flex items-center justify-center bg-secondary-50">
     <div class="flex flex-col items-center gap-4">
       <span class="loader"></span>
-      <p class="text-secondary-600 font-medium">Cargando...</p>
+      <p class="text-secondary-600 font-medium transition-opacity duration-300">{{ currentPhrase }}</p>
     </div>
   </div>
 
@@ -45,9 +45,60 @@ const tenantsStore = useTenantsStore()
 const pageTitle = ref('Dashboard')
 const pageSubtitle = ref('')
 
+// Loading phrases for initial load
+const sessionPhrases = [
+  'Verificando sesion',
+  'Preparando tu espacio',
+  'Cargando tu perfil',
+  'Obteniendo tus datos'
+]
+
+const currentPhrase = ref(sessionPhrases[0])
+let phraseInterval: ReturnType<typeof setInterval> | null = null
+let phraseIndex = 0
+
 // Initial loading state - show loader until we have user and tenants data
 const initialLoading = computed(() => {
   return !authStore.user || !tenantsStore.hasTenants
+})
+
+// Start phrase rotation (only on client)
+function startPhraseRotation() {
+  if (import.meta.server) return
+
+  phraseIndex = 0
+  currentPhrase.value = sessionPhrases[0]
+  phraseInterval = setInterval(() => {
+    phraseIndex = (phraseIndex + 1) % sessionPhrases.length
+    currentPhrase.value = sessionPhrases[phraseIndex]
+  }, 2000)
+}
+
+// Stop phrase rotation
+function stopPhraseRotation() {
+  if (phraseInterval) {
+    clearInterval(phraseInterval)
+    phraseInterval = null
+  }
+}
+
+// Start/stop phrase rotation based on loading state (only on client)
+onMounted(() => {
+  if (initialLoading.value) {
+    startPhraseRotation()
+  }
+
+  watch(initialLoading, (loading) => {
+    if (loading) {
+      startPhraseRotation()
+    } else {
+      stopPhraseRotation()
+    }
+  })
+})
+
+onUnmounted(() => {
+  stopPhraseRotation()
 })
 
 // Provide functions to child components
