@@ -68,59 +68,67 @@
 
     <!-- Navigation -->
     <nav class="flex-1 py-4 overflow-y-auto">
+      <!-- Administracion -->
       <div class="space-y-1 px-2">
-        <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Eventos</span>
+        <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Administracion</span>
 
         <NuxtLink
-          to="/mis-eventos"
+          to="/gestion"
           :class="[
             'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
             isExpanded ? '' : 'justify-center',
-            isActive('/mis-eventos')
+            isActive('/gestion')
               ? 'bg-primary-600/20 text-primary-400 font-medium'
               : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
           ]"
-          :title="!isExpanded ? 'Mis Eventos' : ''"
+          :title="!isExpanded ? 'Gestion de Eventos' : ''"
         >
-          <CalendarDaysIcon :class="['w-5 h-5 flex-shrink-0', isActive('/mis-eventos') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
-          <span v-if="isExpanded" class="whitespace-nowrap">Mis Eventos</span>
-        </NuxtLink>
-
-        <NuxtLink
-          to="/ventas"
-          :class="[
-            'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
-            isExpanded ? '' : 'justify-center',
-            isActive('/ventas')
-              ? 'bg-primary-600/20 text-primary-400 font-medium'
-              : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
-          ]"
-          :title="!isExpanded ? 'Ventas' : ''"
-        >
-          <ChartBarIcon :class="['w-5 h-5 flex-shrink-0', isActive('/ventas') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
-          <span v-if="isExpanded" class="whitespace-nowrap">Ventas</span>
+          <CalendarDaysIcon :class="['w-5 h-5 flex-shrink-0', isActive('/gestion') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
+          <span v-if="isExpanded" class="whitespace-nowrap">Gestion de Eventos</span>
         </NuxtLink>
       </div>
 
+      <!-- En Sitio -->
       <div class="space-y-1 px-2 pt-4">
-        <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Operaciones</span>
+        <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">En Sitio</span>
 
         <NuxtLink
-          to="/check-in"
+          to="/operaciones"
           :class="[
             'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
             isExpanded ? '' : 'justify-center',
-            isActive('/check-in')
+            isActive('/operaciones')
               ? 'bg-primary-600/20 text-primary-400 font-medium'
               : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
           ]"
-          :title="!isExpanded ? 'Check-in' : ''"
+          :title="!isExpanded ? 'Operaciones' : ''"
         >
-          <QrCodeIcon :class="['w-5 h-5 flex-shrink-0', isActive('/check-in') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
-          <span v-if="isExpanded" class="whitespace-nowrap">Check-in</span>
+          <QrCodeIcon :class="['w-5 h-5 flex-shrink-0', isActive('/operaciones') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
+          <span v-if="isExpanded" class="whitespace-nowrap">Operaciones</span>
         </NuxtLink>
       </div>
 
+      <!-- Analitica -->
+      <div class="space-y-1 px-2 pt-4">
+        <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Analitica</span>
+
+        <NuxtLink
+          to="/analitica"
+          :class="[
+            'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
+            isExpanded ? '' : 'justify-center',
+            isActive('/analitica')
+              ? 'bg-primary-600/20 text-primary-400 font-medium'
+              : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
+          ]"
+          :title="!isExpanded ? 'Analitica' : ''"
+        >
+          <ChartBarIcon :class="['w-5 h-5 flex-shrink-0', isActive('/analitica') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
+          <span v-if="isExpanded" class="whitespace-nowrap">Analitica</span>
+        </NuxtLink>
+      </div>
+
+      <!-- Configuracion -->
       <div class="space-y-1 px-2 pt-4">
         <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Configuracion</span>
 

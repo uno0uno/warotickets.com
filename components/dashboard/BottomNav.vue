@@ -13,21 +13,21 @@
 
         <!-- Main Nav Items -->
         <NuxtLink
-          to="/mis-eventos"
+          to="/gestion"
           class="flex flex-col items-center justify-center w-16 h-full"
-          :class="isActive('/mis-eventos') ? 'text-primary-400' : 'text-secondary-400'"
+          :class="isActive('/gestion') ? 'text-primary-400' : 'text-secondary-400'"
         >
           <CalendarDaysIcon class="w-6 h-6" />
-          <span class="text-xs mt-1">Eventos</span>
+          <span class="text-xs mt-1">Gestion</span>
         </NuxtLink>
 
         <NuxtLink
-          to="/ventas"
+          to="/operaciones"
           class="flex flex-col items-center justify-center w-16 h-full"
-          :class="isActive('/ventas') ? 'text-primary-400' : 'text-secondary-400'"
+          :class="isActive('/operaciones') ? 'text-primary-400' : 'text-secondary-400'"
         >
-          <ChartBarIcon class="w-6 h-6" />
-          <span class="text-xs mt-1">Ventas</span>
+          <QrCodeIcon class="w-6 h-6" />
+          <span class="text-xs mt-1">En Sitio</span>
         </NuxtLink>
 
         <!-- Menu Button -->
@@ -49,35 +49,106 @@
           <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl p-6 safe-area-bottom">
             <div class="w-12 h-1 bg-secondary-300 rounded-full mx-auto mb-6"></div>
             <h3 class="text-lg font-bold text-secondary-900 mb-4">Menu</h3>
-            <div class="grid grid-cols-4 gap-4">
+
+            <!-- Administracion Section -->
+            <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wider mb-2">Administracion</p>
+            <div class="grid grid-cols-4 gap-3 mb-4">
               <NuxtLink
-                to="/mis-eventos"
+                to="/gestion/eventos"
                 @click="showMenu = false"
                 class="flex flex-col items-center p-3 rounded-xl transition-colors"
-                :class="isActive('/mis-eventos') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
+                :class="isActive('/gestion/eventos') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
               >
                 <CalendarDaysIcon class="w-6 h-6 mb-2" />
                 <span class="text-xs text-center">Eventos</span>
               </NuxtLink>
 
               <NuxtLink
-                to="/ventas"
+                to="/gestion/areas"
                 @click="showMenu = false"
                 class="flex flex-col items-center p-3 rounded-xl transition-colors"
-                :class="isActive('/ventas') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
+                :class="isActive('/gestion/areas') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
               >
-                <ChartBarIcon class="w-6 h-6 mb-2" />
-                <span class="text-xs text-center">Ventas</span>
+                <MapIcon class="w-6 h-6 mb-2" />
+                <span class="text-xs text-center">Areas</span>
               </NuxtLink>
 
               <NuxtLink
-                to="/check-in"
+                to="/gestion/etapas"
                 @click="showMenu = false"
                 class="flex flex-col items-center p-3 rounded-xl transition-colors"
-                :class="isActive('/check-in') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
+                :class="isActive('/gestion/etapas') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
+              >
+                <ListBulletIcon class="w-6 h-6 mb-2" />
+                <span class="text-xs text-center">Etapas</span>
+              </NuxtLink>
+
+              <NuxtLink
+                to="/gestion/promociones"
+                @click="showMenu = false"
+                class="flex flex-col items-center p-3 rounded-xl transition-colors"
+                :class="isActive('/gestion/promociones') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
+              >
+                <TagIcon class="w-6 h-6 mb-2" />
+                <span class="text-xs text-center">Promos</span>
+              </NuxtLink>
+            </div>
+
+            <!-- En Sitio Section -->
+            <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wider mb-2">En Sitio</p>
+            <div class="grid grid-cols-4 gap-3 mb-4">
+              <NuxtLink
+                to="/operaciones/check-in"
+                @click="showMenu = false"
+                class="flex flex-col items-center p-3 rounded-xl transition-colors"
+                :class="isActive('/operaciones/check-in') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
               >
                 <QrCodeIcon class="w-6 h-6 mb-2" />
                 <span class="text-xs text-center">Check-in</span>
+              </NuxtLink>
+
+              <NuxtLink
+                to="/operaciones/reservas"
+                @click="showMenu = false"
+                class="flex flex-col items-center p-3 rounded-xl transition-colors"
+                :class="isActive('/operaciones/reservas') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
+              >
+                <ClipboardDocumentListIcon class="w-6 h-6 mb-2" />
+                <span class="text-xs text-center">Reservas</span>
+              </NuxtLink>
+
+              <NuxtLink
+                to="/operaciones/transfers"
+                @click="showMenu = false"
+                class="flex flex-col items-center p-3 rounded-xl transition-colors"
+                :class="isActive('/operaciones/transfers') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
+              >
+                <ArrowsRightLeftIcon class="w-6 h-6 mb-2" />
+                <span class="text-xs text-center">Transfers</span>
+              </NuxtLink>
+            </div>
+
+            <!-- Analitica Section -->
+            <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wider mb-2">Analitica</p>
+            <div class="grid grid-cols-4 gap-3 mb-4">
+              <NuxtLink
+                to="/analitica/dashboard"
+                @click="showMenu = false"
+                class="flex flex-col items-center p-3 rounded-xl transition-colors"
+                :class="isActive('/analitica/dashboard') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
+              >
+                <PresentationChartLineIcon class="w-6 h-6 mb-2" />
+                <span class="text-xs text-center">Dashboard</span>
+              </NuxtLink>
+
+              <NuxtLink
+                to="/analitica/ventas"
+                @click="showMenu = false"
+                class="flex flex-col items-center p-3 rounded-xl transition-colors"
+                :class="isActive('/analitica/ventas') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
+              >
+                <ChartBarIcon class="w-6 h-6 mb-2" />
+                <span class="text-xs text-center">Ventas</span>
               </NuxtLink>
 
               <NuxtLink
@@ -164,12 +235,18 @@
 <script setup lang="ts">
 import {
   ArrowRightOnRectangleIcon,
+  ArrowsRightLeftIcon,
   Bars3Icon,
   CalendarDaysIcon,
   ChartBarIcon,
   CheckIcon,
+  ClipboardDocumentListIcon,
   Cog6ToothIcon,
-  QrCodeIcon
+  ListBulletIcon,
+  MapIcon,
+  PresentationChartLineIcon,
+  QrCodeIcon,
+  TagIcon
 } from '@heroicons/vue/24/outline'
 
 const route = useRoute()

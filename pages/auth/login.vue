@@ -241,7 +241,7 @@ onMounted(async () => {
   try {
     const hasSession = await authStore.fetchSession()
     if (hasSession) {
-      const redirectUrl = route.query.redirect as string || '/mis-eventos'
+      const redirectUrl = route.query.redirect as string || '/gestion'
       await navigateTo(redirectUrl)
       return
     }
@@ -288,8 +288,8 @@ async function verifyCode() {
   const result = await authStore.verifyCode(email.value, verificationCode.value)
 
   if (result.success) {
-    const redirectUrl = route.query.redirect as string || '/mis-eventos'
-    window.location.href = redirectUrl
+    const redirectUrl = route.query.redirect as string || '/gestion'
+    await navigateTo(redirectUrl)
   } else {
     error.value = result.error || 'Codigo invalido o expirado'
     verifyingCode.value = false

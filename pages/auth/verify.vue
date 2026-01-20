@@ -83,7 +83,7 @@ onMounted(async () => {
       success.value = true
       // Redirect after brief delay
       setTimeout(() => {
-        window.location.href = '/mis-eventos'
+        navigateTo('/gestion')
       }, 1000)
     } else {
       error.value = response.message || 'Error al verificar el token'
