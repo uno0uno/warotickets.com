@@ -24,30 +24,42 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const authStore = useAuthStore()
   const tenantsStore = useTenantsStore()
+  const uiStore = useUIStore()
 
   // Check if we already have a valid session in the store
   if (authStore.user && authStore.isSessionValid) {
-    // Load tenants if not loaded yet (layout will show loading state)
+    // Load tenants if not loaded yet
     if (!tenantsStore.hasTenants && !tenantsStore.isLoading) {
-      await tenantsStore.fetchUserTenants()
+      uiStore.showLoading(undefined, 'session')
+      try {
+        await tenantsStore.fetchUserTenants()
+      } finally {
+        uiStore.hideLoading()
+      }
     }
     return
   }
+
+  // Show loading overlay during session verification
+  uiStore.showLoading(undefined, 'session')
 
   try {
     // Fetch session using the store method
     const isValid = await authStore.fetchSession()
 
     if (isValid) {
-      // Load tenants (layout will show loading state)
+      // Load tenants
       await tenantsStore.fetchUserTenants()
+      uiStore.hideLoading()
     } else {
       // No valid session, redirect to login
+      uiStore.hideLoading()
       return navigateTo(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`, {
         replace: true
       })
     }
   } catch {
+    uiStore.hideLoading()
     authStore.clearSession()
     return navigateTo(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`, {
       replace: true

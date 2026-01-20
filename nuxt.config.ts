@@ -9,6 +9,53 @@ export default defineNuxtConfig({
 
   ssr: true,
 
+  nitro: {
+    preset: 'node-server',
+    routeRules: {
+      '/api/auth/**': {
+        proxy: {
+          to: process.env.NODE_ENV === 'development'
+            ? `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8001'}/auth/**`
+            : 'https://api.warotickets.com/auth/**',
+          changeOrigin: true,
+          followRedirects: true,
+          ...(process.env.NODE_ENV === 'development' && {
+            headers: {
+              'X-Forwarded-Host': 'localhost:8888'
+            }
+          })
+        },
+        cors: true,
+        headers: {
+          'Access-Control-Allow-Credentials': 'true'
+        }
+      },
+      '/api/**': {
+        proxy: {
+          to: process.env.NODE_ENV === 'development'
+            ? `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8001'}/**`
+            : 'https://api.warotickets.com/**',
+          changeOrigin: true,
+          followRedirects: true,
+          headers: process.env.NODE_ENV === 'development'
+            ? {
+                'X-Forwarded-Host': 'localhost:8888',
+                'Origin': 'http://localhost:8888',
+                'Referer': 'http://localhost:8888/'
+              }
+            : {
+                'Origin': 'https://warotickets.com',
+                'Referer': 'https://warotickets.com/'
+              }
+        },
+        cors: true,
+        headers: {
+          'Access-Control-Allow-Credentials': 'true'
+        }
+      }
+    }
+  },
+
   app: {
     head: {
       title: 'WaRo Tickets - Sistema de Boletería para Eventos',
@@ -63,17 +110,8 @@ export default defineNuxtConfig({
     public: {
       apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8001',
       siteName: 'WaRo Tickets',
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://warotickets.com'
-    }
-  },
-
-  nitro: {
-    devProxy: {
-      '/api': {
-        target: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8001',
-        changeOrigin: true,
-        rewrite: (path: string) => path.replace(/^\/api/, '')
-      }
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://warotickets.com',
+      defaultRedirectUrl: '/gestion/eventos'
     }
   }
 })
