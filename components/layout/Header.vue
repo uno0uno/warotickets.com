@@ -21,35 +21,17 @@
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex items-center gap-8">
           <NuxtLink
-            to="/#features"
+            to="/"
             class="text-secondary-600 hover:text-primary-700 font-medium transition-colors"
           >
-            Funcionalidades
-          </NuxtLink>
-          <NuxtLink
-            to="/#pricing"
-            class="text-secondary-600 hover:text-primary-700 font-medium transition-colors"
-          >
-            Precios
-          </NuxtLink>
-          <NuxtLink
-            to="/#contact"
-            class="text-secondary-600 hover:text-primary-700 font-medium transition-colors"
-          >
-            Contacto
+            Eventos
           </NuxtLink>
         </nav>
 
         <!-- CTA Buttons -->
         <div class="flex items-center gap-3">
           <NuxtLink
-            to="/auth/login"
-            class="hidden sm:inline-flex text-secondary-700 hover:text-primary-700 font-medium transition-colors"
-          >
-            Iniciar Sesion
-          </NuxtLink>
-          <NuxtLink
-            to="/auth/register"
+            to="/organizadores"
             class="btn-primary text-sm md:text-base py-2.5 px-5"
           >
             Crear Evento
@@ -83,32 +65,18 @@
         <div v-if="isMenuOpen" class="md:hidden py-4 border-t border-secondary-200">
           <nav class="flex flex-col gap-4">
             <NuxtLink
-              to="/#features"
+              to="/"
               @click="isMenuOpen = false"
               class="text-secondary-600 hover:text-primary-700 font-medium py-2"
             >
-              Funcionalidades
+              Eventos
             </NuxtLink>
             <NuxtLink
-              to="/#pricing"
+              to="/organizadores"
               @click="isMenuOpen = false"
               class="text-secondary-600 hover:text-primary-700 font-medium py-2"
             >
-              Precios
-            </NuxtLink>
-            <NuxtLink
-              to="/#contact"
-              @click="isMenuOpen = false"
-              class="text-secondary-600 hover:text-primary-700 font-medium py-2"
-            >
-              Contacto
-            </NuxtLink>
-            <NuxtLink
-              to="/auth/login"
-              @click="isMenuOpen = false"
-              class="text-secondary-600 hover:text-primary-700 font-medium py-2"
-            >
-              Iniciar Sesion
+              Crear Evento
             </NuxtLink>
           </nav>
         </div>
