@@ -1,6 +1,6 @@
 <template>
   <header
-    class="sticky top-0 z-50 w-full border-b border-secondary-200/80 bg-white/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80"
+    class="w-full border-b border-secondary-200/80 bg-white"
   >
     <div class="container mx-auto px-4 md:px-8">
       <div class="flex h-16 md:h-20 items-center justify-between">
