@@ -87,23 +87,53 @@
             <template #card="{ item }">
               <NuxtLink :to="`/gestion/etapa/${item.id}?event=${selectedEventId}`" class="block">
                 <div class="bg-white border border-secondary-200 rounded-lg overflow-hidden hover:border-primary-300 transition-colors">
-                  <div class="h-16 bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+                  <div class="h-16 bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center relative">
                     <ClockIcon class="w-8 h-8 text-white/30" />
-                  </div>
-                  <div class="p-4">
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="font-medium text-secondary-900">{{ item.stage_name }}</span>
+                    <div class="absolute top-2 right-2">
                       <span
-                        class="px-2 py-1 text-xs font-medium rounded-full"
+                        class="px-2 py-0.5 text-xs font-medium rounded-full"
                         :class="getStatusClass(item.is_active)"
                       >
                         {{ getStatusLabel(item.is_active) }}
                       </span>
                     </div>
+                  </div>
+                  <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="font-medium text-secondary-900">{{ item.stage_name }}</span>
+                      <span class="text-xs text-secondary-500">
+                        {{ item.total_tickets || item.areas?.reduce((s: number, a: any) => s + (a.quantity || 1), 0) || 0 }} boletas
+                      </span>
+                    </div>
+
+                    <!-- Areas Preview -->
+                    <div v-if="item.areas && item.areas.length" class="mb-3 flex flex-wrap gap-1">
+                      <span
+                        v-for="(area, idx) in item.areas.slice(0, 3)"
+                        :key="idx"
+                        class="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-xs rounded"
+                      >
+                        {{ area.quantity || 1 }}x {{ area.area_name }}
+                      </span>
+                      <span v-if="item.areas.length > 3" class="px-1.5 py-0.5 text-secondary-500 text-xs">
+                        +{{ item.areas.length - 3 }} mas
+                      </span>
+                    </div>
+
                     <p class="text-sm text-secondary-500 mb-2">{{ formatDateRange(item.start_time, item.end_time) }}</p>
-                    <div class="flex items-center gap-4 text-sm text-secondary-600">
-                      <span><strong>{{ formatDiscount(item) }}</strong></span>
-                      <span>{{ item.quantity_available - item.quantity_sold }} disponibles</span>
+                    <div class="flex items-center justify-between text-sm">
+                      <div class="flex items-center gap-2">
+                        <span
+                          class="px-1.5 py-0.5 text-xs font-medium rounded"
+                          :class="getPricingTypeClass(item.price_adjustment_type)"
+                        >
+                          {{ getPricingTypeLabel(item.price_adjustment_type) }}
+                        </span>
+                        <span class="font-medium" :class="item.price_adjustment_type === 'fixed_price' ? 'text-primary-600' : 'text-green-600'">
+                          {{ formatDiscount(item) }}
+                        </span>
+                      </div>
+                      <span class="text-secondary-500">{{ item.quantity_available - item.quantity_sold }} disp.</span>
                     </div>
                   </div>
                 </div>
@@ -126,26 +156,47 @@
               </NuxtLink>
             </template>
 
-            <!-- Custom cell: Discount -->
-            <template #cell-discount="{ row }">
-              <span :class="row.price_adjustment_value < 0 ? 'text-green-600' : 'text-red-600'">
-                {{ formatDiscount(row) }}
+            <!-- Custom cell: Areas (Paquete) -->
+            <template #cell-areas="{ row }">
+              <div class="flex flex-wrap gap-1 max-w-xs">
+                <span
+                  v-for="(area, idx) in (row.areas || []).slice(0, 2)"
+                  :key="idx"
+                  class="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-xs rounded whitespace-nowrap"
+                >
+                  {{ area.quantity || 1 }}x {{ area.area_name }}
+                </span>
+                <span v-if="(row.areas || []).length > 2" class="px-1.5 py-0.5 text-secondary-500 text-xs">
+                  +{{ row.areas.length - 2 }}
+                </span>
+              </div>
+            </template>
+
+            <!-- Custom cell: Total Tickets -->
+            <template #cell-total_tickets="{ row }">
+              <span class="font-medium">{{ row.total_tickets || row.areas?.reduce((s: number, a: any) => s + (a.quantity || 1), 0) || 0 }}</span>
+            </template>
+
+            <!-- Custom cell: Pricing Type -->
+            <template #cell-pricing_type="{ row }">
+              <span
+                class="px-2 py-1 text-xs font-medium rounded-full"
+                :class="getPricingTypeClass(row.price_adjustment_type)"
+              >
+                {{ getPricingTypeLabel(row.price_adjustment_type) }}
               </span>
             </template>
 
-            <!-- Custom cell: Date range -->
-            <template #cell-start_time="{ row }">
-              {{ formatDateRange(row.start_time, row.end_time) }}
+            <!-- Custom cell: Discount -->
+            <template #cell-discount="{ row }">
+              <span class="font-medium" :class="row.price_adjustment_type === 'fixed_price' ? 'text-primary-600' : 'text-green-600'">
+                {{ formatDiscount(row) }}
+              </span>
             </template>
 
             <!-- Custom cell: Availability -->
             <template #cell-quantity_available="{ row }">
               {{ row.quantity_available - row.quantity_sold }} / {{ row.quantity_available }}
-            </template>
-
-            <!-- Custom cell: Areas count -->
-            <template #cell-areas_count="{ row }">
-              {{ row.area_ids?.length || 0 }} areas
             </template>
 
             <!-- Custom cell: Status badge -->
@@ -182,7 +233,8 @@ import {
   ClockIcon,
   MagnifyingGlassIcon,
   PlusIcon,
-  PencilIcon
+  PencilIcon,
+  TicketIcon
 } from '@heroicons/vue/24/outline'
 
 definePageMeta({
@@ -262,12 +314,13 @@ async function loadStages() {
 // Table columns
 const columns = [
   { key: 'stage_name', title: 'Nombre', sortable: true, align: 'left' as const },
-  { key: 'discount', title: 'Descuento', sortable: false, align: 'center' as const },
-  { key: 'start_time', title: 'Periodo', sortable: true, align: 'center' as const },
+  { key: 'areas', title: 'Paquete', sortable: false, align: 'left' as const },
+  { key: 'total_tickets', title: 'Boletas', sortable: false, align: 'center' as const },
+  { key: 'pricing_type', title: 'Tipo', sortable: false, align: 'center' as const },
+  { key: 'discount', title: 'Precio/Descuento', sortable: false, align: 'center' as const },
   { key: 'quantity_available', title: 'Disponibilidad', sortable: true, align: 'center' as const },
-  { key: 'areas_count', title: 'Areas', sortable: false, align: 'center' as const },
   { key: 'is_active', title: 'Estado', sortable: true, align: 'center' as const },
-  { key: 'actions', title: 'Acciones', sortable: false, align: 'center' as const }
+  { key: 'actions', title: '', sortable: false, align: 'center' as const }
 ]
 
 // Filtered and sorted stages
@@ -329,12 +382,40 @@ function formatDiscount(stage: any) {
   const value = stage.price_adjustment_value
   const type = stage.price_adjustment_type
 
-  if (type === 'percentage') {
+  if (type === 'fixed_price') {
+    return `$${Math.abs(value).toLocaleString('es-CO')}`
+  } else if (type === 'percentage') {
     return `${value > 0 ? '+' : ''}${value}%`
   } else {
     const absValue = Math.abs(value)
     const formatted = absValue.toLocaleString('es-CO')
     return value < 0 ? `-$${formatted}` : `+$${formatted}`
+  }
+}
+
+function getPricingTypeClass(type: string) {
+  switch (type) {
+    case 'fixed_price':
+      return 'bg-primary-100 text-primary-700'
+    case 'percentage':
+      return 'bg-green-100 text-green-700'
+    case 'fixed':
+      return 'bg-blue-100 text-blue-700'
+    default:
+      return 'bg-secondary-100 text-secondary-700'
+  }
+}
+
+function getPricingTypeLabel(type: string) {
+  switch (type) {
+    case 'fixed_price':
+      return 'Precio Fijo'
+    case 'percentage':
+      return 'Porcentaje'
+    case 'fixed':
+      return 'Descuento'
+    default:
+      return type
   }
 }
 

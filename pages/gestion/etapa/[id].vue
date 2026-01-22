@@ -58,6 +58,21 @@
               </div>
             </div>
 
+            <!-- Total Tickets -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+              <div class="bg-secondary-50 p-2 sm:p-3 rounded-lg border border-secondary-200 flex-shrink-0">
+                <TicketIcon class="w-6 h-6 sm:w-8 sm:h-8 text-primary-600" />
+              </div>
+              <div class="space-y-1">
+                <p class="text-xs font-medium text-secondary-500 uppercase tracking-wide">
+                  Boletas en Pack
+                </p>
+                <p class="text-lg font-semibold text-secondary-900">
+                  {{ totalTickets }} boletas
+                </p>
+              </div>
+            </div>
+
             <!-- Discount Preview -->
             <div class="flex items-center space-x-2 sm:space-x-3">
               <div class="bg-secondary-50 p-2 sm:p-3 rounded-lg border border-secondary-200 flex-shrink-0">
@@ -67,23 +82,8 @@
                 <p class="text-xs font-medium text-secondary-500 uppercase tracking-wide">
                   Ajuste de Precio
                 </p>
-                <p class="text-lg font-semibold" :class="form.price_adjustment_value < 0 ? 'text-green-600' : form.price_adjustment_value > 0 ? 'text-red-600' : 'text-secondary-900'">
+                <p class="text-lg font-semibold" :class="form.price_adjustment_type === 'fixed_price' ? 'text-primary-600' : form.price_adjustment_value < 0 ? 'text-green-600' : form.price_adjustment_value > 0 ? 'text-red-600' : 'text-secondary-900'">
                   {{ formatDiscountPreview() }}
-                </p>
-              </div>
-            </div>
-
-            <!-- Availability -->
-            <div class="flex items-center space-x-2 sm:space-x-3">
-              <div class="bg-secondary-50 p-2 sm:p-3 rounded-lg border border-secondary-200 flex-shrink-0">
-                <TicketIcon class="w-6 h-6 sm:w-8 sm:h-8 text-primary-600" />
-              </div>
-              <div class="space-y-1">
-                <p class="text-xs font-medium text-secondary-500 uppercase tracking-wide">
-                  Disponibilidad
-                </p>
-                <p class="text-lg font-semibold text-secondary-900">
-                  {{ originalStage?.quantity_available - originalStage?.quantity_sold || 0 }} / {{ originalStage?.quantity_available || 0 }}
                 </p>
               </div>
             </div>
@@ -228,27 +228,53 @@
             <div class="p-4 sm:p-6">
               <h3 class="text-base sm:text-lg font-semibold text-secondary-900 mb-4 sm:mb-6">Configuracion de Precios y Fechas</h3>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                <!-- Price Adjustment Type -->
-                <div>
-                  <label class="block text-sm font-medium text-secondary-900 mb-2">
-                    Tipo de Ajuste *
-                  </label>
-                  <select
-                    v-model="form.price_adjustment_type"
-                    class="w-full px-4 py-2 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 text-secondary-900 bg-white"
-                    required
+              <!-- Price Adjustment Type -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-secondary-900 mb-3">
+                  Tipo de Precio *
+                </label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <!-- Percentage -->
+                  <label
+                    class="relative flex flex-col p-4 border-2 rounded-lg cursor-pointer transition-colors"
+                    :class="form.price_adjustment_type === 'percentage' ? 'border-primary-500 bg-primary-50' : 'border-secondary-200 hover:border-secondary-300'"
                   >
-                    <option value="percentage">Porcentaje (%)</option>
-                    <option value="fixed">Valor Fijo ($)</option>
-                  </select>
-                </div>
+                    <input type="radio" v-model="form.price_adjustment_type" value="percentage" class="sr-only" />
+                    <span class="font-semibold text-secondary-900 mb-1">Porcentaje</span>
+                    <p class="text-xs text-secondary-500">Descuento porcentual</p>
+                    <p class="text-xs text-primary-600 mt-1">Ej: -20% descuento</p>
+                  </label>
 
+                  <!-- Fixed Discount -->
+                  <label
+                    class="relative flex flex-col p-4 border-2 rounded-lg cursor-pointer transition-colors"
+                    :class="form.price_adjustment_type === 'fixed' ? 'border-primary-500 bg-primary-50' : 'border-secondary-200 hover:border-secondary-300'"
+                  >
+                    <input type="radio" v-model="form.price_adjustment_type" value="fixed" class="sr-only" />
+                    <span class="font-semibold text-secondary-900 mb-1">Descuento Fijo</span>
+                    <p class="text-xs text-secondary-500">Monto fijo de descuento</p>
+                    <p class="text-xs text-primary-600 mt-1">Ej: -$50,000 del total</p>
+                  </label>
+
+                  <!-- Fixed Price (Bundle) -->
+                  <label
+                    class="relative flex flex-col p-4 border-2 rounded-lg cursor-pointer transition-colors"
+                    :class="form.price_adjustment_type === 'fixed_price' ? 'border-primary-500 bg-primary-50' : 'border-secondary-200 hover:border-secondary-300'"
+                  >
+                    <input type="radio" v-model="form.price_adjustment_type" value="fixed_price" class="sr-only" />
+                    <span class="font-semibold text-secondary-900 mb-1">Precio Fijo</span>
+                    <p class="text-xs text-secondary-500">Precio total del paquete</p>
+                    <p class="text-xs text-primary-600 mt-1">Ej: 2 boletas = $80,000</p>
+                  </label>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <!-- Price Adjustment Value -->
                 <div>
                   <label class="block text-sm font-medium text-secondary-900 mb-2">
-                    Valor del Ajuste *
-                    <span class="text-secondary-500 font-normal">(negativo = descuento)</span>
+                    {{ form.price_adjustment_type === 'fixed_price' ? 'Precio Total del Paquete *' : 'Valor del Ajuste *' }}
+                    <span v-if="form.price_adjustment_type !== 'fixed_price'" class="text-secondary-500 font-normal">(negativo = descuento)</span>
                   </label>
                   <div class="relative">
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-500">
@@ -257,14 +283,28 @@
                     <input
                       type="number"
                       v-model.number="form.price_adjustment_value"
-                      placeholder="-20"
+                      :placeholder="form.price_adjustment_type === 'fixed_price' ? '80000' : '-20'"
                       class="w-full pl-8 pr-4 py-2 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 text-secondary-900"
                       required
                     />
                   </div>
                   <p class="text-xs text-secondary-500 mt-1">
-                    Ej: -20 para 20% descuento, -50000 para $50,000 descuento
+                    {{ form.price_adjustment_type === 'fixed_price'
+                      ? 'Precio total que pagara el comprador por el paquete'
+                      : 'Ej: -20 para 20% descuento, -50000 para $50,000 descuento' }}
                   </p>
+                </div>
+
+                <!-- Overlap Warning -->
+                <div v-if="overlapWarning" class="md:col-span-2 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div class="flex items-start gap-3">
+                    <ExclamationTriangleIcon class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p class="text-sm font-medium text-yellow-800">Conflicto de fechas detectado</p>
+                      <p class="text-sm text-yellow-700 mt-1">{{ overlapWarning }}</p>
+                      <p class="text-xs text-yellow-600 mt-2">Ajusta las fechas o selecciona otras areas en el siguiente paso.</p>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Quantity Available -->
@@ -339,41 +379,111 @@
           <!-- Step 3: Areas -->
           <div v-else-if="currentStep === 3" key="step-3" class="bg-white border-secondary-200 border rounded-lg">
             <div class="p-4 sm:p-6">
-              <h3 class="text-base sm:text-lg font-semibold text-secondary-900 mb-4 sm:mb-6">Seleccionar Areas</h3>
+              <h3 class="text-base sm:text-lg font-semibold text-secondary-900 mb-2">Armar el Paquete</h3>
+              <p class="text-sm text-secondary-500 mb-4 sm:mb-6">Selecciona las areas y cantidad de boletas que incluye esta etapa</p>
 
               <!-- Areas Selection -->
-              <div>
-                <label class="block text-sm font-medium text-secondary-900 mb-3">
-                  Areas donde aplica *
-                </label>
-                <div v-if="isLoadingAreas" class="text-secondary-500 text-sm py-4">
-                  Cargando areas...
-                </div>
-                <div v-else-if="areas.length === 0" class="text-secondary-500 text-sm py-4 bg-secondary-50 rounded-lg px-4">
-                  No hay areas disponibles para este evento.
-                </div>
-                <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  <label
-                    v-for="area in areas"
-                    :key="area.id"
-                    class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors"
-                    :class="form.area_ids.includes(area.id) ? 'border-primary-500 bg-primary-50' : 'border-secondary-200 hover:border-secondary-300'"
+              <div v-if="isLoadingAreas" class="text-secondary-500 text-sm py-4">
+                Cargando areas...
+              </div>
+              <div v-else-if="areas.length === 0" class="text-secondary-500 text-sm py-4 bg-secondary-50 rounded-lg px-4">
+                No hay areas disponibles para este evento.
+              </div>
+              <div v-else class="space-y-4">
+                <!-- Current Items -->
+                <div v-if="form.area_items.length > 0" class="space-y-3">
+                  <div
+                    v-for="(item, index) in form.area_items"
+                    :key="index"
+                    class="flex items-center gap-3 p-3 bg-primary-50 border border-primary-200 rounded-lg"
                   >
-                    <input
-                      type="checkbox"
-                      :value="area.id"
-                      v-model="form.area_ids"
-                      class="w-4 h-4 text-primary-600 border-secondary-300 rounded focus:ring-primary-500"
-                    />
-                    <div class="flex-1 min-w-0">
-                      <p class="font-medium text-secondary-900 truncate">{{ area.area_name }}</p>
-                      <p class="text-xs text-secondary-500">${{ Number(area.price).toLocaleString('es-CO') }}</p>
+                    <div class="flex-1">
+                      <p class="font-medium text-secondary-900">{{ getAreaName(item.area_id) }}</p>
+                      <p class="text-xs text-secondary-500">${{ getAreaPrice(item.area_id).toLocaleString('es-CO') }} c/u</p>
                     </div>
-                  </label>
+                    <div class="flex items-center gap-2">
+                      <button
+                        type="button"
+                        @click="decrementQuantity(index)"
+                        class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-secondary-200 hover:bg-secondary-50"
+                      >
+                        <MinusIcon class="w-4 h-4" />
+                      </button>
+                      <span class="w-8 text-center font-semibold">{{ item.quantity }}</span>
+                      <button
+                        type="button"
+                        @click="incrementQuantity(index)"
+                        class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-secondary-200 hover:bg-secondary-50"
+                      >
+                        <PlusIcon class="w-4 h-4" />
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      @click="removeItem(index)"
+                      class="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                    >
+                      <TrashIcon class="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-                <p v-if="areas.length > 0" class="text-xs text-secondary-500 mt-3">
-                  Selecciona al menos un area
-                </p>
+
+                <!-- Add Area -->
+                <div class="border-2 border-dashed border-secondary-200 rounded-lg p-4">
+                  <p class="text-sm font-medium text-secondary-700 mb-3">Agregar area al paquete:</p>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    <button
+                      v-for="area in availableAreas"
+                      :key="area.id"
+                      type="button"
+                      @click="addArea(area.id)"
+                      class="flex items-center gap-2 p-3 border border-secondary-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors text-left"
+                    >
+                      <PlusCircleIcon class="w-5 h-5 text-primary-600 flex-shrink-0" />
+                      <div class="flex-1 min-w-0">
+                        <p class="font-medium text-secondary-900 truncate">{{ area.area_name }}</p>
+                        <p class="text-xs text-secondary-500">${{ Number(area.price).toLocaleString('es-CO') }}</p>
+                      </div>
+                    </button>
+                  </div>
+                  <p v-if="availableAreas.length === 0 && areas.length > 0" class="text-xs text-secondary-500 mt-2">
+                    Todas las areas ya fueron agregadas al paquete
+                  </p>
+                </div>
+
+                <!-- Summary -->
+                <div v-if="form.area_items.length > 0" class="mt-4 p-4 bg-secondary-50 rounded-lg">
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <p class="text-sm text-secondary-600">Total boletas:</p>
+                      <p class="text-xl font-bold text-secondary-900">{{ totalTickets }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm text-secondary-600">Precio original:</p>
+                      <p class="text-xl font-bold text-secondary-900">${{ originalPrice.toLocaleString('es-CO') }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm text-secondary-600">Precio final:</p>
+                      <p class="text-xl font-bold text-primary-600">${{ calculatedPrice.toLocaleString('es-CO') }}</p>
+                    </div>
+                    <div v-if="savings > 0">
+                      <p class="text-sm text-secondary-600">Ahorro:</p>
+                      <p class="text-xl font-bold text-green-600">${{ savings.toLocaleString('es-CO') }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Overlap Warning in Step 3 -->
+                <div v-if="overlapWarning" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div class="flex items-start gap-3">
+                    <ExclamationTriangleIcon class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p class="text-sm font-medium text-yellow-800">Conflicto de fechas detectado</p>
+                      <p class="text-sm text-yellow-700 mt-1">{{ overlapWarning }}</p>
+                      <p class="text-xs text-yellow-600 mt-2">Vuelve al paso anterior para ajustar las fechas.</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <!-- Active Checkbox -->
@@ -419,29 +529,33 @@
               </div>
             </div>
 
-            <!-- Discount and Quantity -->
+            <!-- Pricing Summary -->
             <div class="px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-secondary-50 border-b border-secondary-200">
               <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wide mb-3 sm:mb-4">
-                Ajuste de Precio y Disponibilidad
+                Precio y Disponibilidad
               </p>
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+              <div class="grid grid-cols-2 md:grid-cols-5 gap-4 sm:gap-6">
                 <div>
-                  <p class="text-sm text-secondary-600 mb-1">Tipo de Ajuste</p>
-                  <p class="text-lg font-bold text-secondary-900">{{ form.price_adjustment_type === 'percentage' ? 'Porcentaje' : 'Valor Fijo' }}</p>
-                </div>
-                <div>
-                  <p class="text-sm text-secondary-600 mb-1">Valor</p>
-                  <p class="text-lg font-bold" :class="form.price_adjustment_value < 0 ? 'text-green-600' : 'text-red-600'">
-                    {{ formatDiscountPreview() }}
+                  <p class="text-sm text-secondary-600 mb-1">Tipo de Precio</p>
+                  <p class="text-lg font-bold text-secondary-900">
+                    {{ form.price_adjustment_type === 'fixed_price' ? 'Precio Fijo' : form.price_adjustment_type === 'percentage' ? 'Porcentaje' : 'Descuento Fijo' }}
                   </p>
                 </div>
                 <div>
-                  <p class="text-sm text-secondary-600 mb-1">Cantidad</p>
-                  <p class="text-lg font-bold text-secondary-900">{{ form.quantity_available }} tickets</p>
+                  <p class="text-sm text-secondary-600 mb-1">Precio Original</p>
+                  <p class="text-lg font-bold text-secondary-500 line-through">${{ originalPrice.toLocaleString('es-CO') }}</p>
                 </div>
                 <div>
-                  <p class="text-sm text-secondary-600 mb-1">Prioridad</p>
-                  <p class="text-lg font-bold text-secondary-900">{{ form.priority_order }}</p>
+                  <p class="text-sm text-secondary-600 mb-1">Precio Final</p>
+                  <p class="text-lg font-bold text-primary-600">${{ calculatedPrice.toLocaleString('es-CO') }}</p>
+                </div>
+                <div v-if="savings > 0">
+                  <p class="text-sm text-secondary-600 mb-1">Ahorro</p>
+                  <p class="text-lg font-bold text-green-600">${{ savings.toLocaleString('es-CO') }}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-secondary-600 mb-1">Disponibles</p>
+                  <p class="text-lg font-bold text-secondary-900">{{ form.quantity_available }} paquetes</p>
                 </div>
               </div>
             </div>
@@ -463,18 +577,18 @@
               </div>
             </div>
 
-            <!-- Areas -->
+            <!-- Areas/Bundle -->
             <div class="px-4 sm:px-6 md:px-8 py-4 sm:py-6">
               <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wide mb-3 sm:mb-4">
-                Areas Aplicables ({{ selectedAreas.length }})
+                Paquete: {{ totalTickets }} boletas
               </p>
               <div class="flex flex-wrap gap-2">
                 <span
                   v-for="area in selectedAreas"
                   :key="area.id"
-                  class="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium"
+                  class="px-3 py-1.5 bg-primary-100 text-primary-700 rounded-full text-sm font-medium"
                 >
-                  {{ area.area_name }}
+                  {{ area.quantity }}x {{ area.area_name }}
                 </span>
               </div>
             </div>
@@ -581,7 +695,12 @@ import {
   CalendarIcon,
   TagIcon,
   TicketIcon,
-  CheckIcon
+  CheckIcon,
+  ExclamationTriangleIcon,
+  PlusIcon,
+  MinusIcon,
+  TrashIcon,
+  PlusCircleIcon
 } from '@heroicons/vue/24/outline'
 
 definePageMeta({
@@ -616,19 +735,91 @@ const originalStage = ref<any>(null)
 const showDeleteModal = ref(false)
 const isDeleting = ref(false)
 
+// Overlap validation
+const existingStages = ref<any[]>([])
+const overlapWarning = ref<string | null>(null)
+
 // Form state
 const form = reactive({
   stage_name: '',
   description: '',
-  price_adjustment_type: 'percentage' as 'percentage' | 'fixed',
+  price_adjustment_type: 'percentage' as 'percentage' | 'fixed' | 'fixed_price',
   price_adjustment_value: 0,
   quantity_available: 100,
   priority_order: 0,
   start_time: '',
   end_time: '',
-  area_ids: [] as number[],
+  area_items: [] as { area_id: number; quantity: number }[],
   is_active: true
 })
+
+// Computed: area_ids for backwards compatibility
+const formAreaIds = computed(() => form.area_items.map(item => item.area_id))
+
+// Computed: total tickets in bundle
+const totalTickets = computed(() => {
+  return form.area_items.reduce((sum, item) => sum + item.quantity, 0)
+})
+
+// Computed: original price (sum of all areas * quantities)
+const originalPrice = computed(() => {
+  return form.area_items.reduce((sum, item) => {
+    const area = areas.value.find(a => a.id === item.area_id)
+    return sum + (area ? Number(area.price) * item.quantity : 0)
+  }, 0)
+})
+
+// Available areas (not yet added to bundle)
+const availableAreas = computed(() => {
+  const usedIds = form.area_items.map(item => item.area_id)
+  return areas.value.filter(a => !usedIds.includes(a.id))
+})
+
+// Calculate final price for preview
+const calculatedPrice = computed(() => {
+  if (form.price_adjustment_type === 'fixed_price') {
+    return Math.abs(form.price_adjustment_value)
+  } else if (form.price_adjustment_type === 'percentage') {
+    return originalPrice.value * (1 + form.price_adjustment_value / 100)
+  } else {
+    return originalPrice.value + form.price_adjustment_value
+  }
+})
+
+// Calculate savings
+const savings = computed(() => {
+  return originalPrice.value - calculatedPrice.value
+})
+
+// Area helpers
+function getAreaName(areaId: number): string {
+  const area = areas.value.find(a => a.id === areaId)
+  return area?.area_name || 'Area desconocida'
+}
+
+function getAreaPrice(areaId: number): number {
+  const area = areas.value.find(a => a.id === areaId)
+  return area ? Number(area.price) : 0
+}
+
+// Bundle management
+function addArea(areaId: number) {
+  form.area_items.push({ area_id: areaId, quantity: 1 })
+}
+
+function removeItem(index: number) {
+  form.area_items.splice(index, 1)
+}
+
+function incrementQuantity(index: number) {
+  form.area_items[index].quantity++
+}
+
+function decrementQuantity(index: number) {
+  if (form.area_items[index].quantity > 1) {
+    form.area_items[index].quantity--
+  }
+}
 
 // Load stage data
 async function loadStage() {
@@ -652,7 +843,20 @@ async function loadStage() {
     form.quantity_available = response.quantity_available || 100
     form.priority_order = response.priority_order || 0
     form.is_active = response.is_active ?? true
-    form.area_ids = response.area_ids || []
+
+    // Convert areas with quantities to area_items format
+    if (response.areas && response.areas.length > 0) {
+      form.area_items = response.areas.map((a: any) => ({
+        area_id: a.id,
+        quantity: a.quantity || 1
+      }))
+    } else if (response.area_ids && response.area_ids.length > 0) {
+      // Fallback for old format without quantities
+      form.area_items = response.area_ids.map((id: number) => ({
+        area_id: id,
+        quantity: 1
+      }))
+    }
 
     // Format dates for datetime-local input
     if (response.start_time) {
@@ -699,6 +903,70 @@ async function loadAreas() {
   }
 }
 
+// Load existing stages for the event
+async function loadStages() {
+  if (!eventId.value) return
+  try {
+    const response = await $fetch(`/api/sale-stages/event/${eventId.value}`, {
+      credentials: 'include'
+    })
+    existingStages.value = (response as any) || []
+  } catch (err) {
+    console.error('Error loading stages:', err)
+    existingStages.value = []
+  }
+}
+
+// Check for overlapping stages (excluding current stage)
+function checkOverlappingStages(): string | null {
+  if (!form.start_time || formAreaIds.value.length === 0) return null
+
+  const newStart = new Date(form.start_time)
+  const newEnd = form.end_time ? new Date(form.end_time) : null
+
+  for (const stage of existingStages.value) {
+    // Skip current stage and inactive stages
+    if (stage.id === stageId.value || !stage.is_active) continue
+
+    // Get areas for this stage
+    const stageAreaIds = stage.areas?.map((a: any) => a.id) || []
+    const overlappingAreas = formAreaIds.value.filter(id => stageAreaIds.includes(id))
+
+    if (overlappingAreas.length === 0) continue
+
+    const stageStart = new Date(stage.start_time)
+    const stageEnd = stage.end_time ? new Date(stage.end_time) : null
+
+    // Check date overlap: start1 < end2 AND start2 < end1
+    let datesOverlap = false
+
+    if (newEnd && stageEnd) {
+      datesOverlap = newStart < stageEnd && stageStart < newEnd
+    } else if (!newEnd && stageEnd) {
+      datesOverlap = newStart < stageEnd
+    } else if (newEnd && !stageEnd) {
+      datesOverlap = stageStart < newEnd
+    } else {
+      datesOverlap = true
+    }
+
+    if (datesOverlap) {
+      const areaNames = areas.value
+        .filter(a => overlappingAreas.includes(a.id))
+        .map(a => a.area_name)
+        .join(', ')
+      return `Las fechas se superponen con la etapa "${stage.stage_name}" en las areas: ${areaNames}`
+    }
+  }
+
+  return null
+}
+
+// Watch for changes and validate
+watch([() => form.start_time, () => form.end_time, () => form.area_items], () => {
+  overlapWarning.value = checkOverlappingStages()
+}, { deep: true })
+
 // Format date for datetime-local input
 function formatDateForInput(dateString: string): string {
   const date = new Date(dateString)
@@ -715,11 +983,18 @@ onMounted(() => {
   loadStage()
   loadEvent()
   loadAreas()
+  loadStages()
 })
 
-// Selected areas for review
+// Selected areas for review (includes quantity)
 const selectedAreas = computed(() => {
-  return areas.value.filter(a => form.area_ids.includes(a.id))
+  return form.area_items.map(item => {
+    const area = areas.value.find(a => a.id === item.area_id)
+    return {
+      ...area,
+      quantity: item.quantity
+    }
+  }).filter(a => a.id)
 })
 
 // Event date constraints for datetime inputs
@@ -780,10 +1055,11 @@ const canProceed = computed(() => {
     return form.price_adjustment_type &&
       form.price_adjustment_value !== null &&
       form.quantity_available > 0 &&
-      form.start_time
+      form.start_time &&
+      !overlapWarning.value
   }
   if (currentStep.value === 3) {
-    return form.area_ids.length > 0
+    return form.area_items.length > 0 && !overlapWarning.value
   }
   return true
 })
@@ -793,7 +1069,9 @@ function formatDiscountPreview() {
   const value = form.price_adjustment_value
   if (value === null || value === undefined) return 'Sin ajuste'
 
-  if (form.price_adjustment_type === 'percentage') {
+  if (form.price_adjustment_type === 'fixed_price') {
+    return `$${Math.abs(value).toLocaleString('es-CO')} total`
+  } else if (form.price_adjustment_type === 'percentage') {
     return `${value > 0 ? '+' : ''}${value}%`
   } else {
     const absValue = Math.abs(value)
@@ -825,11 +1103,13 @@ async function submitStage() {
     const payload: Record<string, any> = {
       stage_name: form.stage_name,
       price_adjustment_type: form.price_adjustment_type,
-      price_adjustment_value: form.price_adjustment_value,
+      price_adjustment_value: form.price_adjustment_type === 'fixed_price'
+        ? Math.abs(form.price_adjustment_value)
+        : form.price_adjustment_value,
       quantity_available: form.quantity_available,
       priority_order: form.priority_order || 0,
       start_time: new Date(form.start_time).toISOString(),
-      area_ids: form.area_ids,
+      area_items: form.area_items,
       is_active: form.is_active
     }
 

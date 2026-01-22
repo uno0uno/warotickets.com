@@ -10,7 +10,7 @@
         <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
           <!-- Sidebar Skeleton -->
           <div class="lg:w-[380px] flex-shrink-0">
-            <div class="bg-white rounded-2xl shadow-xl border border-secondary-100 overflow-hidden">
+            <div class="bg-white rounded-2xl  border border-secondary-100 overflow-hidden">
               <div class="aspect-video bg-secondary-200"></div>
               <div class="p-6 space-y-4">
                 <div class="h-6 bg-secondary-200 rounded-full w-24"></div>
@@ -38,7 +38,7 @@
 
           <!-- Main Content Skeleton -->
           <div class="flex-1 space-y-6">
-            <div class="bg-white rounded-2xl shadow-sm border border-secondary-100 p-6 lg:p-8">
+            <div class="bg-white rounded-2xl  border border-secondary-100 p-6 lg:p-8">
               <div class="h-6 bg-secondary-200 rounded w-48 mb-4"></div>
               <div class="space-y-3">
                 <div class="h-4 bg-secondary-200 rounded w-full"></div>
@@ -46,7 +46,7 @@
                 <div class="h-4 bg-secondary-200 rounded w-3/4"></div>
               </div>
             </div>
-            <div class="bg-white rounded-2xl shadow-sm border border-secondary-100 p-6 lg:p-8">
+            <div class="bg-white rounded-2xl  border border-secondary-100 p-6 lg:p-8">
               <div class="h-6 bg-secondary-200 rounded w-32 mb-6"></div>
               <div class="space-y-3">
                 <div class="h-20 bg-secondary-100 rounded-xl"></div>
@@ -68,7 +68,7 @@
         <h2 class="text-2xl font-bold text-secondary-900 mb-2">Evento no encontrado</h2>
         <p class="text-secondary-500 mb-6">El evento que buscas no existe o ya no esta disponible.</p>
         <NuxtLink
-          to="/eventos"
+          to="/"
           class="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium"
         >
           <ArrowLeftIcon class="w-5 h-5" />
@@ -91,8 +91,8 @@
 
         <!-- Back Button -->
         <NuxtLink
-          to="/eventos"
-          class="absolute top-4 left-4 sm:left-6 inline-flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm text-secondary-700 rounded-xl hover:bg-white transition-all shadow-sm z-10"
+          to="/"
+          class="absolute top-4 left-4 sm:left-6 inline-flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm text-secondary-700 rounded-xl hover:bg-white transition-all  z-10"
         >
           <ArrowLeftIcon class="w-4 h-4" />
           <span class="text-sm font-medium">Eventos</span>
@@ -104,7 +104,7 @@
         <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
           <!-- Sidebar - Event Info Card -->
           <div class="lg:w-[380px] flex-shrink-0 order-1 lg:order-none">
-            <div class="bg-white rounded-2xl shadow-xl border border-secondary-100 overflow-hidden sticky top-4">
+            <div class="bg-white rounded-2xl  border border-secondary-100 overflow-hidden sticky top-4">
               <!-- Cover thumbnail -->
               <div v-if="event.cover_image_url" class="aspect-video bg-secondary-100">
                 <img :src="event.cover_image_url" :alt="event.cluster_name" class="w-full h-full object-cover" />
@@ -172,7 +172,7 @@
                   class="w-full py-4 px-6 rounded-xl font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   :class="summary?.is_sold_out
                     ? 'bg-secondary-400'
-                    : 'bg-primary-600 hover:bg-primary-700 hover:shadow-lg hover:shadow-primary-500/25 active:scale-[0.98]'"
+                    : 'bg-primary-600 hover:bg-primary-700 active:scale-[0.98]'"
                 >
                   <template v-if="summary?.is_sold_out">
                     <span class="flex items-center justify-center gap-2">
@@ -208,7 +208,7 @@
           <!-- Main Content Area -->
           <div class="flex-1 min-w-0 space-y-6 order-2">
             <!-- Description Card -->
-            <div v-if="event.description" class="bg-white rounded-2xl shadow-sm border border-secondary-100 p-6 lg:p-8">
+            <div v-if="event.description" class="bg-white rounded-2xl  border border-secondary-100 p-6 lg:p-8">
               <h2 class="text-xl font-bold text-secondary-900 mb-4">Acerca del evento</h2>
               <div class="prose prose-secondary max-w-none">
                 <p class="text-secondary-600 whitespace-pre-line leading-relaxed">{{ event.description }}</p>
@@ -231,7 +231,7 @@
                 <div
                   v-for="area in areas"
                   :key="area.id"
-                  class="bg-white rounded-3xl p-6 border border-secondary-200 shadow-sm hover:shadow-md transition-all relative overflow-hidden"
+                  class="bg-white rounded-3xl p-6 border border-secondary-200   transition-all relative overflow-hidden"
                   :class="{
                     'opacity-60 grayscale': area.units_available === 0
                   }"
@@ -241,7 +241,7 @@
                     v-if="area.units_available === 0"
                     class="absolute inset-0 bg-secondary-100/10 backdrop-blur-[1px] flex items-center justify-center z-10"
                   >
-                    <span class="bg-white/90 border border-secondary-300 px-6 py-2 rounded-full font-bold text-secondary-500 text-xs uppercase tracking-widest shadow-sm">
+                    <span class="bg-white/90 border border-secondary-300 px-6 py-2 rounded-full font-bold text-secondary-500 text-xs uppercase tracking-widest ">
                       Localidad Agotada
                     </span>
                   </div>
@@ -285,8 +285,17 @@
                         >
                           Hasta {{ formatDateShort(getStageInfo(area.active_sale_stage).end_time) }}
                         </p>
+                        <!-- Bundle indicator (solo si quantity > 1) -->
                         <div
-                          v-if="area.current_price && Number(area.current_price) < Number(area.price)"
+                          v-if="getAreaQuantityInStage(area.id, area.active_sale_stage) > 1"
+                          class="mt-3 inline-flex items-center gap-1.5 bg-primary-100 text-primary-700 px-2.5 py-1 rounded-lg text-xs font-bold"
+                        >
+                          <TicketIcon class="w-3.5 h-3.5" />
+                          {{ getAreaQuantityInStage(area.id, area.active_sale_stage) }}x1
+                        </div>
+                        <!-- Descuento % solo si quantity = 1 (descuento simple) -->
+                        <div
+                          v-if="getAreaQuantityInStage(area.id, area.active_sale_stage) === 1 && area.current_price && Number(area.current_price) < Number(area.price)"
                           class="mt-3 inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-2.5 py-1 rounded-lg text-xs font-bold"
                         >
                           <SparklesIcon class="w-3.5 h-3.5" />
@@ -297,7 +306,23 @@
 
                     <!-- Right: Pricing Box -->
                     <div class="sm:w-48 flex-shrink-0">
-                      <div class="bg-primary-50 border border-primary-100 rounded-2xl p-4 text-center h-full flex flex-col justify-center">
+                      <!-- Bundle Pricing (quantity > 1) -->
+                      <div v-if="getAreaQuantityInStage(area.id, area.active_sale_stage) > 1" class="bg-primary-50 border border-primary-100 rounded-2xl p-4 text-center h-full flex flex-col justify-center">
+                        <p class="text-[10px] text-primary-600 font-bold uppercase tracking-wide mb-1">
+                          Paquete {{ getAreaQuantityInStage(area.id, area.active_sale_stage) }} boletas
+                        </p>
+                        <p class="text-3xl font-black text-primary-700">
+                          ${{ formatPrice(Number(area.current_price) * getAreaQuantityInStage(area.id, area.active_sale_stage)) }}
+                        </p>
+                        <p class="text-sm text-secondary-400 line-through mt-1">
+                          Antes ${{ formatPrice(Number(area.price) * getAreaQuantityInStage(area.id, area.active_sale_stage)) }}
+                        </p>
+                        <p class="text-[10px] text-primary-600/70 mt-2">
+                          (${{ formatPrice(area.current_price) }} c/u)
+                        </p>
+                      </div>
+                      <!-- Single Ticket Pricing (quantity = 1 or no bundle) -->
+                      <div v-else class="bg-primary-50 border border-primary-100 rounded-2xl p-4 text-center h-full flex flex-col justify-center">
                         <p class="text-[10px] text-primary-600 font-bold uppercase tracking-wide mb-1">Precio Unitario</p>
                         <p class="text-3xl font-black text-primary-700">
                           ${{ formatPrice(area.current_price || area.price) }}
@@ -338,7 +363,7 @@
               </div>
             </div>
 
-            <!-- Combos Section - Solo con parametro ?promo=1 -->
+            <!-- Combos Section - Solo con parametro ?promo=... -->
             <div v-if="promotions.length > 0 && showPromos" class="space-y-6">
               <!-- Section Header -->
               <div class="flex items-center justify-between">
@@ -353,8 +378,19 @@
                 <div
                   v-for="promo in promotions"
                   :key="promo.id"
-                  class="bg-white rounded-3xl p-6 border border-primary-200 shadow-sm hover:shadow-md transition-all relative overflow-hidden"
+                  class="rounded-3xl p-6   transition-all relative overflow-hidden"
+                  :class="isActivePromo(promo.promotion_code)
+                    ? 'bg-primary-50 border-2 border-primary-500 ring-2 ring-primary-200'
+                    : 'bg-white border border-primary-200'"
                 >
+                  <!-- Active Promo Indicator -->
+                  <div
+                    v-if="isActivePromo(promo.promotion_code)"
+                    class="absolute top-0 left-0 bg-primary-600 text-white text-[9px] font-bold px-4 py-1 rounded-br-xl uppercase tracking-wider"
+                  >
+                    Seleccionado
+                  </div>
+
                   <!-- Savings Ribbon -->
                   <div
                     v-if="promo.savings > 0"
@@ -416,7 +452,7 @@
             <!-- Extra Attributes -->
             <div
               v-if="event.extra_attributes && Object.keys(event.extra_attributes).length > 0"
-              class="bg-white rounded-2xl shadow-sm border border-secondary-100 p-6 lg:p-8"
+              class="bg-white rounded-2xl  border border-secondary-100 p-6 lg:p-8"
             >
               <h2 class="text-xl font-bold text-secondary-900 mb-6">Informacion adicional</h2>
               <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -453,10 +489,16 @@ import {
 const route = useRoute()
 const slug = route.params.slug as string
 
-// Solo mostrar promociones si viene el parametro ?promo=1 o ?promo=true
-const showPromos = computed(() => {
+// Obtener el codigo de promocion de la URL
+const promoCode = computed(() => {
   const promoParam = route.query.promo
-  return promoParam === '1' || promoParam === 'true'
+  if (!promoParam) return null
+  return typeof promoParam === 'string' ? promoParam : null
+})
+
+// Mostrar promociones si viene cualquier parametro ?promo=...
+const showPromos = computed(() => {
+  return !!promoCode.value
 })
 
 // Page Meta
@@ -566,5 +608,19 @@ function formatDateShort(dateStr: string) {
 function getStageInfo(stageName: string) {
   if (!saleStages.value || !stageName) return null
   return saleStages.value.find((s: any) => s.stage_name === stageName)
+}
+
+// Obtener la cantidad de boletas de un area en una etapa (para bundles)
+function getAreaQuantityInStage(areaId: number, stageName: string): number {
+  const stage = getStageInfo(stageName)
+  if (!stage?.areas) return 1
+  const areaInStage = stage.areas.find((a: any) => a.area_id === areaId)
+  return areaInStage?.quantity || 1
+}
+
+// Verificar si el codigo de promocion coincide con el de la URL
+function isActivePromo(code: string) {
+  if (!promoCode.value || !code) return false
+  return code.toLowerCase() === promoCode.value.toLowerCase()
 }
 </script>

@@ -224,6 +224,15 @@
             <!-- Custom cell: Actions -->
             <template #cell-actions="{ row }">
               <div class="flex items-center gap-2 justify-center">
+                <button
+                  @click.prevent="copyPromoLink(row)"
+                  class="p-1.5 rounded-lg transition-colors"
+                  :class="copiedPromoId === row.id ? 'text-green-600 bg-green-50' : 'text-secondary-600 hover:bg-secondary-50'"
+                  :title="copiedPromoId === row.id ? 'Copiado!' : 'Copiar enlace con promo'"
+                >
+                  <CheckIcon v-if="copiedPromoId === row.id" class="w-4 h-4" />
+                  <LinkIcon v-else class="w-4 h-4" />
+                </button>
                 <NuxtLink
                   :to="`/gestion/promocion/${row.id}?event=${selectedEventId}`"
                   class="p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg"
@@ -245,7 +254,9 @@ import {
   TicketIcon,
   MagnifyingGlassIcon,
   PlusIcon,
-  PencilIcon
+  PencilIcon,
+  LinkIcon,
+  CheckIcon
 } from '@heroicons/vue/24/outline'
 
 definePageMeta({
@@ -450,5 +461,26 @@ function getStatusClass(isValid: boolean) {
 function getStatusLabel(isValid: boolean, isActive: boolean) {
   if (!isActive) return 'Inactiva'
   return isValid ? 'Valida' : 'No valida'
+}
+
+// Copy link functionality
+const copiedPromoId = ref<string | null>(null)
+
+async function copyPromoLink(promo: any) {
+  // Get the selected event to get its slug
+  const selectedEvent = events.value.find((e: any) => e.id === selectedEventId.value)
+  const slug = selectedEvent?.slug_cluster || selectedEvent?.slug || selectedEventId.value
+  // Include the actual promo code in the URL
+  const url = `${window.location.origin}/eventos/${slug}?promo=${encodeURIComponent(promo.promotion_code)}`
+
+  try {
+    await navigator.clipboard.writeText(url)
+    copiedPromoId.value = promo.id
+    setTimeout(() => {
+      copiedPromoId.value = null
+    }, 2000)
+  } catch (err) {
+    console.error('Error copying link:', err)
+  }
 }
 </script>

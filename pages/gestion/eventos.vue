@@ -111,6 +111,15 @@
         <!-- Custom cell: Actions -->
         <template #cell-actions="{ row }">
           <div class="flex items-center gap-2 justify-center">
+            <button
+              @click.prevent="copyEventLink(row)"
+              class="p-1.5 rounded-lg transition-colors"
+              :class="copiedEventId === row.id ? 'text-green-600 bg-green-50' : 'text-secondary-600 hover:bg-secondary-50'"
+              :title="copiedEventId === row.id ? 'Copiado!' : 'Copiar enlace'"
+            >
+              <CheckIcon v-if="copiedEventId === row.id" class="w-4 h-4" />
+              <LinkIcon v-else class="w-4 h-4" />
+            </button>
             <NuxtLink
               :to="`/gestion/evento/${row.id}`"
               class="p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg"
@@ -191,7 +200,9 @@ import {
   PlusIcon,
   PencilIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  LinkIcon,
+  CheckIcon
 } from '@heroicons/vue/24/outline'
 
 useHead({ title: 'Eventos - WaRo Tickets' })
@@ -359,5 +370,23 @@ function getStatusClass(isActive: boolean) {
 
 function getStatusLabel(isActive: boolean) {
   return isActive ? 'Activo' : 'Inactivo'
+}
+
+// Copy link functionality
+const copiedEventId = ref<number | null>(null)
+
+async function copyEventLink(event: any) {
+  const slug = event.slug_cluster || event.slug || event.id
+  const url = `${window.location.origin}/eventos/${slug}`
+
+  try {
+    await navigator.clipboard.writeText(url)
+    copiedEventId.value = event.id
+    setTimeout(() => {
+      copiedEventId.value = null
+    }, 2000)
+  } catch (err) {
+    console.error('Error copying link:', err)
+  }
 }
 </script>
