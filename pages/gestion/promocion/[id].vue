@@ -33,7 +33,6 @@
               <div class="space-y-1">
                 <p class="text-xs font-medium text-secondary-500 uppercase tracking-wide">Editar Promocion</p>
                 <p class="text-lg font-semibold text-secondary-900">{{ form.promotion_name || 'Sin nombre' }}</p>
-                <code v-if="form.promotion_code" class="text-xs bg-secondary-100 px-2 py-0.5 rounded">{{ form.promotion_code }}</code>
               </div>
             </div>
 
@@ -84,7 +83,7 @@
               </div>
               <div class="ml-2 sm:ml-3 flex-1 min-w-0">
                 <p class="text-xs sm:text-sm font-medium truncate" :class="currentStep >= 1 ? 'text-secondary-900' : 'text-secondary-500'">Informacion</p>
-                <p class="text-xs text-secondary-400 hidden sm:block truncate">Nombre y codigo</p>
+                <p class="text-xs text-secondary-400 hidden sm:block truncate">Nombre y descripcion</p>
               </div>
               <div class="flex-1 h-0.5 mx-2 sm:mx-4" :class="currentStep > 1 ? 'bg-secondary-600' : 'bg-secondary-200'"></div>
             </div>
@@ -137,10 +136,6 @@
                 <div>
                   <label class="block text-sm font-medium text-secondary-900 mb-2">Nombre de la Promocion *</label>
                   <input type="text" v-model="form.promotion_name" placeholder="Ej: Pack Familiar, 2x1 VIP" class="w-full px-4 py-2 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 text-secondary-900" required />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-secondary-900 mb-2">Codigo Promocional *</label>
-                  <input type="text" v-model="form.promotion_code" placeholder="Ej: FAMILIA2024" class="w-full px-4 py-2 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 text-secondary-900 uppercase" required />
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-secondary-900 mb-2">Descripcion</label>
@@ -304,7 +299,7 @@
                 <div>
                   <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wide mb-2">Promocion</p>
                   <p class="text-lg font-bold text-secondary-900">{{ form.promotion_name }}</p>
-                  <code class="text-sm bg-secondary-100 px-2 py-1 rounded mt-2 inline-block">{{ form.promotion_code }}</code>
+                  <p v-if="form.description" class="text-sm text-secondary-600 mt-2">{{ form.description }}</p>
                 </div>
                 <div>
                   <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wide mb-2">Evento</p>
@@ -431,7 +426,6 @@ const originalPromotion = ref<any>(null)
 
 const form = reactive({
   promotion_name: '',
-  promotion_code: '',
   description: '',
   pricing_type: 'fixed_price' as 'percentage' | 'fixed_discount' | 'fixed_price',
   pricing_value: 0,
@@ -451,7 +445,6 @@ async function loadPromotion() {
     const r = await $fetch(`/api/promotions/event/${eventId.value}/${promoId.value}`, { credentials: 'include' }) as any
     originalPromotion.value = r
     form.promotion_name = r.promotion_name
-    form.promotion_code = r.promotion_code
     form.description = r.description || ''
     form.pricing_type = r.pricing_type
     form.pricing_value = Number(r.pricing_value)
@@ -522,7 +515,7 @@ function formatPricePreview() { return form.items.length === 0 ? 'Sin items' : `
 function formatDateDisplay(d: string) { if (!d) return ''; return new Date(d).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) }
 
 const canProceed = computed(() => {
-  if (currentStep.value === 1) return form.promotion_name.trim().length > 0 && form.promotion_code.trim().length > 0
+  if (currentStep.value === 1) return form.promotion_name.trim().length > 0
   if (currentStep.value === 2) return form.items.length > 0
   if (currentStep.value === 3) return form.pricing_type && form.pricing_value > 0 && form.start_time
   return true
@@ -535,7 +528,7 @@ async function submitPromotion() {
   if (isSubmitting.value || !eventId.value || !promoId.value) return
   isSubmitting.value = true
   try {
-    const p: any = { promotion_name: form.promotion_name, promotion_code: form.promotion_code.toUpperCase(), pricing_type: form.pricing_type, pricing_value: form.pricing_value, priority_order: form.priority_order || 0, start_time: new Date(form.start_time).toISOString(), is_active: form.is_active, items: form.items }
+    const p: any = { promotion_name: form.promotion_name, pricing_type: form.pricing_type, pricing_value: form.pricing_value, priority_order: form.priority_order || 0, start_time: new Date(form.start_time).toISOString(), is_active: form.is_active, items: form.items }
     if (form.description) p.description = form.description
     if (form.max_discount_amount) p.max_discount_amount = form.max_discount_amount
     if (form.quantity_available) p.quantity_available = form.quantity_available

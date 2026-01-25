@@ -77,6 +77,14 @@
       </div>
     </div>
 
+    <!-- Cart Loading State -->
+    <div v-else-if="cartLoading" class="flex items-center justify-center min-h-screen">
+      <div class="text-center">
+        <div class="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-secondary-500">{{ currentPhrase }}</p>
+      </div>
+    </div>
+
     <!-- Event Content -->
     <template v-else-if="event">
       <!-- Cover Image -->
@@ -519,7 +527,7 @@
 
     <!-- Floating Cart Summary -->
     <div
-      v-if="cartStore.summary?.itemsCount > 0"
+      v-if="!cartLoading && cartStore.summary?.itemsCount > 0"
       class="fixed bottom-0 left-0 right-0 bg-white border-t border-secondary-200 shadow-2xl z-50"
     >
       <div class="container mx-auto px-4 py-4">
@@ -615,19 +623,47 @@ const addingToCart = ref<number | null>(null)
 const addingPromoId = ref<string | null>(null)
 const errorMessage = ref<string | null>(null)
 
+// Check if there might be a cart (from localStorage) - only client side
+const mightHaveCart = import.meta.client ? !!localStorage.getItem('cart_session_id') : false
+const cartLoading = ref(mightHaveCart)
+
+// Loading phrases
+const { currentPhrase, start: startPhraseRotation, stop: stopPhraseRotation } = useLoadingPhrases([
+  'Cargando carrito...',
+  'Verificando disponibilidad...',
+  'Calculando precios...',
+  'Casi listo...'
+])
+
+watch(cartLoading, (loading) => {
+  if (loading) {
+    startPhraseRotation()
+  } else {
+    stopPhraseRotation()
+  }
+})
+
 // Initialize cart on mount
 onMounted(async () => {
+  // Start phrase rotation if we might have a cart
+  if (mightHaveCart) {
+    startPhraseRotation()
+  }
+
+  if (!mightHaveCart) return
+
   try {
     await cartStore.fetchSummary()
-    // Load full cart if exists (to check items)
+
     if (cartStore.summary.cartId) {
       await cartStore.fetchCart(cartStore.summary.cartId)
-      // Initialize quantities with what's already in cart (after next tick)
       await nextTick()
       initQuantitiesFromCart()
     }
   } catch (e) {
     console.error('Error loading cart:', e)
+  } finally {
+    cartLoading.value = false
   }
 })
 

@@ -1,5 +1,14 @@
 <template>
-  <div class="min-h-screen bg-secondary-50">
+  <!-- Loading State - Full page -->
+  <div v-if="loading" class="min-h-screen bg-secondary-50 flex items-center justify-center">
+    <div class="text-center">
+      <div class="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-secondary-600 font-medium">{{ currentPhrase }}</p>
+    </div>
+  </div>
+
+  <!-- Page Content -->
+  <div v-else class="min-h-screen bg-secondary-50 flex flex-col">
     <!-- Header -->
     <div class="bg-white border-b border-secondary-100">
       <div class="container mx-auto px-4 md:px-8 py-6">
@@ -24,18 +33,8 @@
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="container mx-auto px-4 md:px-8 py-12">
-      <div class="max-w-4xl mx-auto">
-        <div class="flex flex-col items-center justify-center py-16">
-          <div class="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4"></div>
-          <p class="text-secondary-500 font-medium">Cargando carrito...</p>
-        </div>
-      </div>
-    </div>
-
     <!-- Empty Cart -->
-    <div v-else-if="cartStore.isEmpty" class="container mx-auto px-4 md:px-8 py-12">
+    <main v-if="cartStore.isEmpty" class="flex-1 container mx-auto px-4 md:px-8 py-12">
       <div class="max-w-md mx-auto text-center">
         <div class="w-24 h-24 mx-auto mb-6 bg-secondary-100 rounded-full flex items-center justify-center">
           <ShoppingCartIcon class="w-12 h-12 text-secondary-400" />
@@ -50,10 +49,10 @@
           Ver eventos
         </NuxtLink>
       </div>
-    </div>
+    </main>
 
     <!-- Cart Content -->
-    <div v-else class="container mx-auto px-4 md:px-8 py-8">
+    <main v-else class="flex-1 container mx-auto px-4 md:px-8 py-8 pb-24">
       <div class="flex flex-col lg:flex-row gap-6">
           <!-- Cart Items -->
           <div class="flex-1 space-y-4">
@@ -466,7 +465,7 @@
             </div>
           </div>
         </div>
-    </div>
+    </main>
   </div>
 </template>
 
@@ -491,6 +490,18 @@ const cartStore = useCartStore()
 const loading = ref(true)
 const updatingPromo = ref<string | null>(null)
 const eventDetails = ref<any>(null)
+
+// Loading phrases
+const { currentPhrase, start: startPhraseRotation, stop: stopPhraseRotation } = useLoadingPhrases([
+  'Cargando carrito...',
+  'Verificando productos...',
+  'Actualizando precios...',
+  'Casi listo...'
+])
+
+onMounted(() => {
+  startPhraseRotation()
+})
 
 // Pending changes (for update button pattern)
 const pendingPromoQuantities = ref<Record<string, number>>({})
@@ -618,6 +629,7 @@ onMounted(async () => {
     await loadEventDetails()
   }
 
+  stopPhraseRotation()
   loading.value = false
 })
 

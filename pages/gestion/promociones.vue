@@ -100,12 +100,11 @@
                   </div>
                   <div class="p-4">
                     <div class="flex items-center justify-between mb-2">
-                      <code class="px-2 py-1 bg-secondary-100 rounded text-sm font-mono text-secondary-900">{{ item.promotion_code }}</code>
+                      <p class="text-sm font-medium text-secondary-900">{{ item.promotion_name }}</p>
                       <span class="text-xs text-secondary-500">
                         {{ item.total_tickets }} boletas
                       </span>
                     </div>
-                    <p class="text-sm font-medium text-secondary-900 mb-2">{{ item.promotion_name }}</p>
 
                     <!-- Combo Items Preview -->
                     <div v-if="item.items && item.items.length" class="mb-3 flex flex-wrap gap-1">
@@ -147,13 +146,6 @@
                   Promociones (Combos)
                 </h3>
               </div>
-            </template>
-
-            <!-- Custom cell: Code -->
-            <template #cell-promotion_code="{ value, row }">
-              <NuxtLink :to="`/gestion/promocion/${row.id}?event=${selectedEventId}`" class="hover:text-primary-600">
-                <code class="px-2 py-1 bg-secondary-100 rounded text-sm font-mono">{{ value }}</code>
-              </NuxtLink>
             </template>
 
             <!-- Custom cell: Name -->
@@ -271,7 +263,7 @@ const isLoading = ref(false)
 const fetchError = ref<string | null>(null)
 const promotions = ref<any[]>([])
 const searchQuery = ref('')
-const sortField = ref('promotion_code')
+const sortField = ref('promotion_name')
 const sortDirection = ref<'asc' | 'desc'>('asc')
 
 // Load events for selector
@@ -335,7 +327,6 @@ async function loadPromotions() {
 
 // Table columns - updated for combo system
 const columns = [
-  { key: 'promotion_code', title: 'Codigo', sortable: true, align: 'left' as const },
   { key: 'promotion_name', title: 'Nombre', sortable: true, align: 'left' as const },
   { key: 'combo', title: 'Combo', sortable: false, align: 'left' as const },
   { key: 'total_tickets', title: 'Boletas', sortable: true, align: 'center' as const },
@@ -354,7 +345,6 @@ const filteredPromotions = computed(() => {
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     result = result.filter(promo =>
-      promo.promotion_code.toLowerCase().includes(query) ||
       promo.promotion_name.toLowerCase().includes(query)
     )
   }
@@ -470,8 +460,8 @@ async function copyPromoLink(promo: any) {
   // Get the selected event to get its slug
   const selectedEvent = events.value.find((e: any) => e.id === selectedEventId.value)
   const slug = selectedEvent?.slug_cluster || selectedEvent?.slug || selectedEventId.value
-  // Include the actual promo code in the URL
-  const url = `${window.location.origin}/eventos/${slug}?promo=${encodeURIComponent(promo.promotion_code)}`
+  // Include the promotion ID in the URL
+  const url = `${window.location.origin}/eventos/${slug}?promo=${promo.id}`
 
   try {
     await navigator.clipboard.writeText(url)
