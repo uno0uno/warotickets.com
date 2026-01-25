@@ -78,53 +78,34 @@
             </div>
 
             <!-- Event Info -->
-            <div class="bg-white rounded-2xl border border-secondary-100 p-4 sm:p-6">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <!-- Event Name -->
-                <div class="flex items-center space-x-2 sm:space-x-3">
-                  <div class="bg-secondary-50 p-2 sm:p-3 rounded-lg border border-secondary-200 flex-shrink-0">
-                    <TicketIcon class="w-6 h-6 sm:w-8 sm:h-8 text-primary-600" />
-                  </div>
-                  <div class="space-y-1">
-                    <p class="text-xs font-medium text-secondary-500 uppercase tracking-wide">Evento</p>
-                    <NuxtLink
-                      :to="`/eventos/${cartStore.cart?.clusterSlug}`"
-                      class="text-sm sm:text-lg font-semibold text-secondary-900 hover:text-primary-600"
-                    >
-                      {{ cartStore.cart?.clusterName }}
-                    </NuxtLink>
-                  </div>
-                </div>
-
-                <!-- Event Date -->
-                <div class="flex items-center space-x-2 sm:space-x-3">
-                  <div class="bg-secondary-50 p-2 sm:p-3 rounded-lg border border-secondary-200 flex-shrink-0">
-                    <CalendarIcon class="w-6 h-6 sm:w-8 sm:h-8 text-primary-600" />
-                  </div>
-                  <div class="space-y-1">
-                    <p class="text-xs font-medium text-secondary-500 uppercase tracking-wide">Fecha</p>
-                    <p v-if="eventDetails?.start_date" class="text-sm sm:text-lg font-semibold text-secondary-900">
-                      {{ formatDateShort(eventDetails.start_date) }}
-                    </p>
-                    <p v-else class="text-sm sm:text-lg font-semibold text-secondary-400">-</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <EventInfoCard
+              :event-name="cartStore.cart?.clusterName || ''"
+              :event-slug="cartStore.cart?.clusterSlug || ''"
+              :event-date="eventDetails?.start_date"
+            />
 
             <!-- Promotion Packages -->
+            <template v-if="promotionPackages.length > 0">
+              <!-- Section Header -->
+              <div class="flex items-center justify-between">
+                <div>
+                  <h2 class="font-bold text-secondary-900">Combos</h2>
+                  <p class="text-xs text-secondary-500 mt-0.5">Paquetes promocionales con descuento</p>
+                </div>
+              </div>
+            </template>
+
             <div
               v-for="pkg in promotionPackages"
               :key="pkg.promotionId"
               class="bg-white rounded-2xl border border-primary-200 p-5 relative overflow-hidden"
             >
               <!-- Savings Badge -->
-              <div
+              <SavingsRibbon
                 v-if="pkg.originalTotal > pkg.subtotal"
-                class="absolute top-0 right-0 bg-green-500 text-white text-[9px] font-bold px-4 py-1 rounded-bl-xl uppercase tracking-wider"
-              >
-                Ahorras ${{ formatPrice(pkg.originalTotal - pkg.subtotal) }}
-              </div>
+                :amount="pkg.originalTotal - pkg.subtotal"
+                variant="savings"
+              />
 
               <div class="flex flex-col md:flex-row justify-between gap-4">
                 <!-- Left: Info -->
@@ -142,14 +123,13 @@
                   <div class="space-y-2">
                     <span class="text-[10px] font-bold text-secondary-400 uppercase tracking-widest">Cada combo incluye</span>
                     <div class="flex flex-wrap gap-2">
-                      <span
+                      <Badge
                         v-for="item in pkg.items"
                         :key="item.id"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary-100 rounded-lg text-sm text-secondary-700"
+                        variant="info"
                       >
-                        <CheckIcon class="w-4 h-4 text-green-500" />
                         <strong>{{ item.ticketsPerPackage }}x</strong> {{ item.areaName }}
-                      </span>
+                      </Badge>
                     </div>
                   </div>
                 </div>
@@ -239,12 +219,11 @@
                 class="bg-white rounded-2xl border border-secondary-200 p-5 relative overflow-hidden"
               >
                 <!-- Savings Ribbon - Show per-unit savings (like event page) -->
-                <div
+                <SavingsRibbon
                   v-if="getItemSavingsPerBundle(item) > 0"
-                  class="absolute top-0 right-0 bg-green-500 text-white text-[9px] font-bold px-4 py-1 rounded-bl-xl uppercase tracking-wider"
-                >
-                  Ahorras ${{ formatPrice(getItemSavingsPerBundle(item)) }}
-                </div>
+                  :amount="getItemSavingsPerBundle(item)"
+                  variant="savings"
+                />
 
                 <div class="flex flex-col md:flex-row justify-between gap-4">
                   <!-- Left: Info -->
@@ -263,21 +242,13 @@
                       <span class="text-[10px] font-bold text-secondary-400 uppercase tracking-widest">Detalle</span>
                       <div class="flex flex-wrap gap-2">
                         <!-- Stage Badge - from API response -->
-                        <span
-                          v-if="item.stageStatus === 'active' && item.stageName"
-                          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 rounded-lg text-sm text-green-700"
-                        >
-                          <CheckIcon class="w-4 h-4" />
-                          {{ item.stageName }}
-                        </span>
+                        <Badge v-if="item.stageStatus === 'active' && item.stageName" variant="stage">
+                          Etapa: {{ item.stageName }}
+                        </Badge>
                         <!-- Bundle Badge - from API response -->
-                        <span
-                          v-if="item.bundleSize > 1"
-                          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-100 rounded-lg text-sm text-primary-700"
-                        >
-                          <TicketIcon class="w-4 h-4" />
-                          Paquete {{ item.bundleSize }}x1
-                        </span>
+                        <Badge v-if="item.bundleSize > 1" variant="bundle">
+                          Promoción {{ item.bundleSize }}x1
+                        </Badge>
                       </div>
                     </div>
                   </div>
@@ -287,7 +258,7 @@
                     <div class="text-right mb-3">
                       <!-- Bundle: Show package price -->
                       <template v-if="item.bundleSize > 1">
-                        <p class="text-[10px] text-secondary-400 font-bold uppercase mb-1">Precio Paquete</p>
+                        <p class="text-[10px] text-secondary-400 font-bold uppercase mb-1">Precio Promoción</p>
                         <p class="text-2xl font-extrabold text-secondary-900">${{ formatPrice(item.bundlePrice ?? (item.unitPrice * item.bundleSize)) }}</p>
                         <p v-if="(item.originalPrice * item.bundleSize) > (item.bundlePrice ?? (item.unitPrice * item.bundleSize))" class="text-xs text-secondary-400 line-through">
                           Antes ${{ formatPrice(item.originalPrice * item.bundleSize) }}
@@ -366,7 +337,7 @@
           <!-- Order Summary -->
           <div class="lg:w-80">
             <div class="bg-white rounded-2xl border border-secondary-100 p-6 sticky top-4">
-              <h2 class="font-bold text-lg text-secondary-900 mb-4">Resumen del pedido</h2>
+              <h2 class="font-bold text-lg text-secondary-900 mb-4">Resumen de la compra</h2>
 
               <div class="space-y-3 mb-4">
                 <!-- Combos Section -->
@@ -406,12 +377,12 @@
                         </div>
                         <p class="text-xs text-secondary-500 mt-0.5">
                           <template v-if="item.bundleSize > 1">
-                            {{ item.quantity }} {{ item.quantity === 1 ? 'paquete' : 'paquetes' }} {{ item.bundleSize }}x1
+                            {{ item.quantity }} {{ item.quantity === 1 ? 'promoción' : 'promociones' }} {{ item.bundleSize }}x1
                           </template>
                           <template v-else>
                             {{ item.ticketsCount }} {{ item.ticketsCount === 1 ? 'boleta' : 'boletas' }}
                           </template>
-                          <span v-if="item.stageStatus === 'active' && item.stageName" class="text-green-600"> · {{ item.stageName }}</span>
+                          <span v-if="item.stageStatus === 'active' && item.stageName" class="text-green-600"> · Etapa: {{ item.stageName }}</span>
                         </p>
                       </div>
                       <div class="text-right">
@@ -470,12 +441,10 @@ import {
   ArrowLeftIcon,
   ShoppingCartIcon,
   TicketIcon,
-  CalendarIcon,
   MinusIcon,
   PlusIcon,
   GiftIcon,
   TrashIcon,
-  CheckIcon,
   ExclamationTriangleIcon
 } from '@heroicons/vue/24/outline'
 
