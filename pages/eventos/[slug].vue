@@ -80,7 +80,7 @@
     <!-- Cart Loading State -->
     <div v-else-if="cartLoading" class="flex items-center justify-center min-h-screen">
       <div class="text-center">
-        <div class="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
+        <PieLoader class="mx-auto mb-4" />
         <p class="text-secondary-500">{{ currentPhrase }}</p>
       </div>
     </div>
@@ -166,8 +166,8 @@
                     <UserGroupIcon class="w-5 h-5 text-primary-600" />
                   </div>
                   <div>
-                    <p class="font-semibold text-secondary-900">{{ summary.tickets_available }} disponibles</p>
-                    <p class="text-sm text-secondary-500">de {{ summary.total_capacity }} total</p>
+                    <p class="font-semibold text-secondary-900">{{ formatPrice(summary.tickets_available) }} disponibles</p>
+                    <p class="text-sm text-secondary-500">de {{ formatPrice(summary.total_capacity) }} total</p>
                   </div>
                 </div>
 
@@ -264,7 +264,7 @@
                     v-else-if="area.units_available > 0 && area.units_available < 20"
                     class="absolute top-0 right-0 bg-orange-500 text-white text-[9px] font-bold px-4 py-1 rounded-bl-xl uppercase tracking-wider"
                   >
-                    Últimos {{ area.units_available }}
+                    Últimos {{ formatPrice(area.units_available) }}
                   </div>
 
                   <div class="flex flex-col md:flex-row justify-between gap-4">
@@ -305,7 +305,7 @@
                             v-if="area.units_available > 0"
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary-100 rounded-lg text-sm text-secondary-700"
                           >
-                            {{ area.units_available }} disponibles
+                            {{ formatPrice(area.units_available) }} disponibles
                           </span>
                         </div>
                       </div>

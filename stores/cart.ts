@@ -4,7 +4,7 @@ interface CartItem {
   id: string
   areaId: number
   areaName: string
-  quantity: number        // Bundles/tickets seleccionados
+  quantity: number        // Bundles/combos seleccionados
   ticketsCount: number    // Total boletas (calculado en tiempo real)
   unitPrice: number       // Precio por boleta con descuento (calculado)
   bundlePrice: number | null  // Precio bundle (si aplica)
@@ -16,6 +16,7 @@ interface CartItem {
   stageStatus: 'active' | 'none'  // Estado del stage actual
   promotionId: string | null    // ID de promocion si es parte de un paquete
   promotionName: string | null  // Nombre de la promocion
+  ticketsPerPackage: number | null  // Boletas de esta area por combo (solo promos)
 }
 
 interface ConvertedPromotion {
@@ -131,7 +132,8 @@ export const useCartStore = defineStore('cart', () => {
         stageId: item.stage_id,
         stageStatus: item.stage_status || 'none',
         promotionId: item.promotion_id || null,
-        promotionName: item.promotion_name || null
+        promotionName: item.promotion_name || null,
+        ticketsPerPackage: item.tickets_per_package || null
       })),
       subtotal: parseFloat(data.subtotal),
       discount: parseFloat(data.discount),

@@ -2,7 +2,7 @@
   <!-- Loading State - Full page -->
   <div v-if="loading" class="min-h-screen bg-secondary-50 flex items-center justify-center">
     <div class="text-center">
-      <div class="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
+      <PieLoader class="mx-auto mb-4" />
       <p class="text-secondary-600 font-medium">{{ currentPhrase }}</p>
     </div>
   </div>
@@ -148,7 +148,7 @@
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary-100 rounded-lg text-sm text-secondary-700"
                       >
                         <CheckIcon class="w-4 h-4 text-green-500" />
-                        <strong>{{ Math.round(item.ticketsCount / pkg.packageCount) }}x</strong> {{ item.areaName }}
+                        <strong>{{ item.ticketsPerPackage }}x</strong> {{ item.areaName }}
                       </span>
                     </div>
                   </div>
@@ -277,10 +277,6 @@
                         >
                           <TicketIcon class="w-4 h-4" />
                           Paquete {{ item.bundleSize }}x1
-                        </span>
-                        <!-- Tickets Count Badge -->
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary-100 rounded-lg text-sm text-secondary-700">
-                          {{ item.ticketsCount }} {{ item.ticketsCount === 1 ? 'boleta' : 'boletas' }}
                         </span>
                       </div>
                     </div>
