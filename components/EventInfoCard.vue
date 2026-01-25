@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { TicketIcon, CalendarIcon, UserGroupIcon } from '@heroicons/vue/24/outline'
 
 interface Props {
@@ -11,6 +12,13 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   linkable: true
+})
+
+// Dynamic grid: 2 columns if no capacity, 3 columns if capacity exists
+const gridClass = computed(() => {
+  return props.capacity
+    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+    : 'grid-cols-1 sm:grid-cols-2'
 })
 
 function formatDateShort(dateStr: string) {
@@ -30,7 +38,7 @@ function formatNumber(num: number) {
 
 <template>
   <div class="bg-white rounded-2xl border border-secondary-100 p-4 sm:p-6">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+    <div class="grid gap-4 sm:gap-6" :class="gridClass">
       <!-- Event Name -->
       <div class="flex items-center space-x-2 sm:space-x-3">
         <div class="bg-secondary-50 p-2 sm:p-3 rounded-lg border border-secondary-200 flex-shrink-0">
