@@ -458,10 +458,16 @@ const eventDetails = ref<any>(null)
 
 // Loading phrases
 const { currentPhrase, start: startPhraseRotation, stop: stopPhraseRotation } = useLoadingPhrases([
-  'Cargando carrito...',
-  'Verificando productos...',
-  'Actualizando precios...',
-  'Casi listo...'
+  'Cargando tu carrito...',
+  'Buscando tus boletas debajo del sofá...',
+  'Verificando que no seas un bot...',
+  'Haciendo cuentas con los dedos...',
+  'Consultando el oráculo de precios...',
+  'Negociando con el universo...',
+  'Asegurando tu lugar en el concierto...',
+  'Peleando con la base de datos...',
+  'Prometemos no vender tus datos...',
+  'Ya casi, paciencia joven padawan...'
 ])
 
 onMounted(() => {

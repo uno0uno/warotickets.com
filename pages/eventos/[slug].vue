@@ -513,10 +513,16 @@ const cartLoading = ref(mightHaveCart)
 
 // Loading phrases
 const { currentPhrase, start: startPhraseRotation, stop: stopPhraseRotation } = useLoadingPhrases([
-  'Cargando carrito...',
-  'Verificando disponibilidad...',
-  'Calculando precios...',
-  'Casi listo...'
+  'Cargando tu carrito...',
+  'Contando boletas una por una...',
+  'Verificando que nadie se coló...',
+  'Negociando con los revendedores...',
+  'Sobornando al de la entrada...',
+  'Reservando los mejores asientos...',
+  'Espantando a los especuladores...',
+  'Calculando precios sin llorar...',
+  'Convenciendo al guardia...',
+  'Casi listo, aguanta...'
 ])
 
 watch(cartLoading, (loading) => {
