@@ -1,14 +1,15 @@
 <template>
-  <!-- Loading State - Full page -->
-  <div v-if="loading" class="min-h-screen bg-secondary-50 flex items-center justify-center">
-    <div class="text-center">
-      <PieLoader class="mx-auto mb-4" />
-      <p class="text-secondary-600 font-medium">{{ currentPhrase }}</p>
+  <div class="min-h-screen bg-secondary-50">
+    <!-- Loading State - Full page -->
+    <div v-if="loading" class="min-h-screen flex items-center justify-center">
+      <div class="text-center">
+        <PieLoader class="mx-auto mb-4" />
+        <p class="text-secondary-600 font-medium">{{ currentPhrase }}</p>
+      </div>
     </div>
-  </div>
 
-  <!-- Page Content -->
-  <div v-else class="min-h-screen bg-secondary-50 flex flex-col">
+    <!-- Page Content -->
+    <div v-else class="min-h-screen flex flex-col">
     <!-- Header -->
     <div class="bg-white border-b border-secondary-100">
       <div class="container mx-auto px-4 md:px-8 py-6">
@@ -433,6 +434,7 @@
           </div>
         </div>
     </main>
+    </div>
   </div>
 </template>
 

@@ -45,24 +45,8 @@
         </select>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="pending && !events" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div v-for="i in 6" :key="i" class="animate-pulse">
-          <div class="bg-white rounded-2xl p-4 border border-secondary-100">
-            <div class="flex gap-4">
-              <div class="w-28 h-28 bg-secondary-200 rounded-xl flex-shrink-0"></div>
-              <div class="flex-1 space-y-3">
-                <div class="h-4 bg-secondary-200 rounded w-1/4"></div>
-                <div class="h-6 bg-secondary-200 rounded w-3/4"></div>
-                <div class="h-4 bg-secondary-200 rounded w-1/2"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Error State -->
-      <div v-else-if="error && !events" class="text-center py-16">
+      <div v-if="error" class="text-center py-16">
         <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
           <ExclamationTriangleIcon class="w-8 h-8 text-red-500" />
         </div>
@@ -200,8 +184,8 @@ useHead({
 const searchQuery = ref('')
 const selectedType = ref('')
 
-// Fetch events
-const { data: events, pending, error, refresh } = await useAsyncData(
+// Fetch events - SSR siempre
+const { data: events, error, refresh } = await useAsyncData(
   'public-events',
   () => $fetch('/api/public/events', {
     params: {
