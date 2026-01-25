@@ -11,13 +11,21 @@ export default defineNuxtRouteMiddleware(async (to) => {
     '/organizadores',
     '/terminos',
     '/privacidad',
-    '/nosotros'
+    '/nosotros',
+    '/carrito',
+    '/checkout'
+  ]
+
+  // Define public prefixes
+  const publicPrefixes = [
+    '/eventos/',
+    '/auth/',
+    '/checkout/'
   ]
 
   // Check if route is public
-  const isPublicRoute = publicRoutes.some(route => {
-    return to.path === route || to.path.startsWith('/eventos/') || to.path.startsWith('/auth/')
-  })
+  const isPublicRoute = publicRoutes.some(route => to.path === route) ||
+    publicPrefixes.some(prefix => to.path.startsWith(prefix))
 
   if (isPublicRoute) {
     return

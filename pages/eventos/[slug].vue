@@ -215,23 +215,22 @@
               </div>
             </div>
 
-            <!-- Boletas Section - Estilo Etapas -->
+            <!-- Boletas Individuales Section -->
             <div class="space-y-6">
               <!-- Section Header -->
               <div class="flex items-center justify-between">
-                <h2 class="text-2xl font-extrabold text-secondary-900 tracking-tight">Areas y Localidades</h2>
+                <h2 class="text-2xl font-extrabold text-secondary-900 tracking-tight">Boletas individuales</h2>
                 <p class="text-sm text-secondary-500 font-medium hidden sm:block">
-                  Cada area tiene sus propias etapas de venta
+                  Compra por localidad
                 </p>
               </div>
 
-              <!-- Ticket Cards -->
+              <!-- Ticket Cards - Same style as Combos -->
               <div v-if="areas && areas.length > 0" class="space-y-4">
-                <!-- Area Card -->
                 <div
                   v-for="area in areas"
                   :key="area.id"
-                  class="bg-white rounded-3xl p-6 border border-secondary-200   transition-all relative overflow-hidden"
+                  class="bg-white rounded-2xl border border-secondary-200 p-5 relative overflow-hidden"
                   :class="{
                     'opacity-60 grayscale': area.units_available === 0
                   }"
@@ -241,117 +240,126 @@
                     v-if="area.units_available === 0"
                     class="absolute inset-0 bg-secondary-100/10 backdrop-blur-[1px] flex items-center justify-center z-10"
                   >
-                    <span class="bg-white/90 border border-secondary-300 px-6 py-2 rounded-full font-bold text-secondary-500 text-xs uppercase tracking-widest ">
+                    <span class="bg-white/90 border border-secondary-300 px-6 py-2 rounded-full font-bold text-secondary-500 text-xs uppercase tracking-widest">
                       Localidad Agotada
                     </span>
                   </div>
 
-                  <!-- Low Stock Ribbon -->
+                  <!-- Savings/Low Stock Ribbon -->
                   <div
-                    v-if="area.units_available > 0 && area.units_available < 20"
+                    v-if="area.units_available > 0 && getAreaOriginalPrice(area) > getAreaDisplayPrice(area)"
+                    class="absolute top-0 right-0 bg-green-500 text-white text-[9px] font-bold px-4 py-1 rounded-bl-xl uppercase tracking-wider"
+                  >
+                    Ahorras ${{ formatPrice(getAreaOriginalPrice(area) - getAreaDisplayPrice(area)) }}
+                  </div>
+                  <div
+                    v-else-if="area.units_available > 0 && area.units_available < 20"
                     class="absolute top-0 right-0 bg-orange-500 text-white text-[9px] font-bold px-4 py-1 rounded-bl-xl uppercase tracking-wider"
                   >
-                    Ultimos {{ area.units_available }} lugares
+                    Últimos {{ area.units_available }}
                   </div>
 
-                  <!-- Header: Area Name + Active Stage Badge -->
-                  <div class="flex items-start justify-between gap-4 mb-4">
+                  <div class="flex flex-col md:flex-row justify-between gap-4">
+                    <!-- Left: Info -->
                     <div class="flex-1">
-                      <h3 class="font-extrabold text-xl text-secondary-900 tracking-tight">{{ area.area_name }}</h3>
-                      <p v-if="area.description" class="text-sm text-secondary-500 mt-1">{{ area.description }}</p>
-                    </div>
-                    <span
-                      v-if="area.active_sale_stage"
-                      class="flex-shrink-0 bg-green-100 text-green-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase border border-green-200 whitespace-nowrap"
-                    >
-                      {{ area.active_sale_stage }}: Activa
-                    </span>
-                  </div>
+                      <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-secondary-100 rounded-xl flex items-center justify-center">
+                          <TicketIcon class="w-5 h-5 text-secondary-600" />
+                        </div>
+                        <div>
+                          <h3 class="font-extrabold text-lg text-secondary-900">{{ area.area_name }}</h3>
+                          <p v-if="area.description" class="text-sm text-secondary-500">{{ area.description }}</p>
+                        </div>
+                      </div>
 
-                  <!-- Content: Stage Info + Pricing -->
-                  <!-- With Stage: Two columns -->
-                  <div v-if="area.active_sale_stage && getStageInfo(area.active_sale_stage)" class="flex flex-col sm:flex-row gap-4 sm:gap-6">
-                    <!-- Left: Stage Info Box -->
-                    <div class="flex-1">
-                      <div class="bg-secondary-50 border border-secondary-100 rounded-2xl p-4 h-full">
-                        <div class="flex items-center gap-2 mb-2">
-                          <ClockIcon class="w-4 h-4 text-secondary-400" />
-                          <span class="text-xs font-semibold text-secondary-500 uppercase tracking-wide">Etapa Actual</span>
-                        </div>
-                        <p class="font-bold text-secondary-800 mb-1">{{ area.active_sale_stage }}</p>
-                        <p
-                          v-if="getStageInfo(area.active_sale_stage)?.end_time"
-                          class="text-sm text-secondary-500"
-                        >
-                          Hasta {{ formatDateShort(getStageInfo(area.active_sale_stage).end_time) }}
-                        </p>
-                        <!-- Bundle indicator (solo si quantity > 1) -->
-                        <div
-                          v-if="getAreaQuantityInStage(area.id, area.active_sale_stage) > 1"
-                          class="mt-3 inline-flex items-center gap-1.5 bg-primary-100 text-primary-700 px-2.5 py-1 rounded-lg text-xs font-bold"
-                        >
-                          <TicketIcon class="w-3.5 h-3.5" />
-                          {{ getAreaQuantityInStage(area.id, area.active_sale_stage) }}x1
-                        </div>
-                        <!-- Descuento % solo si quantity = 1 (descuento simple) -->
-                        <div
-                          v-if="getAreaQuantityInStage(area.id, area.active_sale_stage) === 1 && area.current_price && Number(area.current_price) < Number(area.price)"
-                          class="mt-3 inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-2.5 py-1 rounded-lg text-xs font-bold"
-                        >
-                          <SparklesIcon class="w-3.5 h-3.5" />
-                          {{ Math.round((1 - Number(area.current_price) / Number(area.price)) * 100) }}% descuento
+                      <!-- Info Badges -->
+                      <div class="space-y-2">
+                        <span class="text-[10px] font-bold text-secondary-400 uppercase tracking-widest">Detalle</span>
+                        <div class="flex flex-wrap gap-2">
+                          <!-- Stage Badge -->
+                          <span
+                            v-if="area.active_sale_stage"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 rounded-lg text-sm text-green-700"
+                          >
+                            <CheckIcon class="w-4 h-4" />
+                            {{ area.active_sale_stage }}
+                          </span>
+                          <!-- Bundle Badge -->
+                          <span
+                            v-if="getAreaQuantityInStage(area.id, area.active_sale_stage) > 1"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-100 rounded-lg text-sm text-primary-700"
+                          >
+                            <TicketIcon class="w-4 h-4" />
+                            Paquete {{ getAreaQuantityInStage(area.id, area.active_sale_stage) }}x1
+                          </span>
+                          <!-- Available Badge -->
+                          <span
+                            v-if="area.units_available > 0"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary-100 rounded-lg text-sm text-secondary-700"
+                          >
+                            {{ area.units_available }} disponibles
+                          </span>
                         </div>
                       </div>
                     </div>
 
-                    <!-- Right: Pricing Box -->
-                    <div class="sm:w-48 flex-shrink-0">
-                      <!-- Bundle Pricing (quantity > 1) -->
-                      <div v-if="getAreaQuantityInStage(area.id, area.active_sale_stage) > 1" class="bg-primary-50 border border-primary-100 rounded-2xl p-4 text-center h-full flex flex-col justify-center">
-                        <p class="text-[10px] text-primary-600 font-bold uppercase tracking-wide mb-1">
-                          Paquete {{ getAreaQuantityInStage(area.id, area.active_sale_stage) }} boletas
+                    <!-- Right: Price + Controls -->
+                    <div class="flex flex-col items-end justify-between md:border-l border-secondary-100 md:pl-5 min-w-[180px]">
+                      <div class="text-right mb-3">
+                        <p class="text-[10px] text-secondary-400 font-bold uppercase mb-1">
+                          {{ getAreaQuantityInStage(area.id, area.active_sale_stage) > 1 ? 'Precio Paquete' : 'Precio Unitario' }}
                         </p>
-                        <p class="text-3xl font-black text-primary-700">
-                          ${{ formatPrice(Number(area.current_price) * getAreaQuantityInStage(area.id, area.active_sale_stage)) }}
+                        <p class="text-2xl font-extrabold text-secondary-900">
+                          ${{ formatPrice(getAreaDisplayPrice(area)) }}
                         </p>
-                        <p class="text-sm text-secondary-400 line-through mt-1">
-                          Antes ${{ formatPrice(Number(area.price) * getAreaQuantityInStage(area.id, area.active_sale_stage)) }}
-                        </p>
-                        <p class="text-[10px] text-primary-600/70 mt-2">
-                          (${{ formatPrice(area.current_price) }} c/u)
+                        <p v-if="getAreaOriginalPrice(area) > getAreaDisplayPrice(area)" class="text-xs text-secondary-400 line-through">
+                          Antes ${{ formatPrice(getAreaOriginalPrice(area)) }}
                         </p>
                       </div>
-                      <!-- Single Ticket Pricing (quantity = 1 or no bundle) -->
-                      <div v-else class="bg-primary-50 border border-primary-100 rounded-2xl p-4 text-center h-full flex flex-col justify-center">
-                        <p class="text-[10px] text-primary-600 font-bold uppercase tracking-wide mb-1">Precio Unitario</p>
-                        <p class="text-3xl font-black text-primary-700">
-                          ${{ formatPrice(area.current_price || area.price) }}
-                        </p>
-                        <p
-                          v-if="area.current_price && Number(area.current_price) < Number(area.price)"
-                          class="text-sm text-secondary-400 line-through mt-1"
-                        >
-                          Antes ${{ formatPrice(area.price) }}
-                        </p>
-                        <p v-if="area.units_available > 0" class="text-xs text-primary-600/70 mt-2 font-medium">
-                          {{ area.units_available }} disponibles
-                        </p>
-                      </div>
-                    </div>
-                  </div>
 
-                  <!-- Without Stage: Single row pricing -->
-                  <div v-else class="flex items-center justify-between gap-4 bg-secondary-50 border border-secondary-100 rounded-2xl p-4">
-                    <div class="flex items-center gap-3">
-                      <TicketIcon class="w-5 h-5 text-secondary-400" />
-                      <div>
-                        <p class="text-xs text-secondary-500 font-medium">Precio unitario</p>
-                        <p v-if="area.units_available > 0" class="text-xs text-secondary-400">{{ area.units_available }} disponibles</p>
+                      <!-- Quantity Controls -->
+                      <div v-if="area.units_available > 0" class="flex items-center gap-3 mb-3">
+                        <button
+                          @click="decrementQuantity(area.id)"
+                          :disabled="getSelectedQuantity(area.id) <= 0"
+                          class="w-8 h-8 rounded-lg flex items-center justify-center transition-all
+                            disabled:opacity-40 disabled:cursor-not-allowed
+                            bg-secondary-200 hover:bg-secondary-300 text-secondary-700"
+                        >
+                          <MinusIcon class="w-4 h-4" />
+                        </button>
+                        <span class="w-8 text-center font-bold text-secondary-900">{{ getSelectedQuantity(area.id) }}</span>
+                        <button
+                          @click="incrementQuantity(area.id)"
+                          class="w-8 h-8 rounded-lg flex items-center justify-center transition-all
+                            bg-primary-100 hover:bg-primary-200 text-primary-700"
+                        >
+                          <PlusIcon class="w-4 h-4" />
+                        </button>
                       </div>
+
+                      <!-- Add to Cart Button -->
+                      <button
+                        v-if="area.units_available > 0"
+                        @click="addToCart(area)"
+                        :disabled="getSelectedQuantity(area.id) <= 0 || addingToCart === area.id"
+                        class="w-full py-2.5 px-4 rounded-xl font-semibold text-sm transition-all
+                          bg-primary-600 hover:bg-primary-700 text-white
+                          disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        <span v-if="addingToCart === area.id" class="flex items-center justify-center gap-2">
+                          <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          Agregando...
+                        </span>
+                        <span v-else class="flex items-center justify-center gap-2">
+                          <ShoppingCartIcon class="w-4 h-4" />
+                          Agregar
+                        </span>
+                      </button>
                     </div>
-                    <p class="text-2xl font-black text-secondary-900">
-                      ${{ formatPrice(area.current_price || area.price) }}
-                    </p>
                   </div>
                 </div>
               </div>
@@ -363,8 +371,20 @@
               </div>
             </div>
 
-            <!-- Combos Section - Solo con parametro ?promo=... -->
-            <div v-if="promotions.length > 0 && showPromos" class="space-y-6">
+            <!-- Error Message -->
+            <div
+              v-if="errorMessage"
+              class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-3"
+            >
+              <ExclamationTriangleIcon class="w-5 h-5 flex-shrink-0" />
+              <span class="text-sm font-medium">{{ errorMessage }}</span>
+              <button @click="errorMessage = null" class="ml-auto text-red-500 hover:text-red-700">
+                <XCircleIcon class="w-5 h-5" />
+              </button>
+            </div>
+
+            <!-- Combos Section - Promociones -->
+            <div v-if="promotions.length > 0" class="space-y-6">
               <!-- Section Header -->
               <div class="flex items-center justify-between">
                 <h2 class="text-2xl font-extrabold text-secondary-900 tracking-tight">Combos y Paquetes</h2>
@@ -378,18 +398,8 @@
                 <div
                   v-for="promo in promotions"
                   :key="promo.id"
-                  class="rounded-3xl p-6   transition-all relative overflow-hidden"
-                  :class="isActivePromo(promo.promotion_code)
-                    ? 'bg-primary-50 border-2 border-primary-500 ring-2 ring-primary-200'
-                    : 'bg-white border border-primary-200'"
+                  class="bg-white rounded-2xl border border-primary-200 p-5 relative overflow-hidden"
                 >
-                  <!-- Active Promo Indicator -->
-                  <div
-                    v-if="isActivePromo(promo.promotion_code)"
-                    class="absolute top-0 left-0 bg-primary-600 text-white text-[9px] font-bold px-4 py-1 rounded-br-xl uppercase tracking-wider"
-                  >
-                    Seleccionado
-                  </div>
 
                   <!-- Savings Ribbon -->
                   <div
@@ -399,20 +409,21 @@
                     Ahorras ${{ formatPrice(promo.savings) }}
                   </div>
 
-                  <div class="flex flex-col md:flex-row justify-between gap-6">
+                  <div class="flex flex-col md:flex-row justify-between gap-4">
                     <!-- Left: Info -->
                     <div class="flex-1">
-                      <div class="flex items-center gap-3 mb-2">
-                        <h3 class="font-extrabold text-xl text-secondary-900 tracking-tight">{{ promo.promotion_name }}</h3>
-                        <span class="bg-primary-100 text-primary-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase border border-primary-200">
-                          {{ promo.promotion_code }}
-                        </span>
+                      <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
+                          <GiftIcon class="w-5 h-5 text-primary-600" />
+                        </div>
+                        <div>
+                          <h3 class="font-extrabold text-lg text-secondary-900">{{ promo.promotion_name }}</h3>
+                        </div>
                       </div>
-                      <p v-if="promo.description" class="text-sm text-secondary-500 mb-4">{{ promo.description }}</p>
 
-                      <!-- Included Items -->
+                      <!-- Included Items - Badge Style -->
                       <div class="space-y-2">
-                        <span class="text-[10px] font-bold text-secondary-400 uppercase tracking-widest">Incluye</span>
+                        <span class="text-[10px] font-bold text-secondary-400 uppercase tracking-widest">Cada combo incluye</span>
                         <div class="flex flex-wrap gap-2">
                           <span
                             v-for="item in promo.items"
@@ -423,26 +434,60 @@
                             <strong>{{ item.quantity }}x</strong> {{ item.area_name }}
                           </span>
                         </div>
-                        <p class="text-xs text-secondary-500 mt-2">
-                          Total: {{ promo.total_tickets }} boletas
-                        </p>
                       </div>
                     </div>
 
-                    <!-- Right: Price -->
-                    <div class="flex flex-col items-end justify-between md:border-l border-secondary-100 md:pl-6 min-w-[160px]">
-                      <div class="text-right">
+                    <!-- Right: Price + Controls -->
+                    <div class="flex flex-col items-end justify-between md:border-l border-secondary-100 md:pl-5 min-w-[180px]">
+                      <div class="text-right mb-3">
                         <p class="text-[10px] text-secondary-400 font-bold uppercase mb-1">Precio Combo</p>
-                        <p class="text-3xl font-extrabold text-secondary-900">
-                          ${{ formatPrice(promo.final_price) }}
-                        </p>
-                        <p
-                          v-if="promo.savings > 0"
-                          class="text-xs text-secondary-400 line-through"
-                        >
+                        <p class="text-2xl font-extrabold text-secondary-900">${{ formatPrice(promo.final_price) }}</p>
+                        <p v-if="promo.savings > 0" class="text-xs text-secondary-400 line-through">
                           Antes ${{ formatPrice(promo.original_price) }}
                         </p>
                       </div>
+
+                      <!-- Quantity Controls -->
+                      <div class="flex items-center gap-3 mb-3">
+                        <button
+                          @click="decrementPromoQuantity(promo.id)"
+                          :disabled="getSelectedPromoQuantity(promo.id) <= 0"
+                          class="w-8 h-8 rounded-lg flex items-center justify-center transition-all
+                            disabled:opacity-40 disabled:cursor-not-allowed
+                            bg-secondary-200 hover:bg-secondary-300 text-secondary-700"
+                        >
+                          <MinusIcon class="w-4 h-4" />
+                        </button>
+                        <span class="w-8 text-center font-bold text-secondary-900">{{ getSelectedPromoQuantity(promo.id) }}</span>
+                        <button
+                          @click="incrementPromoQuantity(promo.id)"
+                          class="w-8 h-8 rounded-lg flex items-center justify-center transition-all
+                            bg-primary-100 hover:bg-primary-200 text-primary-700"
+                        >
+                          <PlusIcon class="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      <!-- Add to Cart Button -->
+                      <button
+                        @click="addPromoToCart(promo)"
+                        :disabled="getSelectedPromoQuantity(promo.id) <= 0 || addingPromoId === promo.id"
+                        class="w-full py-2.5 px-4 rounded-xl font-semibold text-sm transition-all
+                          bg-primary-600 hover:bg-primary-700 text-white
+                          disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        <span v-if="addingPromoId === promo.id" class="flex items-center justify-center gap-2">
+                          <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          Agregando...
+                        </span>
+                        <span v-else class="flex items-center justify-center gap-2">
+                          <ShoppingCartIcon class="w-4 h-4" />
+                          Agregar
+                        </span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -469,7 +514,48 @@
           </div>
         </div>
       </div>
+
     </template>
+
+    <!-- Floating Cart Summary -->
+    <div
+      v-if="cartStore.summary?.itemsCount > 0"
+      class="fixed bottom-0 left-0 right-0 bg-white border-t border-secondary-200 shadow-2xl z-50"
+    >
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between gap-4">
+          <!-- Cart Info -->
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
+              <ShoppingCartIcon class="w-6 h-6 text-primary-600" />
+            </div>
+            <div>
+              <p class="font-bold text-secondary-900">
+                {{ cartStore.summary?.ticketsCount || 0 }} {{ (cartStore.summary?.ticketsCount || 0) === 1 ? 'boleta' : 'boletas' }}
+              </p>
+              <p class="text-sm text-secondary-500">
+                {{ cartStore.summary?.itemsCount || 0 }} {{ (cartStore.summary?.itemsCount || 0) === 1 ? 'item' : 'items' }} en el carrito
+              </p>
+            </div>
+          </div>
+
+          <!-- Total + Button -->
+          <div class="flex items-center gap-4">
+            <div class="text-right">
+              <p class="text-xs text-secondary-500 font-medium">Total</p>
+              <p class="text-2xl font-black text-secondary-900">${{ formatPrice(cartStore.summary?.total || 0) }}</p>
+            </div>
+            <button
+              @click="goToCart"
+              class="py-3 px-6 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold transition-all flex items-center gap-2"
+            >
+              Ver carrito
+              <ArrowLeftIcon class="w-4 h-4 rotate-180" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -483,23 +569,17 @@ import {
   UserGroupIcon,
   SparklesIcon,
   ClockIcon,
-  CheckIcon
+  CheckIcon,
+  PlusIcon,
+  MinusIcon,
+  ShoppingCartIcon,
+  GiftIcon
 } from '@heroicons/vue/24/outline'
 
 const route = useRoute()
+const router = useRouter()
 const slug = route.params.slug as string
-
-// Obtener el codigo de promocion de la URL
-const promoCode = computed(() => {
-  const promoParam = route.query.promo
-  if (!promoParam) return null
-  return typeof promoParam === 'string' ? promoParam : null
-})
-
-// Mostrar promociones si viene cualquier parametro ?promo=...
-const showPromos = computed(() => {
-  return !!promoCode.value
-})
+const cartStore = useCartStore()
 
 // Page Meta
 definePageMeta({
@@ -527,6 +607,178 @@ const areas = computed(() => data.value?.areas as any[] || [])
 const summary = computed(() => data.value?.summary)
 const promotions = computed(() => data.value?.promotions as any[] || [])
 const saleStages = computed(() => data.value?.saleStages as any[] || [])
+
+// Cart state
+const selectedQuantities = ref<Record<number, number>>({})
+const selectedPromoQuantities = ref<Record<string, number>>({})
+const addingToCart = ref<number | null>(null)
+const addingPromoId = ref<string | null>(null)
+const errorMessage = ref<string | null>(null)
+
+// Initialize cart on mount
+onMounted(async () => {
+  try {
+    await cartStore.fetchSummary()
+    // Load full cart if exists (to check items)
+    if (cartStore.summary.cartId) {
+      await cartStore.fetchCart(cartStore.summary.cartId)
+      // Initialize quantities with what's already in cart (after next tick)
+      await nextTick()
+      initQuantitiesFromCart()
+    }
+  } catch (e) {
+    console.error('Error loading cart:', e)
+  }
+})
+
+// Initialize quantities from cart (both areas and promos)
+function initQuantitiesFromCart() {
+  if (!cartStore.cart?.items) return
+
+  // Initialize area quantities (non-promo items)
+  for (const item of cartStore.cart.items) {
+    if (!item.promotionId) {
+      selectedQuantities.value[item.areaId] = item.quantity
+    }
+  }
+
+  // Initialize promo quantities
+  if (promotions.value) {
+    for (const promo of promotions.value) {
+      const qty = getPromoInCart(promo.id)
+      if (qty > 0) {
+        selectedPromoQuantities.value[promo.id] = qty
+      }
+    }
+  }
+}
+
+// Get area quantity in cart (non-promo)
+function getAreaInCart(areaId: number): number {
+  if (!cartStore.cart?.items) return 0
+  const item = cartStore.cart.items.find(i => i.areaId === areaId && !i.promotionId)
+  return item?.quantity || 0
+}
+
+// Get quantity selected for an area
+function getSelectedQuantity(areaId: number): number {
+  return selectedQuantities.value[areaId] || 0
+}
+
+// Set quantity for an area
+function setQuantity(areaId: number, qty: number) {
+  const area = areas.value.find((a: any) => a.id === areaId)
+  if (!area) return
+
+  const bundleSize = getAreaQuantityInStage(areaId, area.active_sale_stage) || 1
+  const maxBundles = Math.min(10, Math.floor(area.units_available / bundleSize))
+
+  if (qty < 0) qty = 0
+  if (qty > maxBundles) qty = maxBundles
+
+  selectedQuantities.value[areaId] = qty
+}
+
+// Increment quantity
+function incrementQuantity(areaId: number) {
+  const current = getSelectedQuantity(areaId)
+  setQuantity(areaId, current + 1)
+}
+
+// Decrement quantity
+function decrementQuantity(areaId: number) {
+  const current = getSelectedQuantity(areaId)
+  setQuantity(areaId, current - 1)
+}
+
+// Get total tickets for selected quantity
+function getTicketsForQuantity(areaId: number, stageName: string): number {
+  const qty = getSelectedQuantity(areaId)
+  const bundleSize = getAreaQuantityInStage(areaId, stageName)
+  return qty * bundleSize
+}
+
+// Add to cart
+async function addToCart(area: any) {
+  const qty = getSelectedQuantity(area.id)
+  if (qty <= 0) return
+
+  addingToCart.value = area.id
+
+  try {
+    const clusterId = event.value?.cluster_id || event.value?.id
+    await cartStore.addItem(clusterId, area.id, qty)
+    // Keep the quantity as-is (don't reset to 0)
+  } finally {
+    addingToCart.value = null
+  }
+}
+
+// Go to cart
+function goToCart() {
+  router.push('/carrito')
+}
+
+// Get selected quantity for a promo
+function getSelectedPromoQuantity(promoId: string): number {
+  return selectedPromoQuantities.value[promoId] || 0
+}
+
+// Set promo quantity
+function setPromoQuantity(promoId: string, qty: number) {
+  if (qty < 0) qty = 0
+  if (qty > 5) qty = 5 // Max 5 packages
+  selectedPromoQuantities.value[promoId] = qty
+}
+
+// Increment promo quantity
+function incrementPromoQuantity(promoId: string) {
+  const current = getSelectedPromoQuantity(promoId)
+  setPromoQuantity(promoId, current + 1)
+}
+
+// Decrement promo quantity
+function decrementPromoQuantity(promoId: string) {
+  const current = getSelectedPromoQuantity(promoId)
+  setPromoQuantity(promoId, current - 1)
+}
+
+// Check if promo is already in cart
+function getPromoInCart(promoId: string): number {
+  if (!cartStore.cart?.items) return 0
+  const promoItems = cartStore.cart.items.filter(item => item.promotionId === promoId)
+  if (promoItems.length === 0) return 0
+  // Count total tickets from this promo and divide by promo total_tickets to get quantity
+  const promo = promotions.value.find((p: any) => p.id === promoId)
+  if (!promo) return 0
+  const totalTickets = promoItems.reduce((sum, item) => sum + item.ticketsCount, 0)
+  return Math.floor(totalTickets / promo.total_tickets)
+}
+
+// Add promotion package to cart
+async function addPromoToCart(promo: any) {
+  const qty = getSelectedPromoQuantity(promo.id)
+  if (qty <= 0) return
+
+  addingPromoId.value = promo.id
+  errorMessage.value = null
+
+  try {
+    const clusterId = event.value?.cluster_id || event.value?.id
+
+    // Add the promo package with quantity
+    const result = await cartStore.addPromotionPackage(clusterId, promo.id, qty)
+
+    if (!result?.success) {
+      errorMessage.value = result?.error || 'Error al agregar el paquete'
+      // Auto-hide error after 5 seconds
+      setTimeout(() => { errorMessage.value = null }, 5000)
+    }
+    // Keep the quantity as-is (don't reset to 0)
+  } finally {
+    addingPromoId.value = null
+  }
+}
 
 // Dynamic SEO
 useHead(() => ({
@@ -618,9 +870,17 @@ function getAreaQuantityInStage(areaId: number, stageName: string): number {
   return areaInStage?.quantity || 1
 }
 
-// Verificar si el codigo de promocion coincide con el de la URL
-function isActivePromo(code: string) {
-  if (!promoCode.value || !code) return false
-  return code.toLowerCase() === promoCode.value.toLowerCase()
+// Get display price for an area (considering bundles)
+function getAreaDisplayPrice(area: any): number {
+  const bundleSize = getAreaQuantityInStage(area.id, area.active_sale_stage)
+  const unitPrice = Number(area.current_price || area.price)
+  return unitPrice * bundleSize
 }
+
+// Get original price for an area (considering bundles)
+function getAreaOriginalPrice(area: any): number {
+  const bundleSize = getAreaQuantityInStage(area.id, area.active_sale_stage)
+  return Number(area.price) * bundleSize
+}
+
 </script>
