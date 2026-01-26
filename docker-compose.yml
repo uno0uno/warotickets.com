@@ -1,0 +1,22 @@
+services:
+  warotickets:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: warotickets-nuxt
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - nuxt-data:/app/storage
+    networks:
+      - warolabs-network
+    restart: unless-stopped
+
+networks:
+  warolabs-network:
+    external: true
+
+volumes:
+  nuxt-data:
