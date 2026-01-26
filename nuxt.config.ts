@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     routeRules: {
       '/api/auth/**': {
         proxy: {
-          to: `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:5002'}/auth/**`,
+          to: `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8001'}/auth/**`,
           changeOrigin: true,
           followRedirects: true,
           ...(process.env.NODE_ENV === 'development' && {
@@ -30,7 +30,7 @@ export default defineNuxtConfig({
       },
       '/api/**': {
         proxy: {
-          to: `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:5002'}/**`,
+          to: `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8001'}/**`,
           changeOrigin: true,
           followRedirects: true,
           headers: process.env.NODE_ENV === 'development'
@@ -105,7 +105,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:5002',
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8001',
       siteName: process.env.NUXT_PUBLIC_SITE_NAME || 'WaRo Tickets',
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://warotickets.com',
       defaultRedirectUrl: process.env.NUXT_PUBLIC_DEFAULT_REDIRECT_URL || '/gestion/eventos'
