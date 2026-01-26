@@ -20,7 +20,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const publicPrefixes = [
     '/eventos/',
     '/auth/',
-    '/checkout/'
+    '/pago/'
   ]
 
   // Check if route is public
