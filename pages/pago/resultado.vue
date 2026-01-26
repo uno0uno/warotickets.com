@@ -190,15 +190,17 @@ onMounted(async () => {
     })
 
     payment.value = response
-    paymentStatus.value = response.gateway_status || response.status
+    const rawStatus = (response.gateway_status || response.status || '').toLowerCase()
 
-    // Map status if needed
-    if (paymentStatus.value === 'confirmed' || paymentStatus.value === 'APPROVED') {
+    // Map status to standard values
+    if (rawStatus === 'confirmed' || rawStatus === 'approved') {
       paymentStatus.value = 'APPROVED'
-    } else if (paymentStatus.value === 'pending' || paymentStatus.value === 'PENDING') {
+    } else if (rawStatus === 'pending') {
       paymentStatus.value = 'PENDING'
-    } else if (paymentStatus.value === 'declined' || paymentStatus.value === 'DECLINED' || paymentStatus.value === 'failed') {
+    } else if (rawStatus === 'declined' || rawStatus === 'failed' || rawStatus === 'rejected') {
       paymentStatus.value = 'DECLINED'
+    } else {
+      paymentStatus.value = 'ERROR'
     }
   } catch (e: any) {
     console.error('Error verifying payment:', e)

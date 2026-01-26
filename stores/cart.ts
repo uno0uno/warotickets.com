@@ -11,6 +11,8 @@ interface CartItem {
   originalPrice: number   // Precio original
   subtotal: number        // Total del item (calculado)
   bundleSize: number      // Tamano del bundle (calculado)
+  serviceFeePerTicket: number  // Fee de servicio por boleta
+  serviceFeeTotal: number      // Fee total del item
   stageName: string | null
   stageId: string | null
   stageStatus: 'active' | 'none'  // Estado del stage actual
@@ -34,6 +36,7 @@ interface Cart {
   items: CartItem[]
   subtotal: number
   discount: number
+  serviceFee: number      // Total fee de servicio Waro
   total: number
   ticketsCount: number
   expiresAt: string | null
@@ -50,10 +53,10 @@ interface CartSummary {
 }
 
 interface CheckoutData {
-  customerName: string
   customerEmail: string
-  customerPhone: string
-  acceptTerms: boolean
+  customerName?: string
+  customerPhone?: string
+  acceptTerms?: boolean
   returnUrl?: string
 }
 
@@ -85,6 +88,7 @@ export const useCartStore = defineStore('cart', () => {
   const totalTickets = computed(() => cart.value?.ticketsCount ?? 0)
   const subtotal = computed(() => cart.value?.subtotal ?? 0)
   const discount = computed(() => cart.value?.discount ?? 0)
+  const serviceFee = computed(() => cart.value?.serviceFee ?? 0)
   const total = computed(() => cart.value?.total ?? 0)
 
   // Generate or get session ID
@@ -128,6 +132,8 @@ export const useCartStore = defineStore('cart', () => {
         originalPrice: parseFloat(item.original_price),
         subtotal: parseFloat(item.subtotal),
         bundleSize: item.bundle_size,
+        serviceFeePerTicket: parseFloat(item.service_fee_per_ticket || 0),
+        serviceFeeTotal: parseFloat(item.service_fee_total || 0),
         stageName: item.stage_name,
         stageId: item.stage_id,
         stageStatus: item.stage_status || 'none',
@@ -137,6 +143,7 @@ export const useCartStore = defineStore('cart', () => {
       })),
       subtotal: parseFloat(data.subtotal),
       discount: parseFloat(data.discount),
+      serviceFee: parseFloat(data.service_fee || 0),
       total: parseFloat(data.total),
       ticketsCount: data.tickets_count,
       expiresAt: data.expires_at,
@@ -388,15 +395,19 @@ export const useCartStore = defineStore('cart', () => {
     error.value = null
 
     try {
+      const body: Record<string, any> = {
+        customer_email: data.customerEmail,
+        accept_terms: data.acceptTerms ?? true
+      }
+
+      // Only include optional fields if provided
+      if (data.customerName) body.customer_name = data.customerName
+      if (data.customerPhone) body.customer_phone = data.customerPhone
+      if (data.returnUrl) body.return_url = data.returnUrl
+
       const response = await $fetch<any>(`/api/cart/${cart.value.id}/checkout`, {
         method: 'POST',
-        body: {
-          customer_name: data.customerName,
-          customer_email: data.customerEmail,
-          customer_phone: data.customerPhone,
-          accept_terms: data.acceptTerms,
-          return_url: data.returnUrl
-        },
+        body,
         credentials: 'include'
       })
 
@@ -477,6 +488,7 @@ export const useCartStore = defineStore('cart', () => {
     totalTickets,
     subtotal,
     discount,
+    serviceFee,
     total,
 
     // Actions

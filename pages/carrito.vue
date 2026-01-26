@@ -1,5 +1,106 @@
 <template>
   <div class="min-h-screen bg-secondary-50">
+    <!-- Checkout Modal -->
+    <Teleport to="body">
+      <div
+        v-if="showCheckoutModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      >
+        <!-- Backdrop -->
+        <div
+          class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          @click="showCheckoutModal = false"
+        ></div>
+
+        <!-- Modal -->
+        <div class="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6 transform transition-all">
+          <!-- Close Button -->
+          <button
+            @click="showCheckoutModal = false"
+            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-secondary-100 transition-colors"
+          >
+            <XMarkIcon class="w-5 h-5 text-secondary-500" />
+          </button>
+
+          <!-- Header -->
+          <div class="text-center mb-6">
+            <div class="w-14 h-14 mx-auto mb-4 bg-primary-100 rounded-full flex items-center justify-center">
+              <EnvelopeIcon class="w-7 h-7 text-primary-600" />
+            </div>
+            <h2 class="text-xl font-bold text-secondary-900">Finalizar compra</h2>
+            <p class="text-sm text-secondary-500 mt-1">Ingresa tu correo para recibir tus boletas</p>
+          </div>
+
+          <!-- Form -->
+          <form @submit.prevent="handleCheckout" class="space-y-4">
+            <!-- Email Input -->
+            <div>
+              <label for="checkout-email" class="block text-sm font-medium text-secondary-700 mb-1.5">
+                Correo electronico
+              </label>
+              <input
+                id="checkout-email"
+                v-model="checkoutEmail"
+                type="email"
+                required
+                placeholder="tu@email.com"
+                class="w-full px-4 py-3 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                :class="{ 'border-red-300': checkoutEmailError }"
+              />
+              <p v-if="checkoutEmailError" class="text-sm text-red-500 mt-1">{{ checkoutEmailError }}</p>
+            </div>
+
+            <!-- Summary -->
+            <div class="bg-secondary-50 rounded-xl p-4">
+              <div class="flex justify-between items-center">
+                <span class="text-secondary-600">Total a pagar</span>
+                <span class="text-xl font-bold text-secondary-900">${{ formatPrice(cartStore.total) }}</span>
+              </div>
+              <p class="text-xs text-secondary-400 mt-1">{{ cartStore.totalTickets }} boletas para {{ cartStore.cart?.clusterName }}</p>
+            </div>
+
+            <!-- Terms Notice -->
+            <p class="text-xs text-secondary-400 text-center">
+              Al continuar, aceptas los
+              <a href="/terminos" target="_blank" class="text-primary-600 hover:underline">terminos y condiciones</a>
+              y la
+              <a href="/privacidad" target="_blank" class="text-primary-600 hover:underline">politica de privacidad</a>.
+            </p>
+
+            <!-- Error Message -->
+            <div v-if="checkoutError" class="bg-red-50 border border-red-200 rounded-xl p-3">
+              <p class="text-sm text-red-700">{{ checkoutError }}</p>
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              :disabled="checkoutProcessing"
+              class="w-full py-4 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              <template v-if="checkoutProcessing">
+                <svg class="animate-spin w-5 h-5" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Procesando...
+              </template>
+              <template v-else>
+                <CreditCardIcon class="w-5 h-5" />
+                Pagar con Wompi
+              </template>
+            </button>
+
+            <!-- Security Note -->
+            <div class="flex items-center justify-center gap-2 text-xs text-secondary-400">
+              <LockClosedIcon class="w-4 h-4" />
+              <span>Pago seguro encriptado</span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- Loading State - Full page -->
     <div v-if="loading" class="min-h-screen flex items-center justify-center">
       <div class="text-center">
@@ -276,33 +377,41 @@
                     </div>
 
                     <!-- Quantity Controls -->
-                    <div class="flex items-center gap-3 mb-3">
-                      <button
-                        @click="decrementItemQty(item.areaId, item.quantity)"
-                        :disabled="cartStore.isLoading || updatingItem === item.areaId || getPendingItemQty(item.areaId, item.quantity) <= 0"
-                        class="w-8 h-8 rounded-lg flex items-center justify-center transition-all
-                          disabled:opacity-40 disabled:cursor-not-allowed
-                          bg-secondary-200 hover:bg-secondary-300 text-secondary-700"
-                      >
-                        <MinusIcon class="w-4 h-4" />
-                      </button>
-                      <span class="w-8 text-center font-bold text-secondary-900">
-                        <template v-if="updatingItem === item.areaId">
-                          <svg class="animate-spin w-4 h-4 mx-auto" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                        </template>
-                        <template v-else>{{ getPendingItemQty(item.areaId, item.quantity) }}</template>
-                      </span>
-                      <button
-                        @click="incrementItemQty(item.areaId, item.quantity)"
-                        :disabled="cartStore.isLoading || updatingItem === item.areaId"
-                        class="w-8 h-8 rounded-lg flex items-center justify-center transition-all
-                          bg-primary-100 hover:bg-primary-200 text-primary-700"
-                      >
-                        <PlusIcon class="w-4 h-4" />
-                      </button>
+                    <div class="flex flex-col items-center gap-1 mb-3">
+                      <p class="text-[10px] text-secondary-400 font-bold uppercase">
+                        {{ item.bundleSize > 1 ? 'Paquetes' : 'Boletas' }}
+                      </p>
+                      <div class="flex items-center gap-3">
+                        <button
+                          @click="decrementItemQty(item.areaId, item.quantity)"
+                          :disabled="cartStore.isLoading || updatingItem === item.areaId || getPendingItemQty(item.areaId, item.quantity) <= 0"
+                          class="w-8 h-8 rounded-lg flex items-center justify-center transition-all
+                            disabled:opacity-40 disabled:cursor-not-allowed
+                            bg-secondary-200 hover:bg-secondary-300 text-secondary-700"
+                        >
+                          <MinusIcon class="w-4 h-4" />
+                        </button>
+                        <span class="w-8 text-center font-bold text-secondary-900">
+                          <template v-if="updatingItem === item.areaId">
+                            <svg class="animate-spin w-4 h-4 mx-auto" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                          </template>
+                          <template v-else>{{ getPendingItemQty(item.areaId, item.quantity) }}</template>
+                        </span>
+                        <button
+                          @click="incrementItemQty(item.areaId, item.quantity)"
+                          :disabled="cartStore.isLoading || updatingItem === item.areaId"
+                          class="w-8 h-8 rounded-lg flex items-center justify-center transition-all
+                            bg-primary-100 hover:bg-primary-200 text-primary-700"
+                        >
+                          <PlusIcon class="w-4 h-4" />
+                        </button>
+                      </div>
+                      <p v-if="item.bundleSize > 1" class="text-[10px] text-secondary-400">
+                        = {{ getPendingItemQty(item.areaId, item.quantity) * item.bundleSize }} boletas
+                      </p>
                     </div>
 
                     <!-- Update Button -->
@@ -351,13 +460,12 @@
                           <GiftIcon class="w-4 h-4 text-primary-600" />
                           <span class="font-medium text-secondary-900 text-sm">{{ pkg.promotionName }}</span>
                         </div>
-                        <p class="text-xs text-secondary-500 mt-0.5">{{ pkg.packageCount }} {{ pkg.packageCount === 1 ? 'combo' : 'combos' }}</p>
+                        <p class="text-xs text-secondary-500 mt-0.5">
+                          {{ pkg.packageCount }} {{ pkg.packageCount === 1 ? 'combo' : 'combos' }} · {{ pkg.ticketsCount }} boletas
+                        </p>
                       </div>
                       <div class="text-right">
                         <span class="font-medium text-secondary-900">${{ formatPrice(pkg.subtotal) }}</span>
-                        <p v-if="pkg.originalTotal > pkg.subtotal" class="text-xs text-green-600">
-                          -${{ formatPrice(pkg.originalTotal - pkg.subtotal) }}
-                        </p>
                       </div>
                     </div>
                   </template>
@@ -378,19 +486,17 @@
                         </div>
                         <p class="text-xs text-secondary-500 mt-0.5">
                           <template v-if="item.bundleSize > 1">
-                            {{ item.quantity }} {{ item.quantity === 1 ? 'promoción' : 'promociones' }} {{ item.bundleSize }}x1
+                            <!-- Con promoción de etapa (ej: 2x1) -->
+                            {{ item.quantity }} {{ item.quantity === 1 ? 'paquete' : 'paquetes' }} {{ item.bundleSize }}x1
                           </template>
                           <template v-else>
+                            <!-- Sin promoción - boletas normales -->
                             {{ item.ticketsCount }} {{ item.ticketsCount === 1 ? 'boleta' : 'boletas' }}
                           </template>
-                          <span v-if="item.stageStatus === 'active' && item.stageName" class="text-green-600"> · Etapa: {{ item.stageName }}</span>
                         </p>
                       </div>
                       <div class="text-right">
                         <span class="font-medium text-secondary-900">${{ formatPrice(item.subtotal) }}</span>
-                        <p v-if="(item.originalPrice * item.ticketsCount) > item.subtotal" class="text-xs text-green-600">
-                          -${{ formatPrice((item.originalPrice * item.ticketsCount) - item.subtotal) }}
-                        </p>
                       </div>
                     </div>
                   </template>
@@ -400,12 +506,12 @@
               <!-- Totals -->
               <div class="border-t border-secondary-100 pt-3 space-y-2">
                 <div class="flex justify-between text-sm text-secondary-600">
-                  <span>Subtotal ({{ cartStore.totalTickets }} boletas)</span>
-                  <span>${{ formatPrice(totalOriginal) }}</span>
+                  <span>Boletas ({{ cartStore.totalTickets }})</span>
+                  <span>${{ formatPrice(cartStore.subtotal) }}</span>
                 </div>
-                <div v-if="cartStore.discount > 0" class="flex justify-between text-sm text-green-600 font-medium">
-                  <span>Ahorro total</span>
-                  <span>-${{ formatPrice(cartStore.discount) }}</span>
+                <div class="flex justify-between text-sm text-secondary-500">
+                  <span>Cargo por servicio</span>
+                  <span>${{ formatPrice(cartStore.serviceFee) }}</span>
                 </div>
               </div>
 
@@ -414,6 +520,9 @@
                   <span class="font-bold text-secondary-900">Total a pagar</span>
                   <span class="text-2xl font-black text-secondary-900">${{ formatPrice(cartStore.total) }}</span>
                 </div>
+                <p v-if="cartStore.serviceFee > 0" class="text-[10px] text-secondary-400 text-right mt-1">
+                  Incluye cargo por servicio de ${{ formatPrice(Math.round(cartStore.serviceFee / cartStore.totalTickets)) }}/boleta
+                </p>
               </div>
 
               <button
@@ -447,16 +556,26 @@ import {
   PlusIcon,
   GiftIcon,
   TrashIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  XMarkIcon,
+  EnvelopeIcon,
+  CreditCardIcon,
+  LockClosedIcon
 } from '@heroicons/vue/24/outline'
 
-const router = useRouter()
 const cartStore = useCartStore()
 
 // Local state
 const loading = ref(true)
 const updatingPromo = ref<string | null>(null)
 const eventDetails = ref<any>(null)
+
+// Checkout modal state
+const showCheckoutModal = ref(false)
+const checkoutEmail = ref('')
+const checkoutEmailError = ref('')
+const checkoutError = ref('')
+const checkoutProcessing = ref(false)
 
 // Loading phrases
 const { currentPhrase, start: startPhraseRotation, stop: stopPhraseRotation } = useLoadingPhrases([
@@ -722,8 +841,55 @@ async function clearCart() {
   }
 }
 
-// Go to checkout
+// Open checkout modal
 function goToCheckout() {
-  router.push('/checkout')
+  showCheckoutModal.value = true
+  checkoutEmail.value = ''
+  checkoutEmailError.value = ''
+  checkoutError.value = ''
+}
+
+// Handle checkout submission
+async function handleCheckout() {
+  // Validate email
+  checkoutEmailError.value = ''
+  checkoutError.value = ''
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!checkoutEmail.value || !emailRegex.test(checkoutEmail.value)) {
+    checkoutEmailError.value = 'Ingresa un correo electronico valido'
+    return
+  }
+
+  checkoutProcessing.value = true
+
+  try {
+    const returnUrl = `${window.location.origin}/pago/resultado`
+
+    const result = await cartStore.checkout({
+      customerEmail: checkoutEmail.value,
+      acceptTerms: true,
+      returnUrl
+    })
+
+    if (result?.checkoutUrl) {
+      // Redirect to Wompi payment page
+      window.location.href = result.checkoutUrl
+    } else {
+      checkoutError.value = cartStore.error || 'Error al procesar el pago. Intenta de nuevo.'
+      // If cart was already processed, close modal and refresh
+      if (cartStore.error?.includes('no encontrado') || cartStore.error?.includes('procesado')) {
+        showCheckoutModal.value = false
+        await cartStore.fetchSummary()
+        if (cartStore.summary.cartId) {
+          await cartStore.fetchCart(cartStore.summary.cartId)
+        }
+      }
+    }
+  } catch (e: any) {
+    checkoutError.value = e?.message || 'Error inesperado. Intenta de nuevo.'
+  } finally {
+    checkoutProcessing.value = false
+  }
 }
 </script>
