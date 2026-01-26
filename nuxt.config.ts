@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   devServer: {
-    port: 8888
+    port: parseInt(process.env.PORT || '3003')
   },
 
   ssr: true,
@@ -14,14 +14,12 @@ export default defineNuxtConfig({
     routeRules: {
       '/api/auth/**': {
         proxy: {
-          to: process.env.NODE_ENV === 'development'
-            ? `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8001'}/auth/**`
-            : 'https://api.warotickets.com/auth/**',
+          to: `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:5002'}/auth/**`,
           changeOrigin: true,
           followRedirects: true,
           ...(process.env.NODE_ENV === 'development' && {
             headers: {
-              'X-Forwarded-Host': 'localhost:8888'
+              'X-Forwarded-Host': `localhost:${process.env.PORT || '3003'}`
             }
           })
         },
@@ -32,20 +30,18 @@ export default defineNuxtConfig({
       },
       '/api/**': {
         proxy: {
-          to: process.env.NODE_ENV === 'development'
-            ? `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8001'}/**`
-            : 'https://api.warotickets.com/**',
+          to: `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:5002'}/**`,
           changeOrigin: true,
           followRedirects: true,
           headers: process.env.NODE_ENV === 'development'
             ? {
-                'X-Forwarded-Host': 'localhost:8888',
-                'Origin': 'http://localhost:8888',
-                'Referer': 'http://localhost:8888/'
+                'X-Forwarded-Host': `localhost:${process.env.PORT || '3003'}`,
+                'Origin': `http://localhost:${process.env.PORT || '3003'}`,
+                'Referer': `http://localhost:${process.env.PORT || '3003'}/`
               }
             : {
-                'Origin': 'https://warotickets.com',
-                'Referer': 'https://warotickets.com/'
+                'Origin': process.env.NUXT_PUBLIC_SITE_URL || 'https://warotickets.com',
+                'Referer': `${process.env.NUXT_PUBLIC_SITE_URL || 'https://warotickets.com'}/`
               }
         },
         cors: true,
@@ -59,24 +55,24 @@ export default defineNuxtConfig({
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
     head: {
-      title: 'WaRo Tickets - Sistema de Boletería para Eventos',
+      title: process.env.NUXT_PUBLIC_SEO_TITLE || 'WaRo Tickets - Sistema de Boletería para Eventos',
       htmlAttrs: {
-        lang: 'es'
+        lang: process.env.NUXT_PUBLIC_SITE_LANG || 'es'
       },
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Plataforma de venta de boletería y gestión de eventos. Vende entradas, controla accesos con QR y gestiona tu evento de forma simple.' },
+        { name: 'description', content: process.env.NUXT_PUBLIC_SEO_DESCRIPTION || 'Plataforma de venta de boletería y gestión de eventos. Vende entradas, controla accesos con QR y gestiona tu evento de forma simple.' },
         { name: 'theme-color', content: '#7C3AED' },
         // Open Graph
-        { property: 'og:title', content: 'WaRo Tickets - Sistema de Boletería' },
-        { property: 'og:description', content: 'Plataforma de venta de boletería y gestión de eventos' },
+        { property: 'og:title', content: process.env.NUXT_PUBLIC_OG_TITLE || 'WaRo Tickets - Sistema de Boletería' },
+        { property: 'og:description', content: process.env.NUXT_PUBLIC_OG_DESCRIPTION || 'Plataforma de venta de boletería y gestión de eventos' },
         { property: 'og:type', content: 'website' },
-        { property: 'og:locale', content: 'es_CO' },
+        { property: 'og:locale', content: process.env.NUXT_PUBLIC_SITE_LOCALE || 'es_CO' },
         // Twitter
         { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: 'WaRo Tickets' },
-        { name: 'twitter:description', content: 'Sistema de boletería para eventos' }
+        { name: 'twitter:title', content: process.env.NUXT_PUBLIC_TWITTER_TITLE || 'WaRo Tickets' },
+        { name: 'twitter:description', content: process.env.NUXT_PUBLIC_TWITTER_DESCRIPTION || 'Sistema de boletería para eventos' }
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
@@ -109,10 +105,10 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8001',
-      siteName: 'WaRo Tickets',
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:5002',
+      siteName: process.env.NUXT_PUBLIC_SITE_NAME || 'WaRo Tickets',
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://warotickets.com',
-      defaultRedirectUrl: '/gestion/eventos'
+      defaultRedirectUrl: process.env.NUXT_PUBLIC_DEFAULT_REDIRECT_URL || '/gestion/eventos'
     }
   }
 })
