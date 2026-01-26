@@ -6,8 +6,8 @@ services:
     container_name: warotickets-nuxt
     ports:
       - "3003:3003"
-    environment:
-      - NODE_ENV=production
+    env_file:
+      - ${ENV_FILE:-.env}
     volumes:
       - nuxt-data:/app/storage
     networks:
