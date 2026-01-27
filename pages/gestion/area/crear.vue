@@ -13,6 +13,9 @@
       </NuxtLink>
     </div>
 
+    <!-- Loading Event State -->
+    <UiGestionLoader v-else-if="!eventData && !fetchError" />
+
     <template v-else>
       <!-- Area Information Card -->
       <div class="bg-white border-2 border-secondary-200 rounded-lg mb-4 sm:mb-6">

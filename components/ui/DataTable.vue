@@ -13,9 +13,9 @@ const tableContainerVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-white border-secondary-200',
-        minimal: 'bg-white border-secondary-200/50',
-        elevated: 'bg-white border-secondary-200 shadow-lg'
+        default: 'bg-surface border-border',
+        minimal: 'bg-surface border-border/50',
+        elevated: 'bg-surface border-border shadow-lg'
       }
     },
     defaultVariants: {
@@ -29,9 +29,9 @@ const headerSectionVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-white',
-        minimal: 'bg-white',
-        elevated: 'bg-white'
+        default: 'bg-surface',
+        minimal: 'bg-surface',
+        elevated: 'bg-surface'
       }
     },
     defaultVariants: {
@@ -45,9 +45,9 @@ const tableHeaderVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-secondary-50 border-secondary-200',
-        minimal: 'bg-white border-secondary-200',
-        elevated: 'bg-secondary-100 border-secondary-200'
+        default: 'bg-surface-secondary border-border',
+        minimal: 'bg-surface border-border',
+        elevated: 'bg-surface-tertiary border-border'
       }
     },
     defaultVariants: {
@@ -61,9 +61,9 @@ const tableRowVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-secondary-200 hover:bg-secondary-50',
-        minimal: 'border-secondary-200 hover:bg-secondary-100/50',
-        elevated: 'border-secondary-200 hover:bg-secondary-50'
+        default: 'border-border hover:bg-surface-secondary',
+        minimal: 'border-border hover:bg-surface-tertiary/50',
+        elevated: 'border-border hover:bg-surface-secondary'
       },
       rowType: {
         normal: '',
@@ -176,7 +176,7 @@ function handleSort(column: TableColumn) {
 // All table cell values should be black (governance rule)
 function getCellColor(value: any, column: TableColumn): string {
   // All numbers must be black - use StatusBadge for colored indicators
-  return 'text-secondary-900'
+  return 'text-text-primary'
 }
 </script>
 
@@ -185,10 +185,10 @@ function getCellColor(value: any, column: TableColumn): string {
     <!-- Header Section -->
     <div v-if="title || subtitle || $slots.header" :class="headerSectionVariants({ variant })">
       <slot name="header">
-        <h3 v-if="title" class="text-lg font-bold text-secondary-900">
+        <h3 v-if="title" class="text-lg font-bold text-text-primary">
           {{ title }}
         </h3>
-        <p v-if="subtitle" class="text-secondary-600 text-sm">
+        <p v-if="subtitle" class="text-text-secondary text-sm">
           {{ subtitle }}
         </p>
       </slot>
@@ -196,7 +196,7 @@ function getCellColor(value: any, column: TableColumn): string {
 
     <!-- Loading State -->
     <div v-if="loading" class="flex items-center justify-center py-16">
-      <div class="text-secondary-600">Cargando datos...</div>
+      <div class="text-text-secondary">Cargando datos...</div>
     </div>
 
     <!-- Table Body -->
@@ -209,7 +209,7 @@ function getCellColor(value: any, column: TableColumn): string {
               v-for="column in columns"
               :key="column.key"
               :class="cn(
-                'py-2 px-2 border-r border-dashed border-secondary-200/60 last:border-r-0',
+                'py-2 px-2 border-r border-dashed border-border/60 last:border-r-0',
                 column.align === 'center' && 'text-center',
                 column.align === 'right' && 'text-right',
                 column.class
@@ -221,7 +221,7 @@ function getCellColor(value: any, column: TableColumn): string {
                 v-if="column.sortable"
                 @click="handleSort(column)"
                 :class="cn(
-                  'text-sm text-secondary-900 font-bold flex items-center gap-1 transition-colors hover:text-primary-600 w-full',
+                  'text-sm text-text-primary font-bold flex items-center gap-1 transition-colors hover:text-primary w-full',
                   column.align === 'left' && 'justify-start',
                   column.align === 'center' && 'justify-center',
                   column.align === 'right' && 'justify-end'
@@ -239,7 +239,7 @@ function getCellColor(value: any, column: TableColumn): string {
               <span
                 v-else
                 :class="cn(
-                  'text-sm text-secondary-900 font-bold block',
+                  'text-sm text-text-primary font-bold block',
                   column.align === 'left' && 'text-left',
                   column.align === 'center' && 'text-center',
                   column.align === 'right' && 'text-right'
@@ -255,7 +255,7 @@ function getCellColor(value: any, column: TableColumn): string {
         <tbody>
           <!-- Empty State -->
           <tr v-if="data.length === 0">
-            <td :colspan="columns.length" class="py-8 text-center text-secondary-600">
+            <td :colspan="columns.length" class="py-8 text-center text-text-secondary">
               {{ emptyMessage }}
             </td>
           </tr>
@@ -267,8 +267,8 @@ function getCellColor(value: any, column: TableColumn): string {
             :key="index"
             :class="[
               tableRowVariants({ variant, rowType: 'normal' }),
-              index % 2 === 0 ? 'bg-white' : 'bg-secondary-50/30',
-              'cursor-pointer hover:bg-secondary-50 transition-colors'
+              index % 2 === 0 ? 'bg-surface' : 'bg-surface-secondary/30',
+              'cursor-pointer hover:bg-surface-secondary transition-colors'
             ]"
             @click="emit('rowClick', row)"
           >
@@ -276,7 +276,7 @@ function getCellColor(value: any, column: TableColumn): string {
               v-for="column in columns"
               :key="column.key"
               :class="cn(
-                'py-2 px-2 text-sm font-medium border-r border-dashed border-secondary-200/60 last:border-r-0',
+                'py-2 px-2 text-sm font-medium border-r border-dashed border-border/60 last:border-r-0',
                 getCellColor(row[column.key], column),
                 column.align === 'center' && 'text-center',
                 column.align === 'right' && 'text-right',
@@ -304,7 +304,7 @@ function getCellColor(value: any, column: TableColumn): string {
               v-for="column in columns"
               :key="`total-${column.key}`"
               :class="cn(
-                'py-2 px-2 text-sm text-secondary-900 font-semibold border-r border-dashed border-secondary-200/60 last:border-r-0',
+                'py-2 px-2 text-sm text-text-primary font-semibold border-r border-dashed border-border/60 last:border-r-0',
                 column.align === 'center' && 'text-center',
                 column.align === 'right' && 'text-right',
                 column.class
@@ -326,7 +326,7 @@ function getCellColor(value: any, column: TableColumn): string {
     </div>
 
     <!-- Footer Section (outside table) -->
-    <div v-if="$slots.footer" class="p-6 border-t border-secondary-200 bg-secondary-50">
+    <div v-if="$slots.footer" class="p-6 border-t border-border bg-surface-secondary">
       <slot name="footer" />
     </div>
   </div>

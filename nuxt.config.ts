@@ -35,14 +35,14 @@ export default defineNuxtConfig({
           followRedirects: true,
           headers: process.env.NODE_ENV === 'development'
             ? {
-                'X-Forwarded-Host': `localhost:${process.env.PORT || '3003'}`,
-                'Origin': `http://localhost:${process.env.PORT || '3003'}`,
-                'Referer': `http://localhost:${process.env.PORT || '3003'}/`
-              }
+              'X-Forwarded-Host': `localhost:${process.env.PORT || '3003'}`,
+              'Origin': `http://localhost:${process.env.PORT || '3003'}`,
+              'Referer': `http://localhost:${process.env.PORT || '3003'}/`
+            }
             : {
-                'Origin': process.env.NUXT_PUBLIC_SITE_URL || 'https://warotickets.com',
-                'Referer': `${process.env.NUXT_PUBLIC_SITE_URL || 'https://warotickets.com'}/`
-              }
+              'Origin': process.env.NUXT_PUBLIC_SITE_URL || 'https://warotickets.com',
+              'Referer': `${process.env.NUXT_PUBLIC_SITE_URL || 'https://warotickets.com'}/`
+            }
         },
         cors: true,
         headers: {
@@ -63,7 +63,7 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: process.env.NUXT_PUBLIC_SEO_DESCRIPTION || 'Plataforma de venta de boletería y gestión de eventos. Vende entradas, controla accesos con QR y gestiona tu evento de forma simple.' },
-        { name: 'theme-color', content: '#7C3AED' },
+        { name: 'theme-color', content: 'hsl(var(--crocus-600))' },
         // Open Graph
         { property: 'og:title', content: process.env.NUXT_PUBLIC_OG_TITLE || 'WaRo Tickets - Sistema de Boletería' },
         { property: 'og:description', content: process.env.NUXT_PUBLIC_OG_DESCRIPTION || 'Plataforma de venta de boletería y gestión de eventos' },
@@ -88,6 +88,8 @@ export default defineNuxtConfig({
 
   googleFonts: {
     families: {
+      Lato: [400, 700, 900],
+      Quantico: [400, 700],
       Inter: [400, 500, 600, 700, 800],
       Poppins: [400, 500, 600, 700, 800]
     },
@@ -100,6 +102,8 @@ export default defineNuxtConfig({
   },
 
   css: [
+    '~/assets/css/design-tokens.css',
+    '~/assets/css/design-system.css',
     '~/assets/css/main.css'
   ],
 

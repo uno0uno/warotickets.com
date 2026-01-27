@@ -1,12 +1,7 @@
 <template>
   <div class="w-full">
     <!-- Loading State -->
-    <div v-if="isLoadingPromotion || isLoadingEvent" class="flex items-center justify-center min-h-[400px]">
-      <div class="text-center">
-        <div class="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
-        <p class="text-secondary-500">Cargando promocion...</p>
-      </div>
-    </div>
+    <UiGestionLoader v-if="isLoadingPromotion || isLoadingEvent" />
 
     <!-- Error State -->
     <div v-else-if="loadError" class="bg-white border border-secondary-200 rounded-lg p-8 text-center">

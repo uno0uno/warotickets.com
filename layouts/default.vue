@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen flex flex-col bg-white">
-    <NuxtLoadingIndicator color="#7c3aed" />
+    <NuxtLoadingIndicator color="hsl(var(--primary))" />
 
     <LayoutHeader />
 

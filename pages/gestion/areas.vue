@@ -1,22 +1,17 @@
 <template>
   <div>
     <!-- Loading Events State -->
-    <div v-if="isLoadingEvents" class="flex items-center justify-center min-h-[400px]">
-      <div class="text-center">
-        <div class="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
-        <p class="text-secondary-500">Cargando eventos...</p>
-      </div>
-    </div>
+    <UiGestionLoader v-if="isLoadingEvents" />
 
     <template v-else>
       <!-- Event Selector -->
-      <div class="bg-white border border-secondary-200 rounded-lg p-4 mb-6">
-        <label class="block text-sm font-medium text-secondary-900 mb-2">
+      <div class="bg-surface border border-border rounded-xl p-4 mb-6">
+        <label class="block text-sm font-bold text-text-primary mb-2">
           Seleccionar Evento
         </label>
         <select
           v-model="selectedEventId"
-          class="w-full sm:max-w-md px-4 py-2 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 text-secondary-900 bg-white"
+          class="w-full sm:max-w-md h-10 px-4 py-2 border-2 border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-text-primary bg-background"
         >
           <option value="">Seleccionar evento</option>
           <option v-for="event in events" :key="event.id" :value="event.id">
@@ -26,10 +21,10 @@
       </div>
 
       <!-- No Event Selected -->
-      <div v-if="!selectedEventId" class="bg-white border border-secondary-200 rounded-lg p-8 text-center">
-        <TicketIcon class="w-16 h-16 mx-auto mb-4 text-secondary-300" />
-        <p class="text-secondary-600 font-medium">Selecciona un evento</p>
-        <p class="text-sm text-secondary-500 mt-1">Para ver y gestionar las areas, primero selecciona un evento</p>
+      <div v-if="!selectedEventId" class="bg-surface border border-border rounded-xl p-8 text-center">
+        <TicketIcon class="w-16 h-16 mx-auto mb-4 text-text-tertiary" />
+        <p class="text-text-primary font-bold">Selecciona un evento</p>
+        <p class="text-sm text-text-secondary mt-1">Para ver y gestionar las áreas, primero selecciona un evento</p>
       </div>
 
       <!-- Areas Content -->
@@ -37,12 +32,12 @@
         <!-- Header Actions -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <div class="relative flex-1 sm:max-w-xs">
-            <MagnifyingGlassIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-400" />
+            <MagnifyingGlassIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Buscar areas..."
-              class="w-full pl-10 pr-4 py-2 border border-secondary-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none"
+              placeholder="Buscar áreas..."
+              class="w-full h-10 pl-10 pr-4 py-2 border-2 border-border bg-background rounded-lg text-sm text-text-primary placeholder:text-text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none"
             />
           </div>
           <NuxtLink
@@ -55,12 +50,7 @@
         </div>
 
         <!-- Loading State -->
-        <div v-if="isLoading" class="flex items-center justify-center min-h-[300px]">
-          <div class="text-center">
-            <div class="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
-            <p class="text-secondary-500">Cargando areas...</p>
-          </div>
-        </div>
+        <UiGestionLoader v-if="isLoading" />
 
         <!-- Data View -->
         <UiResponsiveDataView
@@ -76,14 +66,14 @@
           <!-- Mobile Card -->
           <template #card="{ item }">
             <NuxtLink :to="`/gestion/area/${item.id}?event=${selectedEventId}`" class="block">
-              <div class="bg-white border border-secondary-200 rounded-lg overflow-hidden hover:border-primary-300 transition-colors">
+              <div class="bg-surface border border-border rounded-xl overflow-hidden hover:shadow-md transition-all">
                 <div class="p-4">
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
-                      <span v-if="item.nomenclature_letter" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary-100 text-primary-700 font-bold text-sm">
+                      <span v-if="item.nomenclature_letter" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary font-bold text-sm">
                         {{ item.nomenclature_letter }}
                       </span>
-                      <span class="font-medium text-secondary-900">{{ item.area_name }}</span>
+                      <span class="font-bold text-text-primary">{{ item.area_name }}</span>
                     </div>
                     <span
                       class="px-2 py-1 text-xs font-medium rounded-full"
@@ -94,16 +84,16 @@
                   </div>
                   <div class="grid grid-cols-2 gap-2 text-sm">
                     <div>
-                      <span class="text-secondary-500">Capacidad:</span>
-                      <span class="ml-1 text-secondary-900 font-medium">{{ item.capacity }}</span>
+                      <span class="text-text-secondary">Capacidad:</span>
+                      <span class="ml-1 text-text-primary font-bold">{{ item.capacity }}</span>
                     </div>
                     <div>
-                      <span class="text-secondary-500">Disponibles:</span>
-                      <span class="ml-1 text-secondary-900 font-medium">{{ item.units_available ?? '-' }}</span>
+                      <span class="text-text-secondary">Disponibles:</span>
+                      <span class="ml-1 text-text-primary font-bold">{{ item.units_available ?? '-' }}</span>
                     </div>
                     <div class="col-span-2">
-                      <span class="text-secondary-500">Precio:</span>
-                      <span class="ml-1 text-secondary-900 font-bold">${{ Number(item.price).toLocaleString('es-CO') }}</span>
+                      <span class="text-text-secondary">Precio:</span>
+                      <span class="ml-1 text-primary font-bold">${{ Number(item.price).toLocaleString('es-CO') }}</span>
                     </div>
                   </div>
                 </div>
@@ -114,30 +104,30 @@
           <!-- Desktop Header -->
           <template #header>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-              <h3 class="text-base sm:text-lg font-bold text-secondary-900">
-                Areas
+              <h3 class="text-base sm:text-lg font-bold text-text-primary">
+                Áreas
               </h3>
             </div>
           </template>
 
           <!-- Custom cell: Name -->
           <template #cell-area_name="{ value, row }">
-            <NuxtLink :to="`/gestion/area/${row.id}?event=${selectedEventId}`" class="font-medium text-secondary-900 hover:text-primary-600">
+            <NuxtLink :to="`/gestion/area/${row.id}?event=${selectedEventId}`" class="font-bold text-text-primary hover:text-primary">
               {{ value }}
             </NuxtLink>
           </template>
 
           <!-- Custom cell: Code -->
           <template #cell-nomenclature_letter="{ value }">
-            <span v-if="value" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-secondary-100 text-secondary-700 font-semibold text-sm">
+            <span v-if="value" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-surface-secondary text-text-primary font-bold text-sm">
               {{ value }}
             </span>
-            <span v-else class="text-secondary-400">-</span>
+            <span v-else class="text-text-tertiary">-</span>
           </template>
 
           <!-- Custom cell: Price -->
           <template #cell-price="{ value }">
-            ${{ Number(value).toLocaleString('es-CO') }}
+            <span class="font-bold text-primary">${{ Number(value).toLocaleString('es-CO') }}</span>
           </template>
 
           <!-- Custom cell: Status badge -->
@@ -155,14 +145,14 @@
             <div class="flex items-center gap-2 justify-center">
               <NuxtLink
                 :to="`/gestion/area/${row.id}?event=${selectedEventId}`"
-                class="p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg"
+                class="p-1.5 text-primary hover:bg-primary/10 rounded-lg"
                 title="Editar"
               >
                 <PencilIcon class="w-4 h-4" />
               </NuxtLink>
               <button
                 @click.stop="confirmDelete(row)"
-                class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
+                class="p-1.5 text-destructive hover:bg-destructive/10 rounded-lg"
                 title="Eliminar"
               >
                 <TrashIcon class="w-4 h-4" />
@@ -174,22 +164,22 @@
 
       <!-- Delete Confirmation Modal -->
       <div v-if="showDeleteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg max-w-md w-full p-6">
-          <h3 class="text-lg font-semibold text-secondary-900 mb-2">Eliminar Area</h3>
-          <p class="text-secondary-600 mb-6">
-            ¿Estas seguro de eliminar el area <strong>{{ areaToDelete?.area_name }}</strong>? Esta accion no se puede deshacer.
+        <div class="bg-surface rounded-xl max-w-md w-full p-6 border border-border shadow-2xl">
+          <h3 class="text-lg font-bold text-text-primary mb-2">Eliminar Área</h3>
+          <p class="text-text-secondary mb-6">
+            ¿Estás seguro de eliminar el área <strong>{{ areaToDelete?.area_name }}</strong>? Esta acción no se puede deshacer.
           </p>
           <div class="flex gap-3 justify-end">
             <button
               @click="showDeleteModal = false"
-              class="px-4 py-2 border border-secondary-200 rounded-lg text-secondary-600 hover:bg-secondary-50 font-medium transition-colors"
+              class="px-4 py-2 border-2 border-border rounded-lg text-text-secondary hover:bg-surface-secondary font-bold transition-colors"
             >
               Cancelar
             </button>
             <button
               @click="deleteArea"
               :disabled="isDeleting"
-              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 transition-colors"
+              class="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:opacity-90 font-bold disabled:opacity-50 transition-colors"
             >
               {{ isDeleting ? 'Eliminando...' : 'Eliminar' }}
             </button>
@@ -346,13 +336,13 @@ function handleSort(field: string) {
 function getStatusClass(status: string) {
   switch (status) {
     case 'available':
-      return 'bg-green-100 text-green-700'
+      return 'bg-success/10 text-success'
     case 'sold_out':
-      return 'bg-red-100 text-red-700'
+      return 'bg-destructive/10 text-destructive'
     case 'disabled':
-      return 'bg-secondary-100 text-secondary-600'
+      return 'bg-surface-secondary text-text-secondary'
     default:
-      return 'bg-secondary-100 text-secondary-600'
+      return 'bg-surface-secondary text-text-secondary'
   }
 }
 

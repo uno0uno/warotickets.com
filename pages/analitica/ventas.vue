@@ -124,11 +124,10 @@ const columns = [
 
 // Mock data
 const sales = ref([
-  { id: 'WT-001234', buyerName: 'Juan Perez', buyerEmail: 'juan@email.com', event: 'Concierto de Rock', tickets: 2, area: 'VIP', areaColor: '#9333EA', total: 500000, status: 'completed', date: '2025-01-18' },
-  { id: 'WT-001235', buyerName: 'Maria Garcia', buyerEmail: 'maria@email.com', event: 'Concierto de Rock', tickets: 4, area: 'General', areaColor: '#22C55E', total: 320000, status: 'completed', date: '2025-01-18' },
-  { id: 'WT-001236', buyerName: 'Carlos Lopez', buyerEmail: 'carlos@email.com', event: 'Festival Electronica', tickets: 1, area: 'Preferencial', areaColor: '#3B82F6', total: 150000, status: 'pending', date: '2025-01-18' },
-  { id: 'WT-001237', buyerName: 'Ana Martinez', buyerEmail: 'ana@email.com', event: 'Concierto de Rock', tickets: 2, area: 'VIP', areaColor: '#9333EA', total: 500000, status: 'refunded', date: '2025-01-17' },
-  { id: 'WT-001238', buyerName: 'Pedro Sanchez', buyerEmail: 'pedro@email.com', event: 'Festival Electronica', tickets: 3, area: 'General', areaColor: '#22C55E', total: 240000, status: 'completed', date: '2025-01-17' }
+  { id: '1', buyerName: 'Maria Gonzalez', buyerEmail: 'maria@empresa.com', event: 'Concierto de Rock', area: 'VIP', areaColor: 'hsl(var(--crocus-600))', tickets: 4, status: 'completed', total: 320000, date: '2025-01-18' },
+  { id: '2', buyerName: 'Pedro Sanchez', buyerEmail: 'pedro@prensa.com', event: 'Concierto de Rock', area: 'Prensa', areaColor: 'hsl(220, 15%, 34%)', tickets: 2, status: 'pending', total: 160000, date: '2025-01-18' },
+  { id: '3', buyerName: 'Laura Torres', buyerEmail: 'laura@sponsor.com', event: 'Festival Electronica', area: 'VIP', areaColor: 'hsl(var(--crocus-600))', tickets: 6, status: 'completed', total: 480000, date: '2025-01-17' },
+  { id: '4', buyerName: 'Roberto Diaz', buyerEmail: 'roberto@artista.com', event: 'Concierto de Rock', area: 'Backstage', areaColor: 'hsl(38, 92%, 50%)', tickets: 3, status: 'refunded', total: 240000, date: '2025-01-17' }
 ])
 
 const filteredSales = computed(() => {

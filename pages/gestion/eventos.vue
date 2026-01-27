@@ -1,12 +1,7 @@
 <template>
   <div>
     <!-- Loading State -->
-    <div v-if="isLoading" class="flex items-center justify-center min-h-[400px]">
-      <div class="text-center">
-        <div class="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
-        <p class="text-secondary-500">Cargando eventos...</p>
-      </div>
-    </div>
+    <UiGestionLoader v-if="isLoading" />
 
     <!-- Error State -->
     <div v-else-if="fetchError" class="flex items-center justify-center min-h-[400px]">
@@ -24,12 +19,12 @@
       <!-- Header Actions -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="relative flex-1 sm:max-w-xs">
-          <MagnifyingGlassIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-400" />
+          <MagnifyingGlassIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
           <input
             v-model="searchQuery"
             type="text"
             placeholder="Buscar eventos..."
-            class="w-full pl-10 pr-4 py-2 border border-secondary-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none"
+            class="w-full h-10 pl-10 pr-4 py-2 border-2 border-border bg-background rounded-lg text-sm text-text-primary placeholder:text-text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none"
             @input="handleSearch"
           />
         </div>
@@ -53,13 +48,13 @@
         <!-- Mobile Card -->
         <template #card="{ item }">
           <NuxtLink :to="`/gestion/evento/${item.id}`" class="block">
-            <div class="bg-white border border-secondary-200 rounded-lg overflow-hidden hover:border-primary-300 transition-colors">
+            <div class="bg-surface border border-border rounded-xl overflow-hidden hover:shadow-md transition-all">
               <div class="h-24 bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
                 <CalendarIcon class="w-10 h-10 text-white/30" />
               </div>
               <div class="p-4">
                 <div class="flex items-center justify-between mb-2">
-                  <span class="font-medium text-secondary-900">{{ item.cluster_name }}</span>
+                  <span class="font-bold text-text-primary">{{ item.cluster_name }}</span>
                   <span
                     class="px-2 py-1 text-xs font-medium rounded-full"
                     :class="getStatusClass(item.is_active)"
@@ -67,8 +62,8 @@
                     {{ getStatusLabel(item.is_active) }}
                   </span>
                 </div>
-                <p class="text-sm text-secondary-500 mb-2">{{ formatDate(item.start_date) }}</p>
-                <div class="flex items-center gap-4 text-sm text-secondary-600">
+                <p class="text-sm text-text-secondary mb-2">{{ formatDate(item.start_date) }}</p>
+                <div class="flex items-center gap-4 text-sm text-text-secondary">
                   <span><strong>{{ item.total_sold || 0 }}</strong> vendidas</span>
                   <span><strong>{{ item.total_checked_in || 0 }}</strong> check-in</span>
                 </div>
@@ -80,7 +75,7 @@
         <!-- Desktop Header -->
         <template #header>
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-            <h3 class="text-base sm:text-lg font-bold text-secondary-900">
+            <h3 class="text-base sm:text-lg font-bold text-text-primary">
               Eventos
             </h3>
           </div>
@@ -88,7 +83,7 @@
 
         <!-- Custom cell: Name -->
         <template #cell-cluster_name="{ value, row }">
-          <NuxtLink :to="`/gestion/evento/${row.id}`" class="font-medium text-secondary-900 hover:text-primary-600">
+          <NuxtLink :to="`/gestion/evento/${row.id}`" class="font-bold text-text-primary hover:text-primary">
             {{ value }}
           </NuxtLink>
         </template>
@@ -114,7 +109,7 @@
             <button
               @click.prevent="copyEventLink(row)"
               class="p-1.5 rounded-lg transition-colors"
-              :class="copiedEventId === row.id ? 'text-green-600 bg-green-50' : 'text-secondary-600 hover:bg-secondary-50'"
+              :class="copiedEventId === row.id ? 'text-success bg-success/10' : 'text-text-secondary hover:bg-surface-secondary'"
               :title="copiedEventId === row.id ? 'Copiado!' : 'Copiar enlace'"
             >
               <CheckIcon v-if="copiedEventId === row.id" class="w-4 h-4" />
@@ -122,7 +117,7 @@
             </button>
             <NuxtLink
               :to="`/gestion/evento/${row.id}`"
-              class="p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg"
+              class="p-1.5 text-primary hover:bg-primary/10 rounded-lg"
               title="Editar"
             >
               <PencilIcon class="w-4 h-4" />
@@ -132,26 +127,26 @@
       </UiResponsiveDataView>
 
       <!-- Pagination -->
-      <div v-if="totalEvents > itemsPerPage" class="bg-white px-4 py-3 flex items-center justify-between border border-secondary-200 rounded-lg">
+      <div v-if="totalEvents > itemsPerPage" class="bg-surface px-4 py-3 flex items-center justify-between border border-border rounded-xl">
         <div class="flex-1 flex justify-between sm:hidden">
           <button
             @click="prevPage"
             :disabled="currentPage === 1"
-            class="relative inline-flex items-center px-4 py-2 border border-secondary-300 text-sm font-medium rounded-md text-secondary-700 bg-white hover:bg-secondary-50 disabled:opacity-50"
+            class="relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-lg text-text-primary bg-surface hover:bg-surface-secondary disabled:opacity-50"
           >
             Anterior
           </button>
           <button
             @click="nextPage"
             :disabled="currentPage === totalPages"
-            class="ml-3 relative inline-flex items-center px-4 py-2 border border-secondary-300 text-sm font-medium rounded-md text-secondary-700 bg-white hover:bg-secondary-50 disabled:opacity-50"
+            class="ml-3 relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-lg text-text-primary bg-surface hover:bg-surface-secondary disabled:opacity-50"
           >
             Siguiente
           </button>
         </div>
         <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
-            <p class="text-sm text-secondary-700">
+            <p class="text-sm text-text-secondary">
               Mostrando <span class="font-medium">{{ startIndex }}</span> a <span class="font-medium">{{ endIndex }}</span>
               de <span class="font-medium">{{ totalEvents }}</span> resultados
             </p>
@@ -161,7 +156,7 @@
               <button
                 @click="prevPage"
                 :disabled="currentPage === 1"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-secondary-300 bg-white text-sm font-medium text-secondary-500 hover:bg-secondary-50 disabled:opacity-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-lg border border-border bg-surface text-sm font-medium text-text-secondary hover:bg-surface-secondary disabled:opacity-50"
               >
                 <ChevronLeftIcon class="h-5 w-5" />
               </button>
@@ -170,10 +165,10 @@
                 :key="page"
                 @click="goToPage(page)"
                 :class="[
-                  'relative inline-flex items-center px-4 py-2 border border-secondary-300 text-sm font-medium',
+                  'relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium',
                   currentPage === page
-                    ? 'bg-primary-50 border-primary-500 text-primary-600'
-                    : 'bg-white text-secondary-700 hover:bg-secondary-50'
+                    ? 'bg-primary/10 border-primary text-primary'
+                    : 'bg-surface text-text-primary hover:bg-surface-secondary'
                 ]"
               >
                 {{ page }}
@@ -181,7 +176,7 @@
               <button
                 @click="nextPage"
                 :disabled="currentPage === totalPages"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-secondary-300 bg-white text-sm font-medium text-secondary-500 hover:bg-secondary-50 disabled:opacity-50"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-lg border border-border bg-surface text-sm font-medium text-text-secondary hover:bg-surface-secondary disabled:opacity-50"
               >
                 <ChevronRightIcon class="h-5 w-5" />
               </button>
@@ -364,8 +359,8 @@ function formatDate(dateString: string) {
 
 function getStatusClass(isActive: boolean) {
   return isActive
-    ? 'bg-green-100 text-green-700'
-    : 'bg-secondary-100 text-secondary-600'
+    ? 'bg-success/10 text-success'
+    : 'bg-surface-secondary text-text-secondary'
 }
 
 function getStatusLabel(isActive: boolean) {

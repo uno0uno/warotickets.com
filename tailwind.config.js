@@ -12,43 +12,129 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Primary - Purple (Crocus)
+        border: "hsl(var(--border) / <alpha-value>)",
+        input: "hsl(var(--input) / <alpha-value>)",
+        ring: "hsl(var(--ring) / <alpha-value>)",
+        background: "hsl(var(--background) / <alpha-value>)",
+        foreground: "hsl(var(--foreground) / <alpha-value>)",
         primary: {
-          50: '#faf5ff',
-          100: '#f3e8ff',
-          200: '#e9d5ff',
-          300: '#d8b4fe',
-          400: '#c084fc',
-          500: '#a855f7',
-          600: '#9333ea',
-          700: '#7c3aed',
-          800: '#6b21a8',
-          900: '#581c87',
-          950: '#3b0764'
+          DEFAULT: "hsl(var(--primary) / <alpha-value>)",
+          foreground: "hsl(var(--primary-foreground) / <alpha-value>)",
+          50: "hsl(var(--crocus-50) / <alpha-value>)",
+          100: "hsl(var(--crocus-100) / <alpha-value>)",
+          200: "hsl(var(--crocus-200) / <alpha-value>)",
+          300: "hsl(var(--crocus-300) / <alpha-value>)",
+          400: "hsl(var(--crocus-400) / <alpha-value>)",
+          500: "hsl(var(--crocus-500) / <alpha-value>)",
+          600: "hsl(var(--crocus-600) / <alpha-value>)",
+          700: "hsl(var(--crocus-700) / <alpha-value>)",
+          800: "hsl(var(--crocus-800) / <alpha-value>)",
+          900: "hsl(var(--crocus-900) / <alpha-value>)",
         },
-        // Secondary - Dark (Ebony)
         secondary: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
-          950: '#020617'
+          DEFAULT: "hsl(var(--secondary) / <alpha-value>)",
+          foreground: "hsl(var(--secondary-foreground) / <alpha-value>)",
+          50: "hsl(var(--ebony-50) / <alpha-value>)",
+          100: "hsl(var(--ebony-100) / <alpha-value>)",
+          200: "hsl(var(--ebony-200) / <alpha-value>)",
+          300: "hsl(var(--ebony-300) / <alpha-value>)",
+          400: "hsl(var(--ebony-400) / <alpha-value>)",
+          500: "hsl(var(--ebony-500) / <alpha-value>)",
+          600: "hsl(var(--ebony-600) / <alpha-value>)",
+          700: "hsl(var(--ebony-700) / <alpha-value>)",
+          800: "hsl(var(--ebony-800) / <alpha-value>)",
+          900: "hsl(var(--ebony-900) / <alpha-value>)",
         },
-        // Accent colors
+        destructive: {
+          DEFAULT: "hsl(var(--destructive) / <alpha-value>)",
+          foreground: "hsl(var(--destructive-foreground) / <alpha-value>)",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted) / <alpha-value>)",
+          foreground: "hsl(var(--muted-foreground) / <alpha-value>)",
+        },
         accent: {
+          DEFAULT: "hsl(var(--accent) / <alpha-value>)",
+          foreground: "hsl(var(--accent-foreground) / <alpha-value>)",
           purple: '#7c3aed',
           pink: '#ec4899',
           orange: '#f97316'
-        }
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover) / <alpha-value>)",
+          foreground: "hsl(var(--popover-foreground) / <alpha-value>)",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card) / <alpha-value>)",
+          foreground: "hsl(var(--card-foreground) / <alpha-value>)",
+        },
+        // Titan White (Grises Claros)
+        titan: {
+          50: "hsl(var(--titan-50) / <alpha-value>)",
+          100: "hsl(var(--titan-100) / <alpha-value>)",
+          200: "hsl(var(--titan-200) / <alpha-value>)",
+          300: "hsl(var(--titan-300) / <alpha-value>)",
+          400: "hsl(var(--titan-400) / <alpha-value>)",
+          500: "hsl(var(--titan-500) / <alpha-value>)",
+          600: "hsl(var(--titan-600) / <alpha-value>)",
+          700: "hsl(var(--titan-700) / <alpha-value>)",
+          800: "hsl(var(--titan-800) / <alpha-value>)",
+          900: "hsl(var(--titan-900) / <alpha-value>)",
+        },
+        // Crocus Purple (Púrpura)
+        crocus: {
+          50: "hsl(var(--crocus-50) / <alpha-value>)",
+          100: "hsl(var(--crocus-100) / <alpha-value>)",
+          200: "hsl(var(--crocus-200) / <alpha-value>)",
+          300: "hsl(var(--crocus-300) / <alpha-value>)",
+          400: "hsl(var(--crocus-400) / <alpha-value>)",
+          500: "hsl(var(--crocus-500) / <alpha-value>)",
+          600: "hsl(var(--crocus-600) / <alpha-value>)",
+          700: "hsl(var(--crocus-700) / <alpha-value>)",
+          800: "hsl(var(--crocus-800) / <alpha-value>)",
+          900: "hsl(var(--crocus-900) / <alpha-value>)",
+        },
+        // Ebony Clay (Grises Oscuros)
+        ebony: {
+          50: "hsl(var(--ebony-50) / <alpha-value>)",
+          100: "hsl(var(--ebony-100) / <alpha-value>)",
+          200: "hsl(var(--ebony-200) / <alpha-value>)",
+          300: "hsl(var(--ebony-300) / <alpha-value>)",
+          400: "hsl(var(--ebony-400) / <alpha-value>)",
+          500: "hsl(var(--ebony-500) / <alpha-value>)",
+          600: "hsl(var(--ebony-600) / <alpha-value>)",
+          700: "hsl(var(--ebony-700) / <alpha-value>)",
+          800: "hsl(var(--ebony-800) / <alpha-value>)",
+          900: "hsl(var(--ebony-900) / <alpha-value>)",
+        },
+        // Semantic Tokens
+        surface: {
+          DEFAULT: "hsl(var(--surface) / <alpha-value>)",
+          secondary: "hsl(var(--surface-secondary) / <alpha-value>)",
+          tertiary: "hsl(var(--surface-tertiary) / <alpha-value>)",
+        },
+        text: {
+          primary: "hsl(var(--text-primary) / <alpha-value>)",
+          secondary: "hsl(var(--text-secondary) / <alpha-value>)",
+          tertiary: "hsl(var(--text-tertiary) / <alpha-value>)",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success) / <alpha-value>)",
+          foreground: "hsl(var(--success-foreground) / <alpha-value>)",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning) / <alpha-value>)",
+          foreground: "hsl(var(--warning-foreground) / <alpha-value>)",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info) / <alpha-value>)",
+          foreground: "hsl(var(--info-foreground) / <alpha-value>)",
+        },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        principal: ['Lato'],
+        sans: ['Lato', 'Inter', 'system-ui', 'sans-serif'],
+        quantico: ['Quantico', 'Lato', 'sans-serif'],
         heading: ['Poppins', 'Inter', 'system-ui', 'sans-serif']
       },
       container: {
@@ -90,6 +176,7 @@ export default {
   },
   plugins: [
     require('@tailwindcss/forms'),
-    require('@tailwindcss/typography')
+    require('@tailwindcss/typography'),
+    require("tailwindcss-animate")
   ]
 }

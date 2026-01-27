@@ -130,10 +130,10 @@ const columns = [
 
 // Mock data
 const reservations = ref([
-  { id: '1', name: 'Maria Gonzalez', email: 'maria@empresa.com', event: 'Concierto de Rock', area: 'VIP', areaColor: '#9333EA', quantity: 4, status: 'confirmed' },
-  { id: '2', name: 'Pedro Sanchez', email: 'pedro@prensa.com', event: 'Concierto de Rock', area: 'Prensa', areaColor: '#3B82F6', quantity: 2, status: 'pending' },
-  { id: '3', name: 'Laura Torres', email: 'laura@sponsor.com', event: 'Festival Electronica', area: 'VIP', areaColor: '#9333EA', quantity: 6, status: 'confirmed' },
-  { id: '4', name: 'Roberto Diaz', email: 'roberto@artista.com', event: 'Concierto de Rock', area: 'Backstage', areaColor: '#F59E0B', quantity: 3, status: 'cancelled' }
+  { id: '1', name: 'Maria Gonzalez', email: 'maria@empresa.com', event: 'Concierto de Rock', area: 'VIP', areaColor: 'hsl(var(--crocus-600))', quantity: 4, status: 'confirmed' },
+  { id: '2', name: 'Pedro Sanchez', email: 'pedro@prensa.com', event: 'Concierto de Rock', area: 'Prensa', areaColor: 'hsl(220, 15%, 34%)', quantity: 2, status: 'pending' },
+  { id: '3', name: 'Laura Torres', email: 'laura@sponsor.com', event: 'Festival Electronica', area: 'VIP', areaColor: 'hsl(var(--crocus-600))', quantity: 6, status: 'confirmed' },
+  { id: '4', name: 'Roberto Diaz', email: 'roberto@artista.com', event: 'Concierto de Rock', area: 'Backstage', areaColor: 'hsl(38, 92%, 50%)', quantity: 3, status: 'cancelled' }
 ])
 
 const filteredReservations = computed(() => {

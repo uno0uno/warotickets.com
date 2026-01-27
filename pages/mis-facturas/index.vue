@@ -28,7 +28,7 @@
           v-model="searchQuery"
           type="text"
           placeholder="Buscar por referencia, evento o monto..."
-          class="w-full pl-10 pr-4 py-2 border border-secondary-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none"
+          class="w-full h-10 pl-10 pr-4 py-2 border-2 border-border bg-background rounded-lg text-sm text-text-primary placeholder:text-text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none"
         />
       </div>
 
@@ -41,18 +41,19 @@
         item-key="payment_id"
         empty-message="No hay facturas"
         empty-sub-message="Tus facturas de compra apareceran aqui"
+        variant="default"
         @sort="handleSort"
         @row-click="goToDetail($event.payment_id)"
       >
         <!-- Mobile Card -->
         <template #card="{ item }">
           <div
-            class="bg-white border border-secondary-200 rounded-lg overflow-hidden hover:border-primary-300 transition-colors cursor-pointer"
+            class="bg-surface border border-border rounded-xl overflow-hidden hover:shadow-md transition-all cursor-pointer"
             @click="goToDetail(item.payment_id)"
           >
             <div class="p-4">
               <div class="flex items-center justify-between mb-2">
-                <span class="font-medium text-secondary-900 truncate">{{ item.event_name }}</span>
+                <span class="font-bold text-text-primary truncate">{{ item.event_name }}</span>
                 <span
                   class="px-2 py-1 text-xs font-medium rounded-full flex-shrink-0 ml-2"
                   :class="statusBadgeClass(item.payment_status)"
@@ -60,14 +61,14 @@
                   {{ statusLabel(item.payment_status) }}
                 </span>
               </div>
-              <p class="text-sm text-secondary-500 mb-2">{{ formatDate(item.payment_date) }}</p>
+              <p class="text-sm text-text-secondary mb-2">{{ formatDate(item.payment_date) }}</p>
               <div class="flex items-center justify-between text-sm">
-                <span class="text-secondary-600">{{ item.ticket_count }} {{ item.ticket_count === 1 ? 'boleta' : 'boletas' }} · {{ paymentMethodLabel(item.payment_method_type) }}</span>
-                <span class="font-bold text-secondary-900">{{ formatCurrency(item.amount) }}</span>
+                <span class="text-text-secondary">{{ item.ticket_count }} {{ item.ticket_count === 1 ? 'boleta' : 'boletas' }} · {{ paymentMethodLabel(item.payment_method_type) }}</span>
+                <span class="font-bold text-primary">{{ formatCurrency(item.amount) }}</span>
               </div>
-              <div class="flex items-center justify-between mt-2">
-                <p class="text-xs text-secondary-400 font-mono">{{ item.reference }}</p>
-                <ChevronRightIcon class="w-4 h-4 text-secondary-400" />
+              <div class="flex items-center justify-between mt-2 pt-2 border-t border-border">
+                <p class="text-xs text-text-secondary font-mono">{{ item.reference }}</p>
+                <ChevronRightIcon class="w-4 h-4 text-text-secondary" />
               </div>
             </div>
           </div>
@@ -75,12 +76,12 @@
 
         <!-- Desktop Header -->
         <template #header>
-          <h3 class="text-base sm:text-lg font-bold text-secondary-900">Facturas</h3>
+          <h3 class="text-base sm:text-lg font-bold text-text-primary">Facturas</h3>
         </template>
 
         <!-- Cell: Evento -->
         <template #cell-event_name="{ value }">
-          <span class="font-medium text-secondary-900">{{ value }}</span>
+          <span class="font-bold text-text-primary">{{ value }}</span>
         </template>
 
         <!-- Cell: Fecha -->
@@ -100,7 +101,7 @@
 
         <!-- Cell: Monto -->
         <template #cell-amount="{ value }">
-          <span class="font-semibold">{{ formatCurrency(value) }}</span>
+          <span class="font-bold text-primary">{{ formatCurrency(value) }}</span>
         </template>
 
         <!-- Cell: Estado -->
@@ -115,12 +116,12 @@
 
         <!-- Cell: Referencia -->
         <template #cell-reference="{ value }">
-          <span class="font-mono text-secondary-500 text-xs">{{ value }}</span>
+          <span class="font-mono text-text-secondary text-xs">{{ value }}</span>
         </template>
 
         <!-- Cell: Detail arrow -->
         <template #cell-detail="{ row }">
-          <ChevronRightIcon class="w-4 h-4 text-secondary-400" />
+          <ChevronRightIcon class="w-4 h-4 text-text-secondary" />
         </template>
       </UiResponsiveDataView>
     </div>
@@ -285,14 +286,14 @@ function statusLabel(status: string) {
 
 function statusBadgeClass(status: string) {
   const classes: Record<string, string> = {
-    approved: 'bg-green-100 text-green-700',
-    pending: 'bg-amber-100 text-amber-700',
-    declined: 'bg-red-100 text-red-700',
-    voided: 'bg-secondary-100 text-secondary-600',
-    error: 'bg-red-100 text-red-700',
-    refunded: 'bg-blue-100 text-blue-700'
+    approved: 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400',
+    pending: 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400',
+    declined: 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400',
+    voided: 'bg-surface-secondary text-text-secondary',
+    error: 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400',
+    refunded: 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
   }
-  return classes[status] || 'bg-secondary-100 text-secondary-600'
+  return classes[status] || 'bg-surface-secondary text-text-secondary'
 }
 
 function paymentMethodLabel(method: string | null) {

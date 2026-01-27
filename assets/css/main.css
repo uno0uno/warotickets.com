@@ -5,46 +5,9 @@
 /* ========================================
    CSS Variables / Design Tokens
    ======================================== */
-:root {
-  /* Primary Colors */
-  --color-primary: #7c3aed;
-  --color-primary-dark: #6b21a8;
-  --color-primary-light: #a855f7;
+/* Tokens are now managed in design-tokens.css */
 
-  /* Background */
-  --color-bg: #ffffff;
-  --color-bg-secondary: #f8fafc;
-  --color-bg-tertiary: #f1f5f9;
-
-  /* Text */
-  --color-text: #0f172a;
-  --color-text-secondary: #475569;
-  --color-text-tertiary: #94a3b8;
-
-  /* Border */
-  --color-border: #e2e8f0;
-  --color-border-dark: #cbd5e1;
-
-  /* Status */
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
-}
-
-/* Dark mode */
-.dark {
-  --color-bg: #0f172a;
-  --color-bg-secondary: #1e293b;
-  --color-bg-tertiary: #334155;
-
-  --color-text: #f8fafc;
-  --color-text-secondary: #cbd5e1;
-  --color-text-tertiary: #94a3b8;
-
-  --color-border: #334155;
-  --color-border-dark: #475569;
-}
+/* Dark mode tokens are now managed in design-tokens.css */
 
 /* ========================================
    Base Styles
@@ -54,14 +17,15 @@ html {
 }
 
 body {
-  @apply bg-white text-secondary-900 antialiased;
-  font-family: 'Inter', system-ui, sans-serif;
+  @apply bg-background text-foreground antialiased;
+  font-family: 'Lato', 'Inter', system-ui, sans-serif;
 }
 
 /* ========================================
    Component Classes
    ======================================== */
 @layer components {
+
   /* Buttons */
   .btn {
     @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;

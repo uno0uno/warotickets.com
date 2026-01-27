@@ -1,22 +1,17 @@
 <template>
   <div>
     <!-- Loading Events State -->
-    <div v-if="isLoadingEvents" class="flex items-center justify-center min-h-[400px]">
-      <div class="text-center">
-        <div class="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
-        <p class="text-secondary-500">Cargando eventos...</p>
-      </div>
-    </div>
+    <UiGestionLoader v-if="isLoadingEvents" />
 
     <template v-else>
       <!-- Event Selector -->
-      <div class="bg-white border border-secondary-200 rounded-lg p-4 mb-6">
-        <label class="block text-sm font-medium text-secondary-900 mb-2">
+      <div class="bg-surface border border-border rounded-xl p-4 mb-6">
+        <label class="block text-sm font-bold text-text-primary mb-2">
           Seleccionar Evento
         </label>
         <select
           v-model="selectedEventId"
-          class="w-full sm:max-w-md px-4 py-2 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 text-secondary-900 bg-white"
+          class="w-full sm:max-w-md h-10 px-4 py-2 border-2 border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-text-primary bg-background"
         >
           <option value="">Seleccionar evento</option>
           <option v-for="event in events" :key="event.id" :value="event.id">
@@ -26,27 +21,22 @@
       </div>
 
       <!-- No Event Selected -->
-      <div v-if="!selectedEventId" class="bg-white border border-secondary-200 rounded-lg p-8 text-center">
-        <ClockIcon class="w-16 h-16 mx-auto mb-4 text-secondary-300" />
-        <p class="text-secondary-600 font-medium">Selecciona un evento</p>
-        <p class="text-sm text-secondary-500 mt-1">Para ver y gestionar las etapas de venta, primero selecciona un evento</p>
+      <div v-if="!selectedEventId" class="bg-surface border border-border rounded-xl p-8 text-center">
+        <ClockIcon class="w-16 h-16 mx-auto mb-4 text-text-tertiary" />
+        <p class="text-text-primary font-bold">Selecciona un evento</p>
+        <p class="text-sm text-text-secondary mt-1">Para ver y gestionar las etapas de venta, primero selecciona un evento</p>
       </div>
 
       <!-- Etapas Content -->
       <template v-else>
         <!-- Loading State -->
-        <div v-if="isLoading" class="flex items-center justify-center min-h-[400px]">
-          <div class="text-center">
-            <div class="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
-            <p class="text-secondary-500">Cargando etapas...</p>
-          </div>
-        </div>
+        <UiGestionLoader v-if="isLoading" />
 
         <!-- Error State -->
         <div v-else-if="fetchError" class="flex items-center justify-center min-h-[400px]">
           <div class="text-center">
-            <p class="text-xl font-semibold text-secondary-800 mb-2">Error al cargar las etapas</p>
-            <p class="text-sm text-secondary-600 mb-4">{{ fetchError }}</p>
+            <p class="text-xl font-bold text-text-primary mb-2">Error al cargar las etapas</p>
+            <p class="text-sm text-text-secondary mb-4">{{ fetchError }}</p>
             <button @click="loadStages" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
               Reintentar
             </button>
@@ -58,12 +48,12 @@
           <!-- Header Actions -->
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="relative flex-1 sm:max-w-xs">
-              <MagnifyingGlassIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-400" />
+              <MagnifyingGlassIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
               <input
                 v-model="searchQuery"
                 type="text"
                 placeholder="Buscar etapas..."
-                class="w-full pl-10 pr-4 py-2 border border-secondary-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none"
+                class="w-full h-10 pl-10 pr-4 py-2 border-2 border-border bg-background rounded-lg text-sm text-text-primary placeholder:text-text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none"
               />
             </div>
             <NuxtLink :to="`/gestion/etapa/crear?event=${selectedEventId}`" class="btn-primary">
@@ -86,7 +76,7 @@
             <!-- Mobile Card -->
             <template #card="{ item }">
               <NuxtLink :to="`/gestion/etapa/${item.id}?event=${selectedEventId}`" class="block">
-                <div class="bg-white border border-secondary-200 rounded-lg overflow-hidden hover:border-primary-300 transition-colors">
+                <div class="bg-surface border border-border rounded-xl overflow-hidden hover:shadow-md transition-all">
                   <div class="h-16 bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center relative">
                     <ClockIcon class="w-8 h-8 text-white/30" />
                     <div class="absolute top-2 right-2">
@@ -111,16 +101,16 @@
                       <span
                         v-for="(area, idx) in item.areas.slice(0, 3)"
                         :key="idx"
-                        class="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-xs rounded"
+                        class="px-1.5 py-0.5 bg-primary/10 text-primary text-xs rounded"
                       >
                         {{ area.quantity || 1 }}x {{ area.area_name }}
                       </span>
-                      <span v-if="item.areas.length > 3" class="px-1.5 py-0.5 text-secondary-500 text-xs">
-                        +{{ item.areas.length - 3 }} mas
+                      <span v-if="item.areas.length > 3" class="px-1.5 py-0.5 text-text-tertiary text-xs">
+                        +{{ item.areas.length - 3 }} más
                       </span>
                     </div>
 
-                    <p class="text-sm text-secondary-500 mb-2">{{ formatDateRange(item.start_time, item.end_time) }}</p>
+                    <p class="text-sm text-text-secondary mb-2">{{ formatDateRange(item.start_time, item.end_time) }}</p>
                     <div class="flex items-center justify-between text-sm">
                       <div class="flex items-center gap-2">
                         <span
@@ -129,11 +119,11 @@
                         >
                           {{ getPricingTypeLabel(item.price_adjustment_type) }}
                         </span>
-                        <span class="font-medium" :class="item.price_adjustment_type === 'fixed_price' ? 'text-primary-600' : 'text-green-600'">
+                        <span class="font-bold" :class="item.price_adjustment_type === 'fixed_price' ? 'text-primary' : 'text-success'">
                           {{ formatDiscount(item) }}
                         </span>
                       </div>
-                      <span class="text-secondary-500">{{ item.quantity_available - item.quantity_sold }} disp.</span>
+                      <span class="text-text-secondary">{{ item.quantity_available - item.quantity_sold }} disp.</span>
                     </div>
                   </div>
                 </div>
@@ -143,7 +133,7 @@
             <!-- Desktop Header -->
             <template #header>
               <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-                <h3 class="text-base sm:text-lg font-bold text-secondary-900">
+                <h3 class="text-base sm:text-lg font-bold text-text-primary">
                   Etapas de Venta
                 </h3>
               </div>
@@ -151,7 +141,7 @@
 
             <!-- Custom cell: Name -->
             <template #cell-stage_name="{ value, row }">
-              <NuxtLink :to="`/gestion/etapa/${row.id}?event=${selectedEventId}`" class="font-medium text-secondary-900 hover:text-primary-600">
+              <NuxtLink :to="`/gestion/etapa/${row.id}?event=${selectedEventId}`" class="font-bold text-text-primary hover:text-primary">
                 {{ value }}
               </NuxtLink>
             </template>
@@ -162,11 +152,11 @@
                 <span
                   v-for="(area, idx) in (row.areas || []).slice(0, 2)"
                   :key="idx"
-                  class="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-xs rounded whitespace-nowrap"
+                  class="px-1.5 py-0.5 bg-primary/10 text-primary text-xs rounded whitespace-nowrap"
                 >
                   {{ area.quantity || 1 }}x {{ area.area_name }}
                 </span>
-                <span v-if="(row.areas || []).length > 2" class="px-1.5 py-0.5 text-secondary-500 text-xs">
+                <span v-if="(row.areas || []).length > 2" class="px-1.5 py-0.5 text-text-tertiary text-xs">
                   +{{ row.areas.length - 2 }}
                 </span>
               </div>
@@ -174,7 +164,7 @@
 
             <!-- Custom cell: Total Tickets -->
             <template #cell-total_tickets="{ row }">
-              <span class="font-medium">{{ row.total_tickets || row.areas?.reduce((s: number, a: any) => s + (a.quantity || 1), 0) || 0 }}</span>
+              <span class="font-bold text-text-primary">{{ row.total_tickets || row.areas?.reduce((s: number, a: any) => s + (a.quantity || 1), 0) || 0 }}</span>
             </template>
 
             <!-- Custom cell: Pricing Type -->
@@ -189,7 +179,7 @@
 
             <!-- Custom cell: Discount -->
             <template #cell-discount="{ row }">
-              <span class="font-medium" :class="row.price_adjustment_type === 'fixed_price' ? 'text-primary-600' : 'text-green-600'">
+              <span class="font-bold" :class="row.price_adjustment_type === 'fixed_price' ? 'text-primary' : 'text-success'">
                 {{ formatDiscount(row) }}
               </span>
             </template>
@@ -214,7 +204,7 @@
               <div class="flex items-center gap-2 justify-center">
                 <NuxtLink
                   :to="`/gestion/etapa/${row.id}?event=${selectedEventId}`"
-                  class="p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg"
+                  class="p-1.5 text-primary hover:bg-primary/10 rounded-lg"
                   title="Editar"
                 >
                   <PencilIcon class="w-4 h-4" />
@@ -396,13 +386,13 @@ function formatDiscount(stage: any) {
 function getPricingTypeClass(type: string) {
   switch (type) {
     case 'fixed_price':
-      return 'bg-primary-100 text-primary-700'
+      return 'bg-primary/10 text-primary'
     case 'percentage':
-      return 'bg-green-100 text-green-700'
+      return 'bg-success/10 text-success'
     case 'fixed':
-      return 'bg-blue-100 text-blue-700'
+      return 'bg-info/10 text-info'
     default:
-      return 'bg-secondary-100 text-secondary-700'
+      return 'bg-surface-secondary text-text-tertiary'
   }
 }
 
@@ -421,8 +411,8 @@ function getPricingTypeLabel(type: string) {
 
 function getStatusClass(isActive: boolean) {
   return isActive
-    ? 'bg-green-100 text-green-700'
-    : 'bg-secondary-100 text-secondary-600'
+    ? 'bg-success/10 text-success'
+    : 'bg-surface-secondary text-text-secondary'
 }
 
 function getStatusLabel(isActive: boolean) {

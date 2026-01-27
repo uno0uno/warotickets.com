@@ -144,7 +144,7 @@ const transfers = ref([
     toName: 'Maria Garcia',
     event: 'Concierto de Rock en el Parque',
     area: 'VIP',
-    areaColor: '#9333EA',
+    areaColor: 'hsl(var(--crocus-600))',
     quantity: 2,
     status: 'pending',
     requestedAt: 'hace 2 horas'
@@ -155,7 +155,7 @@ const transfers = ref([
     toName: 'Ana Torres',
     event: 'Festival de Musica Electronica',
     area: 'General',
-    areaColor: '#22C55E',
+    areaColor: 'hsl(142, 71%, 45%)',
     quantity: 1,
     status: 'approved',
     requestedAt: 'hace 1 dia'
@@ -166,7 +166,7 @@ const transfers = ref([
     toName: 'Pedro Sanchez',
     event: 'Concierto de Rock en el Parque',
     area: 'Preferencial',
-    areaColor: '#3B82F6',
+    areaColor: 'hsl(220, 15%, 34%)',
     quantity: 3,
     status: 'rejected',
     requestedAt: 'hace 3 dias'

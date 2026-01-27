@@ -3,11 +3,11 @@
     <!-- Mobile: Cards View -->
     <div class="md:hidden">
       <!-- Mobile Header (optional) -->
-      <div v-if="$slots.mobileHeader || title" class="bg-white border border-secondary-200 rounded-lg mb-3">
-        <div class="p-4 border-b border-secondary-200">
+      <div v-if="$slots.mobileHeader || title" class="bg-surface border border-border rounded-lg mb-3">
+        <div class="p-4 border-b border-border">
           <slot name="mobileHeader">
             <div class="flex flex-col gap-3">
-              <h3 v-if="title" class="text-base font-bold text-secondary-900">
+              <h3 v-if="title" class="text-base font-bold text-text-primary">
                 {{ title }}
               </h3>
               <slot name="mobileActions" />
@@ -23,14 +23,14 @@
         <!-- Empty State -->
         <div v-if="data.length === 0" class="text-center py-12 col-span-1">
           <slot name="empty">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-secondary-50 rounded-full mb-4">
-              <svg class="w-8 h-8 text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-surface-secondary rounded-full mb-4">
+              <svg class="w-8 h-8 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
               </svg>
             </div>
-            <p class="text-secondary-900 font-medium">{{ emptyMessage }}</p>
-            <p class="text-secondary-500 text-sm mt-1">{{ emptySubMessage }}</p>
+            <p class="text-text-primary font-medium">{{ emptyMessage }}</p>
+            <p class="text-text-secondary text-sm mt-1">{{ emptySubMessage }}</p>
           </slot>
         </div>
       </div>
@@ -53,10 +53,12 @@
         </template>
 
         <!-- Dynamic cell slots -->
-        <template v-for="column in columns" :key="`cell-${column.key}`" #[`cell-${column.key}`]="slotProps">
-          <slot :name="`cell-${column.key}`" v-bind="slotProps">
-            {{ slotProps.value }}
-          </slot>
+        <template v-for="column in columns" v-slot:[`cell-${column.key}`]="slotProps">
+          <div :key="`cell-${column.key}`">
+            <slot :name="`cell-${column.key}`" v-bind="slotProps">
+              {{ slotProps.value }}
+            </slot>
+          </div>
         </template>
       </UiDataTable>
     </div>

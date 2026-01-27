@@ -14,9 +14,9 @@
 
 @keyframes piefill {
   0%, 19% { border-color: transparent transparent transparent transparent }
-  20%, 39% { border-color: var(--loader-color, #6366f1) transparent transparent transparent }
-  40%, 59% { border-color: var(--loader-color, #6366f1) var(--loader-color, #6366f1) transparent transparent }
-  60%, 79% { border-color: var(--loader-color, #6366f1) var(--loader-color, #6366f1) var(--loader-color, #6366f1) transparent }
-  80%, 100% { border-color: var(--loader-color, #6366f1) var(--loader-color, #6366f1) var(--loader-color, #6366f1) var(--loader-color, #6366f1) }
+  20%, 39% { border-color: var(--loader-color, hsl(var(--primary))) transparent transparent transparent }
+  40%, 59% { border-color: var(--loader-color, hsl(var(--primary))) var(--loader-color, hsl(var(--primary))) transparent transparent }
+  60%, 79% { border-color: var(--loader-color, hsl(var(--primary))) var(--loader-color, hsl(var(--primary))) var(--loader-color, hsl(var(--primary))) transparent }
+  80%, 100% { border-color: var(--loader-color, hsl(var(--primary))) var(--loader-color, hsl(var(--primary))) var(--loader-color, hsl(var(--primary))) var(--loader-color, hsl(var(--primary))) }
 }
 </style>
