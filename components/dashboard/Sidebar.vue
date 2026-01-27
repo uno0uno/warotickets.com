@@ -39,6 +39,21 @@
             <TicketIcon :class="['w-5 h-5 flex-shrink-0', isActive('/mis-boletas') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
             <span v-if="isExpanded" class="whitespace-nowrap">Mis Boletas</span>
           </NuxtLink>
+
+          <NuxtLink
+            to="/mis-facturas"
+            :class="[
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
+              isExpanded ? '' : 'justify-center',
+              isActive('/mis-facturas')
+                ? 'bg-primary-600/20 text-primary-400 font-medium'
+                : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
+            ]"
+            :title="!isExpanded ? 'Mis Facturas' : ''"
+          >
+            <DocumentTextIcon :class="['w-5 h-5 flex-shrink-0', isActive('/mis-facturas') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
+            <span v-if="isExpanded" class="whitespace-nowrap">Mis Facturas</span>
+          </NuxtLink>
         </div>
 
         <!-- CTA organizadores -->
@@ -121,6 +136,21 @@
           >
             <TicketIcon :class="['w-5 h-5 flex-shrink-0', isActive('/mis-boletas') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
             <span v-if="isExpanded" class="whitespace-nowrap">Mis Boletas</span>
+          </NuxtLink>
+
+          <NuxtLink
+            to="/mis-facturas"
+            :class="[
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
+              isExpanded ? '' : 'justify-center',
+              isActive('/mis-facturas')
+                ? 'bg-primary-600/20 text-primary-400 font-medium'
+                : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
+            ]"
+            :title="!isExpanded ? 'Mis Facturas' : ''"
+          >
+            <DocumentTextIcon :class="['w-5 h-5 flex-shrink-0', isActive('/mis-facturas') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
+            <span v-if="isExpanded" class="whitespace-nowrap">Mis Facturas</span>
           </NuxtLink>
         </div>
 
@@ -247,6 +277,7 @@ import {
   ChartBarIcon,
   ChevronDownIcon,
   Cog6ToothIcon,
+  DocumentTextIcon,
   QrCodeIcon,
   TicketIcon
 } from '@heroicons/vue/24/outline'

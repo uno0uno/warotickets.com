@@ -21,6 +21,15 @@
             <TicketIcon class="w-6 h-6" />
             <span class="text-xs mt-1">Boletas</span>
           </NuxtLink>
+
+          <NuxtLink
+            to="/mis-facturas"
+            class="flex flex-col items-center justify-center w-16 h-full"
+            :class="isActive('/mis-facturas') ? 'text-primary-400' : 'text-secondary-400'"
+          >
+            <DocumentTextIcon class="w-6 h-6" />
+            <span class="text-xs mt-1">Facturas</span>
+          </NuxtLink>
         </template>
 
         <!-- Organizer nav (has tenant) -->
@@ -265,6 +274,7 @@ import {
   CheckIcon,
   ClipboardDocumentListIcon,
   Cog6ToothIcon,
+  DocumentTextIcon,
   ListBulletIcon,
   MapIcon,
   PresentationChartLineIcon,

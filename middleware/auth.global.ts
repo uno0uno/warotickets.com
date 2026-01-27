@@ -36,7 +36,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const uiStore = useUIStore()
 
   // Routes that require auth but NOT tenant (buyer routes)
-  const buyerRoutes = ['/mis-boletas']
+  const buyerRoutes = ['/mis-boletas', '/mis-facturas']
   const isBuyerRoute = buyerRoutes.some(route => to.path.startsWith(route))
 
   if (isBuyerRoute) {
