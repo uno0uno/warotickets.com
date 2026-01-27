@@ -102,7 +102,19 @@
                   <p class="text-[10px] text-secondary-400 font-bold uppercase tracking-[0.2em] mb-0.5">Referencia</p>
                   <p class="text-xs font-mono text-secondary-600 font-bold">{{ ticket.reservation_id.slice(0, 8).toUpperCase() }}</p>
                 </div>
-                <div v-if="ticket.can_transfer" class="flex items-center gap-1.5 text-xs text-secondary-500 font-bold cursor-pointer hover:text-primary-600 transition-colors bg-secondary-50 px-3 py-1.5 rounded-lg border border-secondary-100">
+                <!-- Transfer actions for transferred tickets -->
+                <div v-if="ticket.status === 'transferred'" class="flex items-center gap-1.5">
+                  <div @click="cancelTransfer(ticket)" class="flex items-center gap-1 text-[10px] text-red-500 font-bold cursor-pointer hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">
+                    <XMarkIcon class="w-3 h-3" />
+                    CANCELAR
+                  </div>
+                  <div @click="resendTransfer(ticket)" class="flex items-center gap-1 text-[10px] text-amber-600 font-bold cursor-pointer hover:text-amber-700 transition-colors bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">
+                    <ArrowPathIcon class="w-3 h-3" />
+                    {{ resendingTicketId === ticket.reservation_unit_id ? 'ENVIANDO...' : 'REENVIAR' }}
+                  </div>
+                </div>
+                <!-- Transfer button for confirmed tickets -->
+                <div v-else-if="ticket.can_transfer" @click="openTransferModal(ticket)" class="flex items-center gap-1.5 text-xs text-secondary-500 font-bold cursor-pointer hover:text-primary-600 transition-colors bg-secondary-50 px-3 py-1.5 rounded-lg border border-secondary-100">
                   <ArrowsRightLeftIcon class="w-3.5 h-3.5" />
                   TRANSFERIR
                 </div>
@@ -166,6 +178,140 @@
       <p class="text-sm text-red-700 mb-2">{{ fetchError }}</p>
       <button @click="refresh" class="text-sm font-semibold text-red-600 hover:text-red-700 underline underline-offset-2">Reintentar</button>
     </div>
+
+    <!-- Transfer Modal -->
+    <Teleport to="body">
+      <Transition name="transfer-modal">
+        <div v-if="showTransferModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
+          <!-- Backdrop -->
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeTransferModal"></div>
+
+          <!-- Modal Content -->
+          <div class="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl p-6 safe-area-bottom sm:mx-4 max-h-[90vh] overflow-y-auto">
+            <!-- Success State -->
+            <div v-if="transferSuccess" class="text-center py-6">
+              <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircleIcon class="w-8 h-8 text-green-600" />
+              </div>
+              <h3 class="text-lg font-bold text-secondary-900 mb-1">Transferencia iniciada</h3>
+              <p class="text-sm text-secondary-500">Se envio un enlace a <span class="font-semibold">{{ transferEmail }}</span> para aceptar la boleta.</p>
+            </div>
+
+            <!-- Transfer Form -->
+            <template v-else>
+              <!-- Header -->
+              <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center">
+                    <ArrowsRightLeftIcon class="w-5 h-5 text-primary-600" />
+                  </div>
+                  <h3 class="text-lg font-bold text-secondary-900">Transferir boleta</h3>
+                </div>
+                <button @click="closeTransferModal" class="text-secondary-400 hover:text-secondary-600 transition-colors p-1">
+                  <XMarkIcon class="w-5 h-5" />
+                </button>
+              </div>
+
+              <!-- Ticket Info -->
+              <div v-if="selectedTicket" class="bg-secondary-50 rounded-xl p-4 mb-6 border border-secondary-100">
+                <p class="text-xs text-secondary-400 font-bold uppercase tracking-wider mb-1">Boleta a transferir</p>
+                <p class="text-sm font-bold text-secondary-900">{{ selectedTicket.event_name }}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-xs font-bold text-primary-600 font-mono">{{ selectedTicket.area_name }}</span>
+                  <span class="text-secondary-300">&middot;</span>
+                  <span class="text-xs font-bold text-secondary-600 font-mono">{{ selectedTicket.unit_display_name }}</span>
+                </div>
+              </div>
+
+              <!-- Form -->
+              <form @submit.prevent="submitTransfer" class="space-y-4">
+                <!-- Email -->
+                <div>
+                  <label class="block text-sm font-semibold text-secondary-700 mb-1.5">Email del destinatario</label>
+                  <div class="relative">
+                    <EnvelopeIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-400 pointer-events-none" />
+                    <input
+                      v-model="transferEmail"
+                      type="email"
+                      required
+                      placeholder="correo@ejemplo.com"
+                      :disabled="transferLoading"
+                      class="w-full pl-10 pr-4 py-2.5 bg-white border border-secondary-200 rounded-xl text-sm text-secondary-900 placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all disabled:opacity-50"
+                    />
+                  </div>
+                </div>
+
+                <!-- Message (optional) -->
+                <div>
+                  <label class="block text-sm font-semibold text-secondary-700 mb-1.5">
+                    Mensaje <span class="text-secondary-400 font-normal">(opcional)</span>
+                  </label>
+                  <textarea
+                    v-model="transferMessage"
+                    rows="2"
+                    maxlength="500"
+                    placeholder="Ej: Te regalo esta entrada, disfruta el evento!"
+                    :disabled="transferLoading"
+                    class="w-full px-4 py-2.5 bg-white border border-secondary-200 rounded-xl text-sm text-secondary-900 placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all resize-none disabled:opacity-50"
+                  ></textarea>
+                </div>
+
+                <!-- Error -->
+                <div v-if="transferError" class="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl p-3">
+                  <ExclamationTriangleIcon class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-red-700">{{ transferError }}</p>
+                </div>
+
+                <!-- Warning -->
+                <p class="text-xs text-secondary-400 leading-relaxed">
+                  El destinatario recibira un email con un enlace para aceptar la transferencia. Tienes 48 horas para cancelarla si cambias de opinion.
+                </p>
+
+                <!-- Submit -->
+                <button
+                  type="submit"
+                  :disabled="transferLoading || !transferEmail"
+                  class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-600/20"
+                >
+                  <template v-if="transferLoading">
+                    <svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    Transfiriendo...
+                  </template>
+                  <template v-else>
+                    <PaperAirplaneIcon class="w-4 h-4" />
+                    Transferir boleta
+                  </template>
+                </button>
+              </form>
+            </template>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- Toast Notification -->
+    <Teleport to="body">
+      <Transition name="toast">
+        <div v-if="toast.show" class="fixed top-4 right-4 z-[200] max-w-sm w-full pointer-events-auto">
+          <div
+            class="flex items-start gap-3 p-4 rounded-xl shadow-xl border backdrop-blur-sm"
+            :class="toast.type === 'success'
+              ? 'bg-green-50/95 border-green-200 text-green-800'
+              : 'bg-red-50/95 border-red-200 text-red-800'"
+          >
+            <CheckCircleIcon v-if="toast.type === 'success'" class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+            <ExclamationTriangleIcon v-else class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <p class="text-sm font-medium flex-1">{{ toast.message }}</p>
+            <button @click="toast.show = false" class="flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity">
+              <XMarkIcon class="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -177,7 +323,12 @@ import {
   SparklesIcon,
   ArrowRightIcon,
   MagnifyingGlassIcon,
-  XMarkIcon
+  XMarkIcon,
+  EnvelopeIcon,
+  PaperAirplaneIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  ArrowPathIcon
 } from '@heroicons/vue/24/outline'
 
 definePageMeta({ layout: 'dashboard' })
@@ -215,6 +366,30 @@ const loading = ref(true)
 const tickets = ref<Ticket[]>([])
 const fetchError = ref('')
 const searchQuery = ref('')
+
+// Toast notification
+const toast = reactive({ show: false, message: '', type: 'success' as 'success' | 'error' })
+let toastTimer: ReturnType<typeof setTimeout> | null = null
+
+function showToast(message: string, type: 'success' | 'error' = 'success') {
+  if (toastTimer) clearTimeout(toastTimer)
+  toast.show = true
+  toast.message = message
+  toast.type = type
+  toastTimer = setTimeout(() => { toast.show = false }, 4000)
+}
+
+// Resend state
+const resendingTicketId = ref<number | null>(null)
+
+// Transfer modal state
+const showTransferModal = ref(false)
+const selectedTicket = ref<Ticket | null>(null)
+const transferEmail = ref('')
+const transferMessage = ref('')
+const transferLoading = ref(false)
+const transferError = ref('')
+const transferSuccess = ref(false)
 
 const { currentPhrase, start: startPhrases, stop: stopPhrases } = useLoadingPhrases([
   'Buscando tus boletas...',
@@ -299,6 +474,77 @@ function getQrUrl(code: string) {
   return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(code)}`
 }
 
+function openTransferModal(ticket: Ticket) {
+  selectedTicket.value = ticket
+  transferEmail.value = ''
+  transferMessage.value = ''
+  transferError.value = ''
+  transferSuccess.value = false
+  showTransferModal.value = true
+}
+
+function closeTransferModal() {
+  if (transferLoading.value) return
+  showTransferModal.value = false
+  selectedTicket.value = null
+}
+
+async function submitTransfer() {
+  if (!selectedTicket.value || transferLoading.value) return
+
+  transferLoading.value = true
+  transferError.value = ''
+
+  try {
+    await $fetch('/api/transfers/initiate', {
+      method: 'POST',
+      credentials: 'include',
+      body: {
+        reservation_unit_id: selectedTicket.value.reservation_unit_id,
+        recipient_email: transferEmail.value.trim(),
+        message: transferMessage.value.trim() || undefined
+      }
+    })
+    transferSuccess.value = true
+    setTimeout(() => {
+      closeTransferModal()
+      fetchTickets()
+    }, 2000)
+  } catch (e: any) {
+    transferError.value = e?.data?.detail || 'Error al iniciar la transferencia'
+  } finally {
+    transferLoading.value = false
+  }
+}
+
+async function resendTransfer(ticket: Ticket) {
+  if (resendingTicketId.value) return
+  resendingTicketId.value = ticket.reservation_unit_id
+  try {
+    await $fetch(`/api/transfers/resend/${ticket.reservation_unit_id}`, {
+      method: 'POST',
+      credentials: 'include'
+    })
+    showToast('Notificacion reenviada al destinatario', 'success')
+  } catch (e: any) {
+    showToast(e?.data?.detail || 'Error al reenviar la transferencia', 'error')
+  } finally {
+    resendingTicketId.value = null
+  }
+}
+
+async function cancelTransfer(ticket: Ticket) {
+  try {
+    await $fetch(`/api/transfers/cancel/${ticket.reservation_unit_id}`, {
+      method: 'POST',
+      credentials: 'include'
+    })
+    await fetchTickets()
+  } catch (e: any) {
+    showToast(e?.data?.detail || 'Error al cancelar la transferencia', 'error')
+  }
+}
+
 async function fetchTickets() {
   loading.value = true
   fetchError.value = ''
@@ -327,3 +573,43 @@ onMounted(() => {
   fetchTickets()
 })
 </script>
+
+<style scoped>
+.transfer-modal-enter-active,
+.transfer-modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.transfer-modal-enter-active > div:last-child,
+.transfer-modal-leave-active > div:last-child {
+  transition: transform 0.3s ease;
+}
+
+.transfer-modal-enter-from,
+.transfer-modal-leave-to {
+  opacity: 0;
+}
+
+.transfer-modal-enter-from > div:last-child,
+.transfer-modal-leave-to > div:last-child {
+  transform: translateY(100%);
+}
+
+@media (min-width: 640px) {
+  .transfer-modal-enter-from > div:last-child,
+  .transfer-modal-leave-to > div:last-child {
+    transform: translateY(20px) scale(0.95);
+  }
+}
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+</style>
