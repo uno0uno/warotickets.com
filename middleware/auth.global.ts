@@ -35,6 +35,37 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const tenantsStore = useTenantsStore()
   const uiStore = useUIStore()
 
+  // Routes that require auth but NOT tenant (buyer routes)
+  const buyerRoutes = ['/mis-boletas']
+  const isBuyerRoute = buyerRoutes.some(route => to.path.startsWith(route))
+
+  if (isBuyerRoute) {
+    // Verify authentication, do NOT require tenants but load them for sidebar
+    if (authStore.user && authStore.isSessionValid) {
+      if (!tenantsStore.hasTenants && !tenantsStore.isLoading) {
+        tenantsStore.fetchUserTenants()
+      }
+      return
+    }
+
+    uiStore.showLoading(undefined, 'session')
+    try {
+      const isValid = await authStore.fetchSession()
+      if (isValid) {
+        tenantsStore.fetchUserTenants()
+        uiStore.hideLoading()
+        return
+      }
+    } catch {
+      // fall through to redirect
+    }
+    uiStore.hideLoading()
+    return navigateTo(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`, {
+      replace: true
+    })
+  }
+
+  // Management routes - require auth + tenant
   // Check if we already have a valid session in the store
   if (authStore.user && authStore.isSessionValid) {
     // Load tenants if not loaded yet

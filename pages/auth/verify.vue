@@ -81,9 +81,21 @@ onMounted(async () => {
 
     if (response.success) {
       success.value = true
-      // Redirect after brief delay
-      setTimeout(() => {
-        navigateTo('/gestion')
+      // Redirect after brief delay - respect redirect param or smart redirect
+      const redirect = route.query.redirect as string
+      setTimeout(async () => {
+        if (redirect) {
+          navigateTo(redirect)
+        } else {
+          // Smart redirect: check if user has tenants
+          const tenantsStore = useTenantsStore()
+          await tenantsStore.fetchUserTenants()
+          if (tenantsStore.hasTenants) {
+            navigateTo('/gestion/eventos')
+          } else {
+            navigateTo('/mis-boletas')
+          }
+        }
       }, 1000)
     } else {
       error.value = response.message || 'Error al verificar el token'

@@ -241,8 +241,19 @@ onMounted(async () => {
   try {
     const hasSession = await authStore.fetchSession()
     if (hasSession) {
-      const redirectUrl = route.query.redirect as string || '/gestion'
-      await navigateTo(redirectUrl)
+      const redirectUrl = route.query.redirect as string
+      if (redirectUrl) {
+        await navigateTo(redirectUrl)
+      } else {
+        // Smart redirect: check if user has tenants
+        const tenantsStore = useTenantsStore()
+        await tenantsStore.fetchUserTenants()
+        if (tenantsStore.hasTenants) {
+          await navigateTo('/gestion/eventos')
+        } else {
+          await navigateTo('/mis-boletas')
+        }
+      }
       return
     }
   } catch {
@@ -288,8 +299,19 @@ async function verifyCode() {
   const result = await authStore.verifyCode(email.value, verificationCode.value)
 
   if (result.success) {
-    const redirectUrl = route.query.redirect as string || '/gestion'
-    await navigateTo(redirectUrl)
+    const redirectUrl = route.query.redirect as string
+    if (redirectUrl) {
+      await navigateTo(redirectUrl)
+    } else {
+      // Smart redirect: check if user has tenants
+      const tenantsStore = useTenantsStore()
+      await tenantsStore.fetchUserTenants()
+      if (tenantsStore.hasTenants) {
+        await navigateTo('/gestion/eventos')
+      } else {
+        await navigateTo('/mis-boletas')
+      }
+    }
   } else {
     error.value = result.error || 'Codigo invalido o expirado'
     verifyingCode.value = false

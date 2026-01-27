@@ -19,135 +19,192 @@
       </NuxtLink>
     </div>
 
-    <!-- Tenant Selector -->
-    <div v-if="isExpanded" class="px-3 pt-4">
-      <div class="tenant-selector-container">
-        <button
-          @click="showTenantDropdown = !showTenantDropdown"
-          :disabled="tenantsStore.isLoading"
-          class="w-full flex items-center justify-between px-3 py-2 border border-secondary-700 rounded-lg text-sm text-white bg-secondary-800 hover:bg-secondary-700 transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <div class="flex items-center gap-2">
-            <div class="w-2 h-2 bg-primary-500 rounded-full"></div>
-            <span v-if="tenantsStore.isLoading" class="text-secondary-400">Cargando</span>
-            <span v-else class="font-medium truncate">{{ tenantsStore.selectedTenant?.name || 'Seleccionar' }}</span>
-          </div>
-          <ChevronDownIcon :class="['w-4 h-4 text-secondary-400 transition-transform flex-shrink-0', showTenantDropdown ? 'rotate-180' : '']" />
-        </button>
+    <!-- Buyer-only navigation (no tenant) -->
+    <template v-if="!tenantsStore.hasTenants">
+      <nav class="flex-1 py-4 overflow-y-auto">
+        <div class="space-y-1 px-2">
+          <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Mis Compras</span>
 
-        <!-- Expandable List -->
-        <Transition name="tenant-expand">
-          <div
-            v-show="showTenantDropdown"
-            class="mt-2 bg-secondary-800 border border-secondary-700 rounded-lg overflow-hidden"
+          <NuxtLink
+            to="/mis-boletas"
+            :class="[
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
+              isExpanded ? '' : 'justify-center',
+              isActive('/mis-boletas')
+                ? 'bg-primary-600/20 text-primary-400 font-medium'
+                : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
+            ]"
+            :title="!isExpanded ? 'Mis Boletas' : ''"
           >
-            <div class="py-1">
-              <div v-if="tenantsStore.isLoading" class="px-3 py-2 text-sm text-secondary-400">
-                Cargando tenants
-              </div>
-              <div v-else-if="tenantsStore.tenants.length === 0" class="px-3 py-2 text-sm text-secondary-400">
-                Sin tenants disponibles
-              </div>
-              <button
-                v-else
-                v-for="tenant in tenantsStore.tenants"
-                :key="tenant.id"
-                @click="selectTenant(tenant)"
-                :disabled="tenantsStore.isLoading"
-                class="w-full flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-secondary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-md"
-                :class="tenantsStore.selectedTenant?.id === tenant.id ? 'bg-primary-600/20 text-primary-400 font-medium' : ''"
-              >
-                <div class="w-2 h-2 rounded-full" :class="tenantsStore.selectedTenant?.id === tenant.id ? 'bg-primary-500' : 'bg-secondary-500'"></div>
-                <span class="truncate">{{ tenant.name }}</span>
-              </button>
-            </div>
+            <TicketIcon :class="['w-5 h-5 flex-shrink-0', isActive('/mis-boletas') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
+            <span v-if="isExpanded" class="whitespace-nowrap">Mis Boletas</span>
+          </NuxtLink>
+        </div>
+
+        <!-- CTA organizadores -->
+        <div v-if="isExpanded" class="px-3 mt-6">
+          <div class="bg-secondary-800 rounded-lg p-3 text-center">
+            <p class="text-xs text-secondary-400 mb-2">Organizas eventos?</p>
+            <NuxtLink to="/organizadores" class="text-xs font-medium text-primary-400 hover:text-primary-300">
+              Crear organizacion
+            </NuxtLink>
           </div>
-        </Transition>
-      </div>
-    </div>
+        </div>
+      </nav>
+    </template>
 
-    <!-- Navigation -->
-    <nav class="flex-1 py-4 overflow-y-auto">
-      <!-- Administracion -->
-      <div class="space-y-1 px-2">
-        <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Administracion</span>
+    <!-- Full organizer navigation (has tenant) -->
+    <template v-else>
+      <!-- Tenant Selector -->
+      <div v-if="isExpanded" class="px-3 pt-4">
+        <div class="tenant-selector-container">
+          <button
+            @click="showTenantDropdown = !showTenantDropdown"
+            :disabled="tenantsStore.isLoading"
+            class="w-full flex items-center justify-between px-3 py-2 border border-secondary-700 rounded-lg text-sm text-white bg-secondary-800 hover:bg-secondary-700 transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 bg-primary-500 rounded-full"></div>
+              <span v-if="tenantsStore.isLoading" class="text-secondary-400">Cargando</span>
+              <span v-else class="font-medium truncate">{{ tenantsStore.selectedTenant?.name || 'Seleccionar' }}</span>
+            </div>
+            <ChevronDownIcon :class="['w-4 h-4 text-secondary-400 transition-transform flex-shrink-0', showTenantDropdown ? 'rotate-180' : '']" />
+          </button>
 
-        <NuxtLink
-          to="/gestion"
-          :class="[
-            'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
-            isExpanded ? '' : 'justify-center',
-            isActive('/gestion')
-              ? 'bg-primary-600/20 text-primary-400 font-medium'
-              : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
-          ]"
-          :title="!isExpanded ? 'Gestion de Eventos' : ''"
-        >
-          <CalendarDaysIcon :class="['w-5 h-5 flex-shrink-0', isActive('/gestion') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
-          <span v-if="isExpanded" class="whitespace-nowrap">Gestion de Eventos</span>
-        </NuxtLink>
-      </div>
-
-      <!-- En Sitio -->
-      <div class="space-y-1 px-2 pt-4">
-        <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">En Sitio</span>
-
-        <NuxtLink
-          to="/operaciones"
-          :class="[
-            'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
-            isExpanded ? '' : 'justify-center',
-            isActive('/operaciones')
-              ? 'bg-primary-600/20 text-primary-400 font-medium'
-              : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
-          ]"
-          :title="!isExpanded ? 'Operaciones' : ''"
-        >
-          <QrCodeIcon :class="['w-5 h-5 flex-shrink-0', isActive('/operaciones') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
-          <span v-if="isExpanded" class="whitespace-nowrap">Operaciones</span>
-        </NuxtLink>
-      </div>
-
-      <!-- Analitica -->
-      <div class="space-y-1 px-2 pt-4">
-        <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Analitica</span>
-
-        <NuxtLink
-          to="/analitica"
-          :class="[
-            'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
-            isExpanded ? '' : 'justify-center',
-            isActive('/analitica')
-              ? 'bg-primary-600/20 text-primary-400 font-medium'
-              : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
-          ]"
-          :title="!isExpanded ? 'Analitica' : ''"
-        >
-          <ChartBarIcon :class="['w-5 h-5 flex-shrink-0', isActive('/analitica') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
-          <span v-if="isExpanded" class="whitespace-nowrap">Analitica</span>
-        </NuxtLink>
+          <!-- Expandable List -->
+          <Transition name="tenant-expand">
+            <div
+              v-show="showTenantDropdown"
+              class="mt-2 bg-secondary-800 border border-secondary-700 rounded-lg overflow-hidden"
+            >
+              <div class="py-1">
+                <div v-if="tenantsStore.isLoading" class="px-3 py-2 text-sm text-secondary-400">
+                  Cargando tenants
+                </div>
+                <div v-else-if="tenantsStore.tenants.length === 0" class="px-3 py-2 text-sm text-secondary-400">
+                  Sin tenants disponibles
+                </div>
+                <button
+                  v-else
+                  v-for="tenant in tenantsStore.tenants"
+                  :key="tenant.id"
+                  @click="selectTenant(tenant)"
+                  :disabled="tenantsStore.isLoading"
+                  class="w-full flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-secondary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-md"
+                  :class="tenantsStore.selectedTenant?.id === tenant.id ? 'bg-primary-600/20 text-primary-400 font-medium' : ''"
+                >
+                  <div class="w-2 h-2 rounded-full" :class="tenantsStore.selectedTenant?.id === tenant.id ? 'bg-primary-500' : 'bg-secondary-500'"></div>
+                  <span class="truncate">{{ tenant.name }}</span>
+                </button>
+              </div>
+            </div>
+          </Transition>
+        </div>
       </div>
 
-      <!-- Configuracion -->
-      <div class="space-y-1 px-2 pt-4">
-        <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Configuracion</span>
+      <!-- Navigation -->
+      <nav class="flex-1 py-4 overflow-y-auto">
+        <!-- Mis Boletas (also available for organizers) -->
+        <div class="space-y-1 px-2">
+          <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Mis Compras</span>
 
-        <NuxtLink
-          to="/configuracion"
-          :class="[
-            'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
-            isExpanded ? '' : 'justify-center',
-            isActive('/configuracion')
-              ? 'bg-primary-600/20 text-primary-400 font-medium'
-              : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
-          ]"
-          :title="!isExpanded ? 'Configuracion' : ''"
-        >
-          <Cog6ToothIcon :class="['w-5 h-5 flex-shrink-0', isActive('/configuracion') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
-          <span v-if="isExpanded" class="whitespace-nowrap">Configuracion</span>
-        </NuxtLink>
-      </div>
-    </nav>
+          <NuxtLink
+            to="/mis-boletas"
+            :class="[
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
+              isExpanded ? '' : 'justify-center',
+              isActive('/mis-boletas')
+                ? 'bg-primary-600/20 text-primary-400 font-medium'
+                : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
+            ]"
+            :title="!isExpanded ? 'Mis Boletas' : ''"
+          >
+            <TicketIcon :class="['w-5 h-5 flex-shrink-0', isActive('/mis-boletas') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
+            <span v-if="isExpanded" class="whitespace-nowrap">Mis Boletas</span>
+          </NuxtLink>
+        </div>
+
+        <!-- Administracion -->
+        <div class="space-y-1 px-2 pt-4">
+          <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Administracion</span>
+
+          <NuxtLink
+            to="/gestion"
+            :class="[
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
+              isExpanded ? '' : 'justify-center',
+              isActive('/gestion')
+                ? 'bg-primary-600/20 text-primary-400 font-medium'
+                : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
+            ]"
+            :title="!isExpanded ? 'Gestion de Eventos' : ''"
+          >
+            <CalendarDaysIcon :class="['w-5 h-5 flex-shrink-0', isActive('/gestion') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
+            <span v-if="isExpanded" class="whitespace-nowrap">Gestion de Eventos</span>
+          </NuxtLink>
+        </div>
+
+        <!-- En Sitio -->
+        <div class="space-y-1 px-2 pt-4">
+          <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">En Sitio</span>
+
+          <NuxtLink
+            to="/operaciones"
+            :class="[
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
+              isExpanded ? '' : 'justify-center',
+              isActive('/operaciones')
+                ? 'bg-primary-600/20 text-primary-400 font-medium'
+                : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
+            ]"
+            :title="!isExpanded ? 'Operaciones' : ''"
+          >
+            <QrCodeIcon :class="['w-5 h-5 flex-shrink-0', isActive('/operaciones') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
+            <span v-if="isExpanded" class="whitespace-nowrap">Operaciones</span>
+          </NuxtLink>
+        </div>
+
+        <!-- Analitica -->
+        <div class="space-y-1 px-2 pt-4">
+          <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Analitica</span>
+
+          <NuxtLink
+            to="/analitica"
+            :class="[
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
+              isExpanded ? '' : 'justify-center',
+              isActive('/analitica')
+                ? 'bg-primary-600/20 text-primary-400 font-medium'
+                : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
+            ]"
+            :title="!isExpanded ? 'Analitica' : ''"
+          >
+            <ChartBarIcon :class="['w-5 h-5 flex-shrink-0', isActive('/analitica') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
+            <span v-if="isExpanded" class="whitespace-nowrap">Analitica</span>
+          </NuxtLink>
+        </div>
+
+        <!-- Configuracion -->
+        <div class="space-y-1 px-2 pt-4">
+          <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Configuracion</span>
+
+          <NuxtLink
+            to="/configuracion"
+            :class="[
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
+              isExpanded ? '' : 'justify-center',
+              isActive('/configuracion')
+                ? 'bg-primary-600/20 text-primary-400 font-medium'
+                : 'text-secondary-300 hover:bg-secondary-800 hover:text-white'
+            ]"
+            :title="!isExpanded ? 'Configuracion' : ''"
+          >
+            <Cog6ToothIcon :class="['w-5 h-5 flex-shrink-0', isActive('/configuracion') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
+            <span v-if="isExpanded" class="whitespace-nowrap">Configuracion</span>
+          </NuxtLink>
+        </div>
+      </nav>
+    </template>
 
     <!-- User Profile & Logout -->
     <div class="border-t border-secondary-800 p-3">

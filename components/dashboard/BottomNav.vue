@@ -11,33 +11,56 @@
           {{ authStore.initials }}
         </button>
 
-        <!-- Main Nav Items -->
-        <NuxtLink
-          to="/gestion"
-          class="flex flex-col items-center justify-center w-16 h-full"
-          :class="isActive('/gestion') ? 'text-primary-400' : 'text-secondary-400'"
-        >
-          <CalendarDaysIcon class="w-6 h-6" />
-          <span class="text-xs mt-1">Gestion</span>
-        </NuxtLink>
+        <!-- Buyer-only nav (no tenant) -->
+        <template v-if="!tenantsStore.hasTenants">
+          <NuxtLink
+            to="/mis-boletas"
+            class="flex flex-col items-center justify-center w-16 h-full"
+            :class="isActive('/mis-boletas') ? 'text-primary-400' : 'text-secondary-400'"
+          >
+            <TicketIcon class="w-6 h-6" />
+            <span class="text-xs mt-1">Boletas</span>
+          </NuxtLink>
+        </template>
 
-        <NuxtLink
-          to="/operaciones"
-          class="flex flex-col items-center justify-center w-16 h-full"
-          :class="isActive('/operaciones') ? 'text-primary-400' : 'text-secondary-400'"
-        >
-          <QrCodeIcon class="w-6 h-6" />
-          <span class="text-xs mt-1">En Sitio</span>
-        </NuxtLink>
+        <!-- Organizer nav (has tenant) -->
+        <template v-else>
+          <NuxtLink
+            to="/mis-boletas"
+            class="flex flex-col items-center justify-center w-16 h-full"
+            :class="isActive('/mis-boletas') ? 'text-primary-400' : 'text-secondary-400'"
+          >
+            <TicketIcon class="w-6 h-6" />
+            <span class="text-xs mt-1">Boletas</span>
+          </NuxtLink>
 
-        <!-- Menu Button -->
-        <button
-          @click="showMenu = true"
-          class="flex flex-col items-center justify-center w-16 h-full text-secondary-400"
-        >
-          <Bars3Icon class="w-6 h-6" />
-          <span class="text-xs mt-1">Menu</span>
-        </button>
+          <NuxtLink
+            to="/gestion"
+            class="flex flex-col items-center justify-center w-16 h-full"
+            :class="isActive('/gestion') ? 'text-primary-400' : 'text-secondary-400'"
+          >
+            <CalendarDaysIcon class="w-6 h-6" />
+            <span class="text-xs mt-1">Gestion</span>
+          </NuxtLink>
+
+          <NuxtLink
+            to="/operaciones"
+            class="flex flex-col items-center justify-center w-16 h-full"
+            :class="isActive('/operaciones') ? 'text-primary-400' : 'text-secondary-400'"
+          >
+            <QrCodeIcon class="w-6 h-6" />
+            <span class="text-xs mt-1">En Sitio</span>
+          </NuxtLink>
+
+          <!-- Menu Button -->
+          <button
+            @click="showMenu = true"
+            class="flex flex-col items-center justify-center w-16 h-full text-secondary-400"
+          >
+            <Bars3Icon class="w-6 h-6" />
+            <span class="text-xs mt-1">Menu</span>
+          </button>
+        </template>
       </div>
     </nav>
 
@@ -246,7 +269,8 @@ import {
   MapIcon,
   PresentationChartLineIcon,
   QrCodeIcon,
-  TagIcon
+  TagIcon,
+  TicketIcon
 } from '@heroicons/vue/24/outline'
 
 const route = useRoute()
