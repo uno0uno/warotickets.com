@@ -66,83 +66,79 @@
         </div>
 
         <!-- Ticket Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <div
             v-for="ticket in event.tickets"
             :key="ticket.reservation_unit_id"
-            class="group relative bg-white rounded-2xl border border-secondary-200 overflow-hidden hover:shadow-lg hover:shadow-secondary-200/50 transition-all duration-300"
+            class="group relative flex bg-white rounded-2xl border border-secondary-200 overflow-hidden hover:shadow-xl hover:shadow-secondary-200/50 transition-all duration-500 h-[180px]"
           >
-            <div class="p-5">
-              <div class="flex gap-4">
-                <!-- Ticket Info -->
-                <div class="flex-1 min-w-0">
-                  <!-- Area & Unit -->
-                  <div class="mb-3">
-                    <p class="text-base font-bold text-secondary-900">{{ ticket.area_name }}</p>
-                    <p class="text-sm text-secondary-500 font-mono">{{ ticket.unit_display_name }}</p>
-                  </div>
-
-                  <!-- Status Badge -->
-                  <div class="flex items-center gap-2">
-                    <span
-                      class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold"
-                      :class="ticket.status === 'confirmed'
-                        ? 'bg-green-50 text-green-700 ring-1 ring-green-200'
-                        : ticket.status === 'checked_in'
-                          ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200'
-                          : ticket.status === 'transferred'
-                            ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-200'
-                            : 'bg-secondary-50 text-secondary-600 ring-1 ring-secondary-200'"
-                    >
-                      <span
-                        class="w-1.5 h-1.5 rounded-full"
-                        :class="ticket.status === 'confirmed'
-                          ? 'bg-green-500'
-                          : ticket.status === 'checked_in'
-                            ? 'bg-blue-500'
-                            : ticket.status === 'transferred'
-                              ? 'bg-amber-500'
-                              : 'bg-secondary-400'"
-                      ></span>
-                      {{ statusLabel(ticket.status) }}
-                    </span>
-                  </div>
+            <!-- Left Section: Event Info -->
+            <div class="flex-1 p-6 flex flex-col justify-between min-w-0 bg-white">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span
+                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                    :class="ticket.status === 'confirmed'
+                      ? 'bg-green-50 text-green-700 border border-green-100'
+                      : ticket.status === 'checked_in'
+                        ? 'bg-blue-50 text-blue-700 border border-blue-100'
+                        : ticket.status === 'transferred'
+                          ? 'bg-amber-50 text-amber-700 border border-amber-100'
+                          : 'bg-secondary-50 text-secondary-600 border border-secondary-100'"
+                  >
+                    {{ statusLabel(ticket.status) }}
+                  </span>
                 </div>
+                <h3 class="text-xl font-black text-secondary-900 truncate leading-tight uppercase tracking-tight">
+                  {{ ticket.area_name }}
+                </h3>
+                <p class="text-sm font-bold text-primary-600 font-mono">
+                  {{ ticket.unit_display_name }}
+                </p>
+              </div>
 
-                <!-- QR Code -->
-                <div v-if="ticket.qr_data" class="flex-shrink-0">
-                  <div class="relative bg-white rounded-xl border-2 border-secondary-100 p-2 group-hover:border-primary-200 transition-colors">
-                    <img
-                      :src="getQrUrl(ticket.qr_data.code)"
-                      :alt="`QR ${ticket.unit_display_name}`"
-                      class="w-24 h-24 sm:w-28 sm:h-28"
-                      loading="lazy"
-                    />
-                  </div>
-                  <p class="text-[9px] text-secondary-300 mt-1.5 font-mono text-center tracking-wider">{{ ticket.qr_data.code?.slice(0, 8) }}...</p>
+              <div class="flex items-end justify-between">
+                <div>
+                  <p class="text-[10px] text-secondary-400 font-bold uppercase tracking-[0.2em] mb-0.5">Referencia</p>
+                  <p class="text-xs font-mono text-secondary-600 font-bold">{{ ticket.reservation_id.slice(0, 8).toUpperCase() }}</p>
+                </div>
+                <div v-if="ticket.can_transfer" class="flex items-center gap-1.5 text-xs text-secondary-500 font-bold cursor-pointer hover:text-primary-600 transition-colors bg-secondary-50 px-3 py-1.5 rounded-lg border border-secondary-100">
+                  <ArrowsRightLeftIcon class="w-3.5 h-3.5" />
+                  TRANSFERIR
                 </div>
               </div>
             </div>
 
-            <!-- Perforated divider effect -->
-            <div class="relative">
-              <div class="border-t-2 border-dashed border-secondary-100 mx-4"></div>
-              <div class="absolute -left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 bg-secondary-50 rounded-full"></div>
-              <div class="absolute -right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 bg-secondary-50 rounded-full"></div>
+            <!-- Perforation Divider -->
+            <div class="relative flex flex-col items-center justify-between py-3 w-px">
+              <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-secondary-50 rounded-full border border-secondary-200 z-10"></div>
+              <div class="h-full border-l-2 border-dashed border-secondary-100"></div>
+              <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-secondary-50 rounded-full border border-secondary-200 z-10"></div>
             </div>
 
-            <!-- Footer -->
-            <div class="px-5 py-3 flex items-center justify-between">
-              <p class="text-[11px] text-secondary-400 font-medium uppercase tracking-wider">
-                Ref: {{ ticket.reservation_id.slice(0, 8) }}
-              </p>
-              <div v-if="ticket.can_transfer" class="flex items-center gap-1 text-xs text-primary-500 font-medium cursor-pointer hover:text-primary-600 transition-colors">
-                <ArrowsRightLeftIcon class="w-3.5 h-3.5" />
-                Transferir
+            <!-- Right Section: QR Stub (Minimalist) -->
+            <div class="w-[160px] sm:w-[180px] bg-secondary-50/50 p-4 flex flex-col items-center justify-center relative overflow-hidden border-l border-secondary-100">
+              <!-- Subtle decorative element -->
+              <div class="absolute top-0 right-0 w-24 h-24 bg-primary-500/5 rounded-full -mr-12 -mt-12 blur-2xl"></div>
+              
+              <div v-if="ticket.qr_data" class="relative z-10">
+                <div class="bg-white p-2 rounded-xl shadow-soft border border-secondary-100 transform group-hover:scale-105 transition-transform duration-500">
+                  <img
+                    :src="getQrUrl(ticket.qr_data.code)"
+                    :alt="`QR ${ticket.unit_display_name}`"
+                    class="w-24 h-24 sm:w-28 sm:h-28 grayscale hover:grayscale-0 transition-all duration-500"
+                    loading="lazy"
+                  />
+                </div>
+                <p class="text-[10px] text-secondary-400 mt-3 font-mono text-center tracking-widest font-bold">
+                  {{ ticket.qr_data.code?.slice(0, 8).toUpperCase() }}
+                </p>
               </div>
+              
             </div>
           </div>
         </div>
+
       </div>
 
       <!-- CTA for organizers -->
