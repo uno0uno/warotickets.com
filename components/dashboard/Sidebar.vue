@@ -181,6 +181,24 @@
 
         </div>
 
+        <!-- Aplicaciones -->
+        <div class="space-y-1 px-2 pt-4">
+          <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Aplicaciones</span>
+
+          <a
+            href="https://warocol.com/menu/productos"
+            :class="[
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group',
+              isExpanded ? '' : 'justify-center',
+              'text-secondary-300 hover:bg-secondary-800 hover:text-white'
+            ]"
+            :title="!isExpanded ? 'Restaurantes' : ''"
+          >
+            <Squares2X2Icon class="w-5 h-5 flex-shrink-0 text-secondary-500 group-hover:text-secondary-300" />
+            <span v-if="isExpanded" class="whitespace-nowrap">Restaurantes</span>
+          </a>
+        </div>
+
         <!-- Configuracion -->
       </nav>
     </template>
@@ -228,6 +246,7 @@ import {
   Cog6ToothIcon,
   DocumentTextIcon,
   QrCodeIcon,
+  Squares2X2Icon,
   TicketIcon
 } from '@heroicons/vue/24/outline'
 
