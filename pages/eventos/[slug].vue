@@ -88,12 +88,20 @@
     <!-- Event Content -->
     <template v-else-if="event">
       <!-- Cover Image -->
-      <div class="relative h-64 sm:h-72 lg:h-80 bg-gradient-to-br from-primary-800 via-primary-900 to-secondary-900 overflow-hidden">
+      <div class="relative lg:h-80 bg-gradient-to-br from-primary-800 via-primary-900 to-secondary-900 overflow-hidden">
+        <!-- Mobile: show full cover image without cropping -->
+        <img
+          v-if="event.cover_image_url"
+          :src="event.cover_image_url"
+          :alt="event.cluster_name"
+          class="lg:hidden w-full"
+        />
+        <!-- Desktop: show banner image (fallback to cover) -->
         <img
           v-if="event.banner_image_url || event.cover_image_url"
           :src="event.banner_image_url || event.cover_image_url"
           :alt="event.cluster_name"
-          class="w-full h-full object-cover"
+          class="hidden lg:block w-full h-full object-cover"
         />
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
 
