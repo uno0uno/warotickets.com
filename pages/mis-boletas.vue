@@ -133,7 +133,7 @@
               <!-- Subtle decorative element -->
               <div class="absolute top-0 right-0 w-24 h-24 bg-primary-500/5 rounded-full -mr-12 -mt-12 blur-2xl"></div>
               
-              <div v-if="ticket.qr_data" class="relative z-10">
+              <div v-if="ticket.qr_data" class="relative z-10 cursor-pointer" @click="openQrModal(ticket)">
                 <div class="bg-white p-2 rounded-xl shadow-soft border border-secondary-100 transform group-hover:scale-105 transition-transform duration-500">
                   <img
                     :src="getQrUrl(ticket.qr_data.code)"
@@ -153,23 +153,6 @@
 
       </div>
 
-      <!-- CTA for organizers -->
-      <div v-if="!tenantsStore.hasTenants" class="relative overflow-hidden bg-gradient-to-br from-secondary-900 to-secondary-800 rounded-2xl p-8 text-center">
-        <div class="absolute inset-0 opacity-5">
-          <div class="absolute inset-0" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
-        </div>
-        <div class="relative">
-          <div class="w-14 h-14 bg-primary-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <SparklesIcon class="w-7 h-7 text-primary-400" />
-          </div>
-          <h3 class="text-xl font-bold text-white mb-2">Organizas eventos?</h3>
-          <p class="text-secondary-400 text-sm mb-6 max-w-md mx-auto">Crea tu organizacion y empieza a vender boletas con WaRo Tickets. Configura eventos, areas y precios en minutos.</p>
-          <NuxtLink to="/organizadores" class="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-500 transition-all text-sm font-semibold shadow-lg shadow-primary-600/30">
-            Crear organizacion
-            <ArrowRightIcon class="w-4 h-4" />
-          </NuxtLink>
-        </div>
-      </div>
     </div>
     </div>
 
@@ -312,6 +295,34 @@
         </div>
       </Transition>
     </Teleport>
+
+    <!-- QR Fullscreen Modal -->
+    <Teleport to="body">
+      <Transition name="qr-modal">
+        <div v-if="showQrModal && qrModalTicket" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md" @click.self="showQrModal = false">
+          <!-- Close Button -->
+          <button @click="showQrModal = false" class="absolute top-6 right-6 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+            <XMarkIcon class="w-6 h-6" />
+          </button>
+
+          <!-- QR Content -->
+          <div class="flex flex-col items-center gap-6 px-4">
+            <div class="bg-white p-6 rounded-3xl shadow-2xl">
+              <img
+                :src="getQrUrl(qrModalTicket.qr_data.code)"
+                :alt="`QR ${qrModalTicket.unit_display_name}`"
+                class="w-64 h-64 sm:w-72 sm:h-72"
+              />
+            </div>
+            <div class="text-center space-y-1">
+              <p class="text-white font-bold text-lg">{{ qrModalTicket.event_name }}</p>
+              <p class="text-white/70 text-sm font-mono">{{ qrModalTicket.area_name }} &middot; {{ qrModalTicket.unit_display_name }}</p>
+              <p class="text-white/40 text-xs font-mono tracking-widest mt-2">{{ qrModalTicket.qr_data.code?.slice(0, 8).toUpperCase() }}</p>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -320,8 +331,6 @@ import {
   TicketIcon,
   CalendarDaysIcon,
   ArrowsRightLeftIcon,
-  SparklesIcon,
-  ArrowRightIcon,
   MagnifyingGlassIcon,
   XMarkIcon,
   EnvelopeIcon,
@@ -336,8 +345,6 @@ useHead({ title: 'Mis Boletas - WaRo Tickets' })
 
 const setPageTitle = inject<(title: string) => void>('setPageTitle')
 const setPageSubtitle = inject<(subtitle: string) => void>('setPageSubtitle')
-
-const tenantsStore = useTenantsStore()
 
 interface Ticket {
   reservation_unit_id: number
@@ -381,6 +388,15 @@ function showToast(message: string, type: 'success' | 'error' = 'success') {
 
 // Resend state
 const resendingTicketId = ref<number | null>(null)
+
+// QR modal state
+const showQrModal = ref(false)
+const qrModalTicket = ref<Ticket | null>(null)
+
+const openQrModal = (ticket: Ticket) => {
+  qrModalTicket.value = ticket
+  showQrModal.value = true
+}
 
 // Transfer modal state
 const showTransferModal = ref(false)
@@ -611,5 +627,23 @@ onMounted(() => {
 .toast-leave-to {
   opacity: 0;
   transform: translateX(100%);
+}
+
+.qr-modal-enter-active,
+.qr-modal-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.qr-modal-enter-active > div:last-child {
+  transition: transform 0.3s ease;
+}
+
+.qr-modal-enter-from,
+.qr-modal-leave-to {
+  opacity: 0;
+}
+
+.qr-modal-enter-from > div:last-child {
+  transform: scale(0.9);
 }
 </style>

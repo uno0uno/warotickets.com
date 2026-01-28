@@ -56,15 +56,6 @@
           </NuxtLink>
         </div>
 
-        <!-- CTA organizadores -->
-        <div v-if="isExpanded" class="px-3 mt-6">
-          <div class="bg-secondary-800 rounded-lg p-3 text-center">
-            <p class="text-xs text-secondary-400 mb-2">Organizas eventos?</p>
-            <NuxtLink to="/organizadores" class="text-xs font-medium text-primary-400 hover:text-primary-300">
-              Crear organizacion
-            </NuxtLink>
-          </div>
-        </div>
       </nav>
     </template>
 
