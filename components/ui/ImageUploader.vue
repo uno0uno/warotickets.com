@@ -84,6 +84,7 @@ interface Props {
   modelValue?: string | null
   label?: string
   type?: 'banner' | 'flyer' | 'cover' | 'gallery'
+  eventId?: number | null  // ID del evento para guardar en BD
   recommendedSize?: string
   maxSize?: number // in bytes
   accept?: string
@@ -93,6 +94,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'cover',
+  eventId: null,
   maxSize: 5 * 1024 * 1024, // 5MB
   accept: 'image/jpeg,image/png,image/webp',
   previewClass: 'max-h-48'
@@ -187,28 +189,46 @@ async function uploadFile(file: File, dimensions: { width: number; height: numbe
   emit('uploading', true)
 
   try {
-    // Get presigned URL
-    const presignedResponse = await $fetch('/api/uploads/presigned-url', {
-      method: 'POST',
-      body: {
-        filename: file.name,
-        content_type: file.type,
-        folder: `events/${props.type}`
-      },
-      credentials: 'include'
-    }) as { upload_url: string; final_url: string }
+    let finalUrl: string
 
-    // Upload directly to R2
-    await fetch(presignedResponse.upload_url, {
-      method: 'PUT',
-      body: file,
-      headers: {
-        'Content-Type': file.type
-      }
-    })
+    // Si hay eventId, usar endpoint que sube a R2 + guarda en BD
+    if (props.eventId) {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await $fetch(`/api/uploads/event-image?event_id=${props.eventId}&image_type=${props.type}`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      }) as { success: boolean; url: string; image_id: number }
+
+      finalUrl = response.url
+
+    } else {
+      // Sin eventId, usar presigned URL (solo sube a R2, sin guardar en BD)
+      const presignedResponse = await $fetch('/api/uploads/presigned-url', {
+        method: 'POST',
+        body: {
+          filename: file.name,
+          content_type: file.type,
+          folder: `events/${props.type}`
+        },
+        credentials: 'include'
+      }) as { upload_url: string; final_url: string }
+
+      // Upload directly to R2
+      await fetch(presignedResponse.upload_url, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type
+        }
+      })
+
+      finalUrl = presignedResponse.final_url
+    }
 
     // Emit success
-    const finalUrl = presignedResponse.final_url
     emit('update:modelValue', finalUrl)
     emit('uploaded', {
       url: finalUrl,
