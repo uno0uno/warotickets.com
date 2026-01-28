@@ -139,6 +139,9 @@ const { data: eventsData, pending: isLoadingEvents } = useAsyncData('checkin-eve
 )
 
 const events = computed(() => eventsData.value || [])
+const selectedEvent = computed(() =>
+  events.value.find((e: any) => e.id === selectedEventId.value)
+)
 
 // Query param sync
 const route = useRoute()
@@ -211,7 +214,8 @@ async function validateCode(code: string) {
       method: 'POST',
       credentials: 'include',
       body: {
-        qr_data: code
+        qr_data: code,
+        event_slug: selectedEvent.value?.slug_cluster || ''
       }
     })
 
