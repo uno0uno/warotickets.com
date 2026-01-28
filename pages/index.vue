@@ -1,16 +1,22 @@
 <template>
   <div class="min-h-screen bg-secondary-50">
     <!-- Hero Section -->
-    <div class="relative overflow-hidden bg-gradient-to-br from-primary-800 via-primary-900 to-secondary-900">
-      <div class="absolute inset-0 bg-[url('/patterns/grid.svg')] opacity-5"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-      <div class="relative container mx-auto px-4 md:px-8 py-16 sm:py-20 text-center">
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight drop-shadow-lg">
-          Eventos en tu ciudad
-        </h1>
-        <p class="text-lg sm:text-xl text-white/80 max-w-2xl mx-auto drop-shadow">
-          Descubre los mejores eventos y vive experiencias inolvidables
-        </p>
+    <div class="relative overflow-hidden h-[280px] sm:h-[350px] lg:h-[420px]">
+      <img
+        src="/hero_waro_tickets.png"
+        alt="WaRo Tickets - Eventos en tu ciudad"
+        class="absolute inset-0 w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-black/50"></div>
+      <div class="relative h-full container mx-auto px-4 md:px-8 flex items-center justify-center">
+        <div class="text-center">
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2 tracking-tight drop-shadow-lg">
+            Eventos en tu ciudad
+          </h1>
+          <p class="text-base sm:text-lg text-white/90 max-w-xl mx-auto drop-shadow">
+            Descubre los mejores eventos y vive experiencias inolvidables
+          </p>
+        </div>
       </div>
     </div>
 
@@ -20,19 +26,19 @@
       <div class="flex flex-col sm:flex-row gap-3 mb-8">
         <!-- Search -->
         <div class="relative flex-1">
-          <MagnifyingGlassIcon class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-400" />
+          <MagnifyingGlassIcon class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-tertiary" />
           <input
             v-model="searchQuery"
             type="text"
             placeholder="Buscar eventos..."
-            class="w-full pl-12 pr-4 py-3 bg-white border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+            class="w-full pl-12 pr-4 py-3 bg-surface border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-all text-text-primary placeholder:text-text-tertiary"
           />
         </div>
 
         <!-- Type Filter -->
         <select
           v-model="selectedType"
-          class="px-4 py-3 bg-white border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all cursor-pointer min-w-[160px]"
+          class="px-4 py-3 bg-surface border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-all cursor-pointer min-w-[160px] text-text-primary"
         >
           <option value="">Todos los tipos</option>
           <option value="concert">Conciertos</option>
@@ -47,14 +53,14 @@
 
       <!-- Error State -->
       <div v-if="error" class="text-center py-16">
-        <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-          <ExclamationTriangleIcon class="w-8 h-8 text-red-500" />
+        <div class="w-16 h-16 mx-auto mb-4 bg-destructive/10 rounded-full flex items-center justify-center">
+          <ExclamationTriangleIcon class="w-8 h-8 text-destructive" />
         </div>
-        <h3 class="text-lg font-semibold text-secondary-900 mb-2">Error al cargar eventos</h3>
-        <p class="text-secondary-500 mb-4">No pudimos cargar los eventos. Intenta de nuevo.</p>
+        <h3 class="text-lg font-semibold text-text-primary mb-2">Error al cargar eventos</h3>
+        <p class="text-text-secondary mb-4">No pudimos cargar los eventos. Intenta de nuevo.</p>
         <button
           @click="refresh"
-          class="px-6 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium"
+          class="px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors font-medium"
         >
           Reintentar
         </button>
@@ -62,11 +68,11 @@
 
       <!-- Empty State -->
       <div v-else-if="filteredEvents.length === 0" class="text-center py-16">
-        <div class="w-16 h-16 mx-auto mb-4 bg-secondary-100 rounded-full flex items-center justify-center">
-          <CalendarDaysIcon class="w-8 h-8 text-secondary-400" />
+        <div class="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+          <CalendarDaysIcon class="w-8 h-8 text-muted-foreground" />
         </div>
-        <h3 class="text-lg font-semibold text-secondary-900 mb-2">No hay eventos disponibles</h3>
-        <p class="text-secondary-500">Vuelve pronto para descubrir nuevos eventos</p>
+        <h3 class="text-lg font-semibold text-text-primary mb-2">No hay eventos disponibles</h3>
+        <p class="text-text-secondary">Vuelve pronto para descubrir nuevos eventos</p>
       </div>
 
       <!-- Events Grouped by Date -->
@@ -75,9 +81,9 @@
           <div v-if="group.events.length > 0">
             <!-- Date Group Header -->
             <div class="flex items-center gap-4 mb-4">
-              <h2 class="text-lg font-bold text-secondary-900">{{ group.label }}</h2>
-              <div class="flex-1 h-px bg-secondary-200"></div>
-              <span class="text-sm text-secondary-400 font-medium">{{ group.events.length }} evento{{ group.events.length > 1 ? 's' : '' }}</span>
+              <h2 class="text-lg font-bold text-text-primary">{{ group.label }}</h2>
+              <div class="flex-1 h-px bg-border"></div>
+              <span class="text-sm text-text-tertiary font-medium">{{ group.events.length }} evento{{ group.events.length > 1 ? 's' : '' }}</span>
             </div>
 
             <!-- Events Grid -->
@@ -86,12 +92,12 @@
                 v-for="event in group.events"
                 :key="event.id"
                 :to="`/eventos/${event.slug_cluster}`"
-                class="group block bg-white rounded-2xl border border-secondary-100 hover:border-primary-200 hover:shadow-lg hover:shadow-primary-500/5 transition-all duration-300"
+                class="group block bg-surface rounded-2xl border border-border hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
               >
                 <div class="p-4 sm:p-5">
                   <div class="flex gap-4 sm:gap-5">
                     <!-- Event Image -->
-                    <div class="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-primary-400 to-primary-600">
+                    <div class="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-primary/70 to-primary">
                       <img
                         v-if="event.cover_image_url"
                         :src="event.cover_image_url"
@@ -99,17 +105,17 @@
                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div v-else class="w-full h-full flex items-center justify-center">
-                        <TicketIcon class="w-10 h-10 text-white/50" />
+                        <TicketIcon class="w-10 h-10 text-primary-foreground/50" />
                       </div>
 
                       <!-- Status Badge -->
                       <div v-if="event.tickets_available === 0" class="absolute top-2 left-2">
-                        <span class="px-2 py-1 bg-red-500 text-white text-[10px] font-bold rounded-md uppercase tracking-wide">
+                        <span class="px-2 py-1 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-md uppercase tracking-wide">
                           Agotado
                         </span>
                       </div>
                       <div v-else-if="event.tickets_available && event.tickets_available < 50" class="absolute top-2 left-2">
-                        <span class="px-2 py-1 bg-orange-500 text-white text-[10px] font-bold rounded-md uppercase tracking-wide">
+                        <span class="px-2 py-1 bg-warning text-warning-foreground text-[10px] font-bold rounded-md uppercase tracking-wide">
                           Ultimas
                         </span>
                       </div>
@@ -118,34 +124,34 @@
                     <!-- Event Info -->
                     <div class="flex-1 min-w-0">
                       <!-- Date & Type -->
-                      <div class="flex items-center gap-2 text-primary-600 text-sm font-medium mb-1.5">
+                      <div class="flex items-center gap-2 text-primary text-sm font-medium mb-1.5">
                         <span>{{ formatTime(event.start_date) }}</span>
-                        <span v-if="event.cluster_type" class="text-secondary-300">·</span>
-                        <span v-if="event.cluster_type" class="text-secondary-500 font-normal">
+                        <span v-if="event.cluster_type" class="text-border">·</span>
+                        <span v-if="event.cluster_type" class="text-text-secondary font-normal">
                           {{ getEventTypeLabel(event.cluster_type) }}
                         </span>
                       </div>
 
                       <!-- Title -->
-                      <h3 class="text-base sm:text-lg font-semibold text-secondary-900 group-hover:text-primary-600 transition-colors mb-2 line-clamp-2">
+                      <h3 class="text-base sm:text-lg font-semibold text-text-primary group-hover:text-primary transition-colors mb-2 line-clamp-2">
                         {{ event.cluster_name }}
                       </h3>
 
                       <!-- Footer Info -->
-                      <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-secondary-500">
+                      <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text-secondary">
                         <!-- Price -->
                         <div v-if="event.min_price" class="flex items-center gap-1.5">
-                          <span class="font-semibold text-secondary-700">
+                          <span class="font-semibold text-text-primary">
                             ${{ formatPrice(event.min_price) }}
                           </span>
-                          <span v-if="event.min_price !== event.max_price" class="text-secondary-400">
+                          <span v-if="event.min_price !== event.max_price" class="text-text-tertiary">
                             - ${{ formatPrice(event.max_price) }}
                           </span>
                         </div>
 
                         <!-- Availability -->
                         <div v-if="event.tickets_available && event.tickets_available > 0" class="flex items-center gap-1.5">
-                          <TicketIcon class="w-4 h-4 text-secondary-400" />
+                          <TicketIcon class="w-4 h-4 text-text-tertiary" />
                           <span>{{ event.tickets_available }} disponibles</span>
                         </div>
                       </div>

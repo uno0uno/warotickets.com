@@ -1,21 +1,16 @@
 <template>
   <header
-    class="w-full border-b border-secondary-200/80 bg-white"
+    class="w-full border-b border-border bg-surface"
   >
     <div class="container mx-auto px-4 md:px-8">
       <div class="flex h-16 md:h-20 items-center justify-between">
         <!-- Logo -->
-        <NuxtLink to="/" class="flex items-center gap-2">
-          <div class="flex items-center gap-2">
-            <div class="w-10 h-10 bg-primary-700 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20 12V6H4v6h16zm0 2H4v4h16v-4zM3 4h18a1 1 0 011 1v14a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1zm3 4h2v2H6V8zm0 6h2v2H6v-2z"/>
-              </svg>
-            </div>
-            <span class="text-xl font-bold font-heading text-secondary-900">
-              WaRo<span class="text-primary-700">Tickets</span>
-            </span>
-          </div>
+        <NuxtLink to="/" class="flex items-center">
+          <img
+            src="/waro_tickets_logo.png"
+            alt="WaRo Tickets"
+            class="h-10 md:h-12 w-auto"
+          />
         </NuxtLink>
 
         <!-- Desktop Navigation - Ciudades -->
@@ -24,8 +19,8 @@
             v-for="city in cities"
             :key="city.slug"
             :to="`/eventos/${city.slug}`"
-            class="text-secondary-600 hover:text-primary-700 font-medium transition-colors"
-            :class="{ 'text-primary-700': route.path === `/eventos/${city.slug}` }"
+            class="text-text-secondary hover:text-primary font-medium transition-colors"
+            :class="{ 'text-primary': route.path === `/eventos/${city.slug}` }"
           >
             {{ city.name }}
           </NuxtLink>
@@ -43,7 +38,7 @@
           <!-- Mobile Menu Button -->
           <button
             @click="isMenuOpen = !isMenuOpen"
-            class="md:hidden p-2 text-secondary-600 hover:text-secondary-900"
+            class="md:hidden p-2 text-text-secondary hover:text-text-primary"
             aria-label="Menu"
           >
             <svg v-if="!isMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,23 +60,23 @@
         leave-from-class="opacity-100 translate-y-0"
         leave-to-class="opacity-0 -translate-y-2"
       >
-        <div v-if="isMenuOpen" class="md:hidden py-4 border-t border-secondary-200">
+        <div v-if="isMenuOpen" class="md:hidden py-4 border-t border-border">
           <nav class="flex flex-col gap-4">
             <NuxtLink
               v-for="city in cities"
               :key="city.slug"
               :to="`/eventos/${city.slug}`"
               @click="isMenuOpen = false"
-              class="text-secondary-600 hover:text-primary-700 font-medium py-2"
-              :class="{ 'text-primary-700': route.path === `/eventos/${city.slug}` }"
+              class="text-text-secondary hover:text-primary font-medium py-2"
+              :class="{ 'text-primary': route.path === `/eventos/${city.slug}` }"
             >
               {{ city.name }}
             </NuxtLink>
-            <div class="h-px bg-secondary-200 my-2"></div>
+            <div class="h-px bg-border my-2"></div>
             <NuxtLink
               to="/organizadores"
               @click="isMenuOpen = false"
-              class="text-secondary-600 hover:text-primary-700 font-medium py-2"
+              class="text-text-secondary hover:text-primary font-medium py-2"
             >
               Crear Evento
             </NuxtLink>
