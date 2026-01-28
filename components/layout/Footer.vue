@@ -46,7 +46,7 @@
       <!-- Bottom -->
       <div class="border-t border-secondary-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
         <p class="text-secondary-500 text-sm">
-          &copy; {{ currentYear }} WaRo Tickets. Todos los derechos reservados.
+          &copy; {{ currentYear }} <a href="https://warolabs.com" target="_blank" rel="noopener" class="hover:text-primary-400 transition-colors">Waro Labs</a>. Todos los derechos reservados.
         </p>
         <p class="text-secondary-500 text-sm">
           Hecho con <span class="text-red-500">&hearts;</span> en Colombia

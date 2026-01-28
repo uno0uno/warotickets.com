@@ -760,7 +760,27 @@ function getEventTypeLabel(type: string) {
 }
 
 function formatAttributeKey(key: string) {
-  return key.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim()
+  const translations: Record<string, string> = {
+    city: 'Ciudad',
+    country: 'País',
+    venue_name: 'Lugar',
+    venue_address: 'Dirección',
+    venue: 'Lugar',
+    address: 'Dirección',
+    location: 'Ubicación',
+    age_restriction: 'Restricción de edad',
+    dress_code: 'Código de vestimenta',
+    parking: 'Estacionamiento',
+    contact: 'Contacto',
+    phone: 'Teléfono',
+    email: 'Correo',
+    website: 'Sitio web',
+    organizer: 'Organizador',
+    doors_open: 'Apertura de puertas',
+    start_time: 'Hora de inicio',
+    end_time: 'Hora de fin'
+  }
+  return translations[key.toLowerCase()] || key.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim()
 }
 
 function formatDateTime(dateStr: string) {
