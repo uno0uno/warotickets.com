@@ -178,11 +178,12 @@ const { data: eventsData, pending: isLoadingEvents } = useAsyncData('reservas-ev
 
 const events = computed(() => eventsData.value || [])
 
-// Query param sync
+// Query param sync + shared store
 const route = useRoute()
 const router = useRouter()
+const eventStore = useEventSelectionStore()
 
-const initialEventId = route.query.event ? Number(route.query.event) : ''
+const initialEventId = route.query.event ? Number(route.query.event) : (eventStore.selectedEventId || '')
 selectedEventId.value = initialEventId
 
 if (initialEventId) {
@@ -192,6 +193,8 @@ if (initialEventId) {
 // Watch for event selection changes
 watch(selectedEventId, async (newEventId, oldEventId) => {
   if (oldEventId === undefined) return
+
+  eventStore.setEvent(newEventId ? Number(newEventId) : null)
 
   if (newEventId) {
     await loadReservations(newEventId)

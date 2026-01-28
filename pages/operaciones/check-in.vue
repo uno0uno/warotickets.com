@@ -142,11 +142,12 @@ const selectedEvent = computed(() =>
   events.value.find((e: any) => e.id === selectedEventId.value)
 )
 
-// Query param sync
+// Query param sync + shared store
 const route = useRoute()
 const router = useRouter()
+const eventStore = useEventSelectionStore()
 
-const initialEventId = route.query.event ? Number(route.query.event) : ''
+const initialEventId = route.query.event ? Number(route.query.event) : (eventStore.selectedEventId || '')
 selectedEventId.value = initialEventId
 
 // Watch for event selection changes
@@ -155,6 +156,8 @@ watch(selectedEventId, async (newEventId, oldEventId) => {
 
   lastResult.value = null
   closeScanner()
+
+  eventStore.setEvent(newEventId ? Number(newEventId) : null)
 
   if (newEventId) {
     router.replace({ query: { event: String(newEventId) } })

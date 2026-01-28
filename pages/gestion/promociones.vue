@@ -270,12 +270,13 @@ const { data: eventsData, pending: isLoadingEvents } = useAsyncData('promotions-
 
 const events = computed(() => eventsData.value || [])
 
-// Check for event query param
+// Check for event query param + shared store
 const route = useRoute()
 const router = useRouter()
+const eventStore = useEventSelectionStore()
 
-// Initialize from query param
-const initialEventId = route.query.event ? Number(route.query.event) : ''
+// Initialize from query param, fallback to store
+const initialEventId = route.query.event ? Number(route.query.event) : (eventStore.selectedEventId || '')
 if (initialEventId) {
   selectedEventId.value = initialEventId
   loadPromotions()
@@ -284,6 +285,8 @@ if (initialEventId) {
 // Watch for event selection changes
 watch(selectedEventId, async (newEventId, oldEventId) => {
   if (oldEventId === undefined) return
+
+  eventStore.setEvent(newEventId ? Number(newEventId) : null)
 
   if (newEventId) {
     await loadPromotions()
