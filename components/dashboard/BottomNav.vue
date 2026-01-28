@@ -146,35 +146,7 @@
                 <span class="text-xs text-center">Transfers</span>
               </NuxtLink>
 
-              <NuxtLink
-                to="/analitica/dashboard"
-                @click="showMenu = false"
-                class="flex flex-col items-center p-3 rounded-xl transition-colors"
-                :class="isActive('/analitica/dashboard') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
-              >
-                <PresentationChartLineIcon class="w-6 h-6 mb-2" />
-                <span class="text-xs text-center">Dashboard</span>
-              </NuxtLink>
 
-              <NuxtLink
-                to="/analitica/ventas"
-                @click="showMenu = false"
-                class="flex flex-col items-center p-3 rounded-xl transition-colors"
-                :class="isActive('/analitica/ventas') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
-              >
-                <ChartBarIcon class="w-6 h-6 mb-2" />
-                <span class="text-xs text-center">Ventas</span>
-              </NuxtLink>
-
-              <NuxtLink
-                to="/configuracion"
-                @click="showMenu = false"
-                class="flex flex-col items-center p-3 rounded-xl transition-colors"
-                :class="isActive('/configuracion') ? 'bg-primary-100 text-primary-700' : 'text-secondary-600 hover:bg-secondary-100'"
-              >
-                <Cog6ToothIcon class="w-6 h-6 mb-2" />
-                <span class="text-xs text-center">Config</span>
-              </NuxtLink>
             </div>
           </div>
         </div>
@@ -223,14 +195,6 @@
 
             <!-- Actions -->
             <div class="space-y-2">
-              <NuxtLink
-                to="/configuracion"
-                @click="showUserMenu = false"
-                class="flex items-center gap-3 w-full p-3 rounded-xl text-secondary-700 hover:bg-secondary-100 transition-colors"
-              >
-                <Cog6ToothIcon class="w-5 h-5" />
-                Configuracion
-              </NuxtLink>
 
               <button
                 @click="handleLogout"
@@ -253,14 +217,12 @@ import {
   ArrowsRightLeftIcon,
   Bars3Icon,
   CalendarDaysIcon,
-  ChartBarIcon,
   CheckIcon,
   ClipboardDocumentListIcon,
   Cog6ToothIcon,
   DocumentTextIcon,
   ListBulletIcon,
   MapIcon,
-  PresentationChartLineIcon,
   QrCodeIcon,
   TagIcon,
   TicketIcon
