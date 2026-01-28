@@ -6,7 +6,7 @@
       <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
       <div class="relative container mx-auto px-4 md:px-8 py-16 sm:py-20 text-center">
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight drop-shadow-lg">
-          Eventos en tu ciudad
+          Eventos en Bogota
         </h1>
         <p class="text-lg sm:text-xl text-white/80 max-w-2xl mx-auto drop-shadow">
           Descubre los mejores eventos y vive experiencias inolvidables
@@ -65,7 +65,7 @@
         <div class="w-16 h-16 mx-auto mb-4 bg-secondary-100 rounded-full flex items-center justify-center">
           <CalendarDaysIcon class="w-8 h-8 text-secondary-400" />
         </div>
-        <h3 class="text-lg font-semibold text-secondary-900 mb-2">No hay eventos disponibles</h3>
+        <h3 class="text-lg font-semibold text-secondary-900 mb-2">No hay eventos disponibles en Bogota</h3>
         <p class="text-secondary-500">Vuelve pronto para descubrir nuevos eventos</p>
       </div>
 
@@ -174,9 +174,9 @@ definePageMeta({
 })
 
 useHead({
-  title: 'WaRo Tickets - Encuentra los mejores eventos',
+  title: 'Eventos en Bogota - WaRo Tickets',
   meta: [
-    { name: 'description', content: 'Encuentra los mejores eventos y compra tus boletas de forma segura' }
+    { name: 'description', content: 'Encuentra los mejores eventos en Bogota y compra tus boletas de forma segura' }
   ]
 })
 
@@ -184,9 +184,10 @@ useHead({
 const searchQuery = ref('')
 const selectedType = ref('')
 
-// Fetch events - SSR siempre (filtrado por Bogotá)
+// Fetch events filtered by city - SSR
+// Nota: La ciudad se guarda con tilde en la BD (Bogotá)
 const { data: events, error, refresh } = await useAsyncData(
-  'public-events',
+  'bogota-events',
   () => $fetch('/api/public/events', {
     params: {
       limit: 50,
@@ -228,10 +229,10 @@ const groupedEvents = computed(() => {
 
   const groups: Record<string, { label: string; events: any[] }> = {
     today: { label: 'Hoy', events: [] },
-    tomorrow: { label: 'Mañana', events: [] },
+    tomorrow: { label: 'Manana', events: [] },
     thisWeek: { label: 'Esta semana', events: [] },
     thisMonth: { label: 'Este mes', events: [] },
-    upcoming: { label: 'Próximamente', events: [] },
+    upcoming: { label: 'Proximamente', events: [] },
     past: { label: 'Eventos pasados', events: [] }
   }
 

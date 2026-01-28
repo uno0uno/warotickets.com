@@ -18,13 +18,16 @@
           </div>
         </NuxtLink>
 
-        <!-- Desktop Navigation -->
-        <nav class="hidden md:flex items-center gap-8">
+        <!-- Desktop Navigation - Ciudades -->
+        <nav class="hidden md:flex items-center gap-6">
           <NuxtLink
-            to="/"
+            v-for="city in cities"
+            :key="city.slug"
+            :to="`/eventos/${city.slug}`"
             class="text-secondary-600 hover:text-primary-700 font-medium transition-colors"
+            :class="{ 'text-primary-700': route.path === `/eventos/${city.slug}` }"
           >
-            Eventos
+            {{ city.name }}
           </NuxtLink>
         </nav>
 
@@ -65,12 +68,16 @@
         <div v-if="isMenuOpen" class="md:hidden py-4 border-t border-secondary-200">
           <nav class="flex flex-col gap-4">
             <NuxtLink
-              to="/"
+              v-for="city in cities"
+              :key="city.slug"
+              :to="`/eventos/${city.slug}`"
               @click="isMenuOpen = false"
               class="text-secondary-600 hover:text-primary-700 font-medium py-2"
+              :class="{ 'text-primary-700': route.path === `/eventos/${city.slug}` }"
             >
-              Eventos
+              {{ city.name }}
             </NuxtLink>
+            <div class="h-px bg-secondary-200 my-2"></div>
             <NuxtLink
               to="/organizadores"
               @click="isMenuOpen = false"
@@ -87,9 +94,14 @@
 
 <script setup lang="ts">
 const isMenuOpen = ref(false)
+const route = useRoute()
+
+// Ciudades disponibles
+const cities = [
+  { name: 'Bogotá', slug: 'bogota' },
+]
 
 // Close menu on route change
-const route = useRoute()
 watch(() => route.path, () => {
   isMenuOpen.value = false
 })
