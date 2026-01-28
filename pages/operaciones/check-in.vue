@@ -124,7 +124,6 @@ const isScannerOpen = ref(false)
 const isCameraLoading = ref(false)
 const cameraError = ref('')
 const lastResult = ref<any>(null)
-const lastScannedCode = ref('')
 
 // Load events for selector
 const { data: eventsData, pending: isLoadingEvents } = useAsyncData('checkin-events-list', () =>
@@ -166,9 +165,9 @@ watch(selectedEventId, async (newEventId, oldEventId) => {
 
 function openScanner() {
   cameraError.value = ''
+  lastResult.value = null
   isCameraLoading.value = true
   isScannerOpen.value = true
-  lastScannedCode.value = ''
 }
 
 function closeScanner() {
@@ -199,9 +198,9 @@ async function onQrDetected(detectedCodes: any[]) {
   if (!detectedCodes?.length || isValidating.value) return
 
   const rawValue = detectedCodes[0].rawValue
-  if (!rawValue || rawValue === lastScannedCode.value) return
+  if (!rawValue) return
 
-  lastScannedCode.value = rawValue
+  closeScanner()
   await validateCode(rawValue)
 }
 
@@ -220,19 +219,11 @@ async function validateCode(code: string) {
     })
 
     lastResult.value = result
-
-    // Allow scanning a new code after a short delay
-    setTimeout(() => {
-      lastScannedCode.value = ''
-    }, 3000)
   } catch (err: any) {
     lastResult.value = {
       is_valid: false,
       message: err?.data?.detail || 'Error al validar el codigo'
     }
-    setTimeout(() => {
-      lastScannedCode.value = ''
-    }, 3000)
   } finally {
     isValidating.value = false
   }
