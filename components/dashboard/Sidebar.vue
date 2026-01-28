@@ -163,11 +163,6 @@
             <CalendarDaysIcon :class="['w-5 h-5 flex-shrink-0', isActive('/gestion') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
             <span v-if="isExpanded" class="whitespace-nowrap">Gestion de Eventos</span>
           </NuxtLink>
-        </div>
-
-        <!-- En Sitio -->
-        <div class="space-y-1 px-2 pt-4">
-          <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">En Sitio</span>
 
           <NuxtLink
             to="/operaciones"
@@ -183,11 +178,6 @@
             <QrCodeIcon :class="['w-5 h-5 flex-shrink-0', isActive('/operaciones') ? 'text-primary-500' : 'text-secondary-500 group-hover:text-secondary-300']" />
             <span v-if="isExpanded" class="whitespace-nowrap">Operaciones</span>
           </NuxtLink>
-        </div>
-
-        <!-- Analitica -->
-        <div class="space-y-1 px-2 pt-4">
-          <span v-if="isExpanded" class="px-3 text-[10px] text-secondary-500 uppercase tracking-widest font-medium">Analitica</span>
 
           <NuxtLink
             to="/analitica"

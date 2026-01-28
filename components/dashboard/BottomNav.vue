@@ -46,19 +46,10 @@
           <NuxtLink
             to="/gestion"
             class="flex flex-col items-center justify-center w-16 h-full"
-            :class="isActive('/gestion') ? 'text-primary-400' : 'text-secondary-400'"
+            :class="isActive('/gestion') || isActive('/operaciones') || isActive('/analitica') ? 'text-primary-400' : 'text-secondary-400'"
           >
             <CalendarDaysIcon class="w-6 h-6" />
-            <span class="text-xs mt-1">Gestion</span>
-          </NuxtLink>
-
-          <NuxtLink
-            to="/operaciones"
-            class="flex flex-col items-center justify-center w-16 h-full"
-            :class="isActive('/operaciones') ? 'text-primary-400' : 'text-secondary-400'"
-          >
-            <QrCodeIcon class="w-6 h-6" />
-            <span class="text-xs mt-1">En Sitio</span>
+            <span class="text-xs mt-1">Admin</span>
           </NuxtLink>
 
           <!-- Menu Button -->
@@ -124,11 +115,7 @@
                 <TagIcon class="w-6 h-6 mb-2" />
                 <span class="text-xs text-center">Promos</span>
               </NuxtLink>
-            </div>
 
-            <!-- En Sitio Section -->
-            <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wider mb-2">En Sitio</p>
-            <div class="grid grid-cols-4 gap-3 mb-4">
               <NuxtLink
                 to="/operaciones/check-in"
                 @click="showMenu = false"
@@ -158,11 +145,7 @@
                 <ArrowsRightLeftIcon class="w-6 h-6 mb-2" />
                 <span class="text-xs text-center">Transfers</span>
               </NuxtLink>
-            </div>
 
-            <!-- Analitica Section -->
-            <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wider mb-2">Analitica</p>
-            <div class="grid grid-cols-4 gap-3 mb-4">
               <NuxtLink
                 to="/analitica/dashboard"
                 @click="showMenu = false"

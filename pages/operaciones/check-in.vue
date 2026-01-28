@@ -1,141 +1,236 @@
 <template>
   <div>
-    <!-- Event Selector -->
-    <div class="mb-6">
-      <label class="block text-sm font-medium text-secondary-700 mb-2">Seleccionar Evento</label>
-      <select
-        v-model="selectedEvent"
-        class="w-full sm:w-64 px-4 py-2 border border-secondary-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none"
-      >
-        <option value="">Selecciona un evento</option>
-        <option v-for="event in events" :key="event.id" :value="event.id">
-          {{ event.name }}
-        </option>
-      </select>
-    </div>
+    <!-- Loading Events State -->
+    <UiGestionLoader v-if="isLoadingEvents" />
 
-    <!-- No Event Selected -->
-    <div v-if="!selectedEvent" class="text-center py-12">
-      <div class="w-16 h-16 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <QrCodeIcon class="w-8 h-8 text-secondary-400" />
-      </div>
-      <h3 class="text-lg font-medium text-secondary-900 mb-2">Selecciona un evento</h3>
-      <p class="text-secondary-500">Elige un evento para comenzar el check-in</p>
-    </div>
-
-    <!-- Check-in Interface -->
-    <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Scanner Section -->
-      <div class="bg-white rounded-xl border border-secondary-200 p-6">
-        <h3 class="font-semibold text-secondary-900 mb-4">Escanear Boleta</h3>
-
-        <!-- QR Scanner Placeholder -->
-        <div class="aspect-square bg-secondary-100 rounded-lg flex items-center justify-center mb-4">
-          <div class="text-center">
-            <QrCodeIcon class="w-16 h-16 text-secondary-400 mx-auto mb-2" />
-            <p class="text-secondary-500 text-sm">Camara QR</p>
-          </div>
-        </div>
-
-        <!-- Manual Entry -->
-        <div class="relative">
-          <input
-            v-model="ticketCode"
-            type="text"
-            placeholder="O ingresa el codigo manualmente..."
-            class="w-full px-4 py-3 border border-secondary-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-100 focus:border-primary-500 outline-none"
-            @keyup.enter="handleCheckIn"
-          />
-          <button
-            @click="handleCheckIn"
-            class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700"
-          >
-            Validar
-          </button>
-        </div>
+    <template v-else>
+      <!-- Event Selector -->
+      <div class="bg-surface border border-border rounded-xl p-4 mb-6">
+        <label class="block text-sm font-bold text-text-primary mb-2">
+          Seleccionar Evento
+        </label>
+        <select
+          v-model="selectedEventId"
+          class="w-full sm:max-w-md h-10 px-4 py-2 border-2 border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-text-primary bg-background"
+        >
+          <option value="">Seleccionar evento</option>
+          <option v-for="event in events" :key="event.id" :value="event.id">
+            {{ event.cluster_name }}
+          </option>
+        </select>
       </div>
 
-      <!-- Stats Section -->
-      <div class="space-y-4">
-        <!-- Quick Stats -->
-        <div class="grid grid-cols-2 gap-4">
-          <div class="bg-white rounded-xl border border-secondary-200 p-4">
-            <p class="text-sm text-secondary-500 mb-1">Check-ins Hoy</p>
-            <p class="text-2xl font-bold text-secondary-900">{{ stats.todayCheckIns }}</p>
-          </div>
-          <div class="bg-white rounded-xl border border-secondary-200 p-4">
-            <p class="text-sm text-secondary-500 mb-1">Total Vendidas</p>
-            <p class="text-2xl font-bold text-secondary-900">{{ stats.totalSold }}</p>
-          </div>
-          <div class="bg-white rounded-xl border border-secondary-200 p-4">
-            <p class="text-sm text-secondary-500 mb-1">Tasa de Ingreso</p>
-            <p class="text-2xl font-bold text-primary-600">{{ stats.checkInRate }}%</p>
-          </div>
-          <div class="bg-white rounded-xl border border-secondary-200 p-4">
-            <p class="text-sm text-secondary-500 mb-1">Pendientes</p>
-            <p class="text-2xl font-bold text-secondary-900">{{ stats.pending }}</p>
-          </div>
-        </div>
+      <!-- No Event Selected -->
+      <div v-if="!selectedEventId" class="bg-surface border border-border rounded-xl p-8 text-center">
+        <QrCodeIcon class="w-16 h-16 mx-auto mb-4 text-text-tertiary" />
+        <p class="text-text-primary font-bold">Selecciona un evento</p>
+        <p class="text-sm text-text-secondary mt-1">Elige un evento para comenzar el check-in</p>
+      </div>
 
-        <!-- Recent Check-ins -->
-        <div class="bg-white rounded-xl border border-secondary-200 p-4">
-          <h4 class="font-medium text-secondary-900 mb-3">Ultimos Check-ins</h4>
-          <div class="space-y-2">
-            <div
-              v-for="checkIn in recentCheckIns"
-              :key="checkIn.id"
-              class="flex items-center justify-between py-2 border-b border-secondary-100 last:border-0"
-            >
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckIcon class="w-4 h-4 text-green-600" />
-                </div>
-                <div>
-                  <p class="text-sm font-medium text-secondary-900">{{ checkIn.name }}</p>
-                  <p class="text-xs text-secondary-500">{{ checkIn.area }}</p>
-                </div>
+      <!-- Check-in Interface -->
+      <div v-else class="max-w-lg mx-auto">
+        <div class="bg-surface rounded-xl border border-border p-6">
+          <h3 class="font-bold text-text-primary mb-4">Escanear Boleta</h3>
+
+          <!-- Camera Scanner -->
+          <div v-if="isScannerOpen" class="relative">
+            <div class="aspect-square rounded-lg overflow-hidden bg-black">
+              <ClientOnly>
+                <QrcodeStream
+                  @detect="onQrDetected"
+                  @camera-on="onCameraReady"
+                  @error="onCameraError"
+                >
+                  <!-- Scanning overlay -->
+                  <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div class="w-2/3 h-2/3 border-2 border-white/50 rounded-2xl" />
+                  </div>
+                </QrcodeStream>
+              </ClientOnly>
+            </div>
+
+            <!-- Camera loading -->
+            <div v-if="isCameraLoading" class="absolute inset-0 flex items-center justify-center bg-black/80 rounded-lg">
+              <div class="text-center text-white">
+                <div class="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-2" />
+                <p class="text-sm">Abriendo camara...</p>
               </div>
-              <span class="text-xs text-secondary-400">{{ checkIn.time }}</span>
+            </div>
+
+            <button
+              @click="closeScanner"
+              class="mt-3 w-full h-10 bg-surface-secondary text-text-primary rounded-lg text-sm font-bold hover:bg-border transition-colors"
+            >
+              Cerrar camara
+            </button>
+          </div>
+
+          <!-- Scan Button (camera closed) -->
+          <div v-else>
+            <button
+              @click="openScanner"
+              :disabled="isValidating"
+              class="w-full aspect-square max-h-80 bg-surface-secondary rounded-lg flex flex-col items-center justify-center gap-3 hover:bg-border transition-colors cursor-pointer border-2 border-dashed border-border hover:border-primary"
+            >
+              <CameraIcon class="w-16 h-16 text-text-tertiary" />
+              <span class="text-text-secondary font-bold">Escanear QR</span>
+              <span class="text-xs text-text-tertiary">Toca para abrir la camara</span>
+            </button>
+          </div>
+
+          <!-- Camera Error -->
+          <div v-if="cameraError" class="mt-3 rounded-lg p-3 bg-destructive/10 border border-destructive/30">
+            <p class="text-sm text-destructive">{{ cameraError }}</p>
+          </div>
+
+          <!-- Validating indicator -->
+          <div v-if="isValidating" class="mt-4 flex items-center justify-center gap-2 text-text-secondary">
+            <div class="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+            <span class="text-sm">Validando...</span>
+          </div>
+
+          <!-- Validation Result -->
+          <div v-if="lastResult" class="mt-4 rounded-lg p-4 border" :class="lastResult.is_valid ? 'bg-success/10 border-success/30' : 'bg-destructive/10 border-destructive/30'">
+            <div class="flex items-center gap-2 mb-2">
+              <CheckCircleIcon v-if="lastResult.is_valid" class="w-5 h-5 text-success" />
+              <XCircleIcon v-else class="w-5 h-5 text-destructive" />
+              <span class="font-bold" :class="lastResult.is_valid ? 'text-success' : 'text-destructive'">
+                {{ lastResult.message }}
+              </span>
+            </div>
+            <div v-if="lastResult.ticket_info" class="text-sm space-y-1 text-text-secondary">
+              <p v-if="lastResult.ticket_info.owner_name"><span class="font-medium">Nombre:</span> {{ lastResult.ticket_info.owner_name }}</p>
+              <p v-if="lastResult.ticket_info.area_name"><span class="font-medium">Area:</span> {{ lastResult.ticket_info.area_name }}</p>
+              <p v-if="lastResult.ticket_info.unit_display_name"><span class="font-medium">Unidad:</span> {{ lastResult.ticket_info.unit_display_name }}</p>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { QrCodeIcon, CheckIcon } from '@heroicons/vue/24/outline'
+import { QrCodeIcon, CameraIcon } from '@heroicons/vue/24/outline'
+import { CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/solid'
+import { QrcodeStream } from 'vue-qrcode-reader'
 
 useHead({ title: 'Check-in - WaRo Tickets' })
 
-const selectedEvent = ref('')
-const ticketCode = ref('')
+// State
+const selectedEventId = ref<number | ''>('')
+const isValidating = ref(false)
+const isScannerOpen = ref(false)
+const isCameraLoading = ref(false)
+const cameraError = ref('')
+const lastResult = ref<any>(null)
+const lastScannedCode = ref('')
 
-// Mock data
-const events = ref([
-  { id: '1', name: 'Concierto de Rock en el Parque' },
-  { id: '2', name: 'Festival de Musica Electronica' }
-])
+// Load events for selector
+const { data: eventsData, pending: isLoadingEvents } = useAsyncData('checkin-events-list', () =>
+  $fetch('/api/events', {
+    credentials: 'include'
+  }),
+  {
+    server: false,
+    lazy: true,
+    transform: (response: any) => response.data || response || []
+  }
+)
 
-const stats = ref({
-  todayCheckIns: 245,
-  totalSold: 450,
-  checkInRate: 54,
-  pending: 205
+const events = computed(() => eventsData.value || [])
+
+// Query param sync
+const route = useRoute()
+const router = useRouter()
+
+const initialEventId = route.query.event ? Number(route.query.event) : ''
+selectedEventId.value = initialEventId
+
+// Watch for event selection changes
+watch(selectedEventId, async (newEventId, oldEventId) => {
+  if (oldEventId === undefined) return
+
+  lastResult.value = null
+  closeScanner()
+
+  if (newEventId) {
+    router.replace({ query: { event: String(newEventId) } })
+  } else {
+    router.replace({ query: {} })
+  }
 })
 
-const recentCheckIns = ref([
-  { id: '1', name: 'Juan Perez', area: 'VIP', time: 'Hace 2 min' },
-  { id: '2', name: 'Maria Garcia', area: 'General', time: 'Hace 5 min' },
-  { id: '3', name: 'Carlos Lopez', area: 'Preferencial', time: 'Hace 8 min' },
-  { id: '4', name: 'Ana Martinez', area: 'VIP', time: 'Hace 12 min' }
-])
+function openScanner() {
+  cameraError.value = ''
+  isCameraLoading.value = true
+  isScannerOpen.value = true
+  lastScannedCode.value = ''
+}
 
-function handleCheckIn() {
-  if (!ticketCode.value) return
-  // Mock check-in logic
-  alert(`Check-in para boleta: ${ticketCode.value}`)
-  ticketCode.value = ''
+function closeScanner() {
+  isScannerOpen.value = false
+  isCameraLoading.value = false
+}
+
+function onCameraReady() {
+  isCameraLoading.value = false
+}
+
+function onCameraError(error: any) {
+  isCameraLoading.value = false
+  const name = error?.name || ''
+  if (name === 'NotAllowedError') {
+    cameraError.value = 'Permiso de camara denegado. Permite el acceso a la camara en la configuracion del navegador.'
+  } else if (name === 'NotFoundError') {
+    cameraError.value = 'No se encontro una camara en este dispositivo.'
+  } else if (name === 'NotReadableError') {
+    cameraError.value = 'La camara esta siendo usada por otra aplicacion.'
+  } else {
+    cameraError.value = `Error al acceder a la camara: ${error?.message || name}`
+  }
+  isScannerOpen.value = false
+}
+
+async function onQrDetected(detectedCodes: any[]) {
+  if (!detectedCodes?.length || isValidating.value) return
+
+  const rawValue = detectedCodes[0].rawValue
+  if (!rawValue || rawValue === lastScannedCode.value) return
+
+  lastScannedCode.value = rawValue
+  await validateCode(rawValue)
+}
+
+async function validateCode(code: string) {
+  isValidating.value = true
+  lastResult.value = null
+
+  try {
+    const result = await $fetch('/api/qr/validate', {
+      method: 'POST',
+      credentials: 'include',
+      body: {
+        qr_data: code
+      }
+    })
+
+    lastResult.value = result
+
+    // Allow scanning a new code after a short delay
+    setTimeout(() => {
+      lastScannedCode.value = ''
+    }, 3000)
+  } catch (err: any) {
+    lastResult.value = {
+      is_valid: false,
+      message: err?.data?.detail || 'Error al validar el codigo'
+    }
+    setTimeout(() => {
+      lastScannedCode.value = ''
+    }, 3000)
+  } finally {
+    isValidating.value = false
+  }
 }
 </script>

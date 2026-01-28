@@ -22,12 +22,12 @@
 
       <!-- No Event Selected -->
       <div v-if="!selectedEventId" class="bg-surface border border-border rounded-xl p-8 text-center">
-        <ArrowsRightLeftIcon class="w-16 h-16 mx-auto mb-4 text-text-tertiary" />
+        <TicketIcon class="w-16 h-16 mx-auto mb-4 text-text-tertiary" />
         <p class="text-text-primary font-bold">Selecciona un evento</p>
-        <p class="text-sm text-text-secondary mt-1">Para ver los transfers, primero selecciona un evento</p>
+        <p class="text-sm text-text-secondary mt-1">Para ver las reservas, primero selecciona un evento</p>
       </div>
 
-      <!-- Transfers Content -->
+      <!-- Reservations Content -->
       <template v-else>
         <!-- Header Actions -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
@@ -37,7 +37,7 @@
               <input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Buscar transfers..."
+                placeholder="Buscar reservas..."
                 class="w-full h-10 pl-10 pr-4 py-2 border-2 border-border bg-background rounded-lg text-sm text-text-primary placeholder:text-text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none"
               />
             </div>
@@ -47,9 +47,10 @@
             >
               <option value="">Todos los estados</option>
               <option value="pending">Pendientes</option>
-              <option value="accepted">Aceptados</option>
-              <option value="cancelled">Cancelados</option>
-              <option value="expired">Expirados</option>
+              <option value="active">Activas</option>
+              <option value="confirmed">Confirmadas</option>
+              <option value="cancelled">Canceladas</option>
+              <option value="expired">Expiradas</option>
             </select>
           </div>
         </div>
@@ -61,21 +62,21 @@
         <UiResponsiveDataView
           v-else
           :columns="columns"
-          :data="filteredTransfers"
+          :data="filteredReservations"
           :sort-field="sortField"
           :sort-direction="sortDirection"
-          empty-message="No hay transfers para este evento"
-          empty-sub-message="Las transferencias de boletas apareceran aqui"
+          empty-message="No hay reservas para este evento"
+          empty-sub-message="Las reservas apareceran aqui cuando se realicen"
           @sort="handleSort"
+          @row-click="goToDetail"
         >
           <!-- Mobile Card -->
           <template #card="{ item }">
-            <div class="bg-surface border border-border rounded-xl p-4">
+            <div class="bg-surface border border-border rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow" @click="goToDetail(item)">
               <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-bold text-text-primary">{{ item.from_name || 'Sin nombre' }}</span>
-                  <ArrowRightIcon class="w-4 h-4 text-text-tertiary" />
-                  <span class="text-sm font-bold text-primary">{{ item.to_name || item.to_email || 'Pendiente' }}</span>
+                <div>
+                  <p class="font-bold text-text-primary">{{ item.name || 'Sin nombre' }}</p>
+                  <p class="text-xs text-text-secondary">{{ item.email }}</p>
                 </div>
                 <span
                   class="px-2 py-1 text-xs font-medium rounded-full"
@@ -84,25 +85,44 @@
                   {{ getStatusLabel(item.status) }}
                 </span>
               </div>
-              <div class="text-sm text-text-secondary space-y-1">
-                <p>{{ item.area_name }} - {{ item.unit_display_name }}</p>
-                <p class="text-xs text-text-tertiary">{{ formatDate(item.transfer_date) }}</p>
+              <div class="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span class="text-text-secondary">Areas:</span>
+                  <span class="ml-1 text-text-primary">{{ item.areas?.join(', ') || '-' }}</span>
+                </div>
+                <div>
+                  <span class="text-text-secondary">Boletas:</span>
+                  <span class="ml-1 text-text-primary">{{ item.total_units }}</span>
+                </div>
+                <div>
+                  <span class="text-text-secondary">Total:</span>
+                  <span class="ml-1 text-text-primary">${{ formatNumber(item.total_paid) }}</span>
+                </div>
+                <div>
+                  <span class="text-text-secondary">Fecha:</span>
+                  <span class="ml-1 text-text-primary">{{ formatDate(item.reservation_date) }}</span>
+                </div>
               </div>
             </div>
           </template>
 
-          <!-- Custom cell: From -->
-          <template #cell-from_name="{ value }">
+          <!-- Custom cell: Name -->
+          <template #cell-name="{ value }">
             <span class="font-medium">{{ value || 'Sin nombre' }}</span>
           </template>
 
-          <!-- Custom cell: To -->
-          <template #cell-to_name="{ row }">
-            <span class="font-medium">{{ row.to_name || row.to_email || 'Pendiente' }}</span>
+          <!-- Custom cell: Areas -->
+          <template #cell-areas="{ value }">
+            <span class="text-sm">{{ value?.join(', ') || '-' }}</span>
+          </template>
+
+          <!-- Custom cell: Total -->
+          <template #cell-total_paid="{ value }">
+            <span class="font-medium">${{ formatNumber(value) }}</span>
           </template>
 
           <!-- Custom cell: Date -->
-          <template #cell-transfer_date="{ value }">
+          <template #cell-reservation_date="{ value }">
             <span class="text-sm">{{ formatDate(value) }}</span>
           </template>
 
@@ -115,6 +135,11 @@
               {{ getStatusLabel(value) }}
             </span>
           </template>
+
+          <!-- Custom cell: Action icon -->
+          <template #cell-action>
+            <ChevronRightIcon class="w-5 h-5 text-text-tertiary" />
+          </template>
         </UiResponsiveDataView>
       </template>
     </template>
@@ -124,23 +149,23 @@
 <script setup lang="ts">
 import {
   MagnifyingGlassIcon,
-  ArrowRightIcon,
-  ArrowsRightLeftIcon
+  TicketIcon,
+  ChevronRightIcon
 } from '@heroicons/vue/24/outline'
 
-useHead({ title: 'Transfers - WaRo Tickets' })
+useHead({ title: 'Reservas - WaRo Tickets' })
 
 // State
 const searchQuery = ref('')
 const statusFilter = ref('')
 const selectedEventId = ref<number | ''>('')
 const isLoading = ref(false)
-const transfers = ref<any[]>([])
-const sortField = ref('transfer_date')
+const reservations = ref<any[]>([])
+const sortField = ref('reservation_date')
 const sortDirection = ref<'asc' | 'desc'>('desc')
 
 // Load events for selector
-const { data: eventsData, pending: isLoadingEvents } = useAsyncData('transfers-events-list', () =>
+const { data: eventsData, pending: isLoadingEvents } = useAsyncData('reservas-events-list', () =>
   $fetch('/api/events', {
     credentials: 'include'
   }),
@@ -161,7 +186,7 @@ const initialEventId = route.query.event ? Number(route.query.event) : ''
 selectedEventId.value = initialEventId
 
 if (initialEventId) {
-  loadTransfers(initialEventId as number)
+  loadReservations(initialEventId as number)
 }
 
 // Watch for event selection changes
@@ -169,24 +194,37 @@ watch(selectedEventId, async (newEventId, oldEventId) => {
   if (oldEventId === undefined) return
 
   if (newEventId) {
-    await loadTransfers(newEventId)
+    await loadReservations(newEventId)
     router.replace({ query: { event: String(newEventId) } })
   } else {
-    transfers.value = []
+    reservations.value = []
     router.replace({ query: {} })
   }
 })
 
-async function loadTransfers(eventId: number) {
+// Watch status filter to reload with server-side filter
+watch(statusFilter, async () => {
+  if (selectedEventId.value) {
+    await loadReservations(selectedEventId.value)
+  }
+})
+
+async function loadReservations(eventId: number) {
   isLoading.value = true
   try {
-    const response = await $fetch(`/api/transfers/event/${eventId}`, {
+    const params: Record<string, string> = {}
+    if (statusFilter.value) params.status = statusFilter.value
+
+    const query = new URLSearchParams(params).toString()
+    const url = `/api/reservations/event/${eventId}${query ? `?${query}` : ''}`
+
+    const response = await $fetch(url, {
       credentials: 'include'
     })
-    transfers.value = (response as any) || []
+    reservations.value = (response as any) || []
   } catch (err) {
-    console.error('Error loading transfers:', err)
-    transfers.value = []
+    console.error('Error loading reservations:', err)
+    reservations.value = []
   } finally {
     isLoading.value = false
   }
@@ -194,29 +232,25 @@ async function loadTransfers(eventId: number) {
 
 // Table columns
 const columns = [
-  { key: 'from_name', title: 'Origen', sortable: true, align: 'left' as const },
-  { key: 'to_name', title: 'Destino', sortable: true, align: 'left' as const },
-  { key: 'area_name', title: 'Area', sortable: true, align: 'left' as const },
-  { key: 'unit_display_name', title: 'Boleta', sortable: true, align: 'left' as const },
-  { key: 'transfer_date', title: 'Fecha', sortable: true, align: 'left' as const },
-  { key: 'status', title: 'Estado', sortable: true, align: 'center' as const }
+  { key: 'name', title: 'Nombre', sortable: true, align: 'left' as const },
+  { key: 'email', title: 'Email', sortable: true, align: 'left' as const },
+  { key: 'areas', title: 'Areas', sortable: false, align: 'left' as const },
+  { key: 'total_units', title: 'Boletas', sortable: true, align: 'center' as const, format: 'number' as const },
+  { key: 'total_paid', title: 'Total', sortable: true, align: 'right' as const },
+  { key: 'reservation_date', title: 'Fecha', sortable: true, align: 'left' as const },
+  { key: 'status', title: 'Estado', sortable: true, align: 'center' as const },
+  { key: 'action', title: '', sortable: false, align: 'center' as const }
 ]
 
-// Filtered transfers (client-side search + status filter)
-const filteredTransfers = computed(() => {
-  let result = transfers.value
-
-  if (statusFilter.value) {
-    result = result.filter((t: any) => t.status === statusFilter.value)
-  }
+// Filtered reservations (client-side search only, status is server-side)
+const filteredReservations = computed(() => {
+  let result = reservations.value
 
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
-    result = result.filter((t: any) =>
-      (t.from_name || '').toLowerCase().includes(query) ||
-      (t.from_email || '').toLowerCase().includes(query) ||
-      (t.to_name || '').toLowerCase().includes(query) ||
-      (t.to_email || '').toLowerCase().includes(query)
+    result = result.filter((r: any) =>
+      (r.name || '').toLowerCase().includes(query) ||
+      (r.email || '').toLowerCase().includes(query)
     )
   }
 
@@ -253,7 +287,8 @@ function handleSort(field: string) {
 
 function getStatusClass(status: string) {
   const classes: Record<string, string> = {
-    accepted: 'bg-success/10 text-success',
+    confirmed: 'bg-success/10 text-success',
+    active: 'bg-success/10 text-success',
     pending: 'bg-warning/10 text-warning',
     cancelled: 'bg-destructive/10 text-destructive',
     expired: 'bg-surface-secondary text-text-secondary'
@@ -263,12 +298,21 @@ function getStatusClass(status: string) {
 
 function getStatusLabel(status: string) {
   const labels: Record<string, string> = {
-    accepted: 'Aceptado',
+    confirmed: 'Confirmada',
+    active: 'Activa',
     pending: 'Pendiente',
-    cancelled: 'Cancelado',
-    expired: 'Expirado'
+    cancelled: 'Cancelada',
+    expired: 'Expirada'
   }
   return labels[status] || status
+}
+
+function goToDetail(row: any) {
+  navigateTo(`/operaciones/reservas/${row.id}?event=${selectedEventId.value}`)
+}
+
+function formatNumber(value: number) {
+  return (value || 0).toLocaleString('es-CO')
 }
 
 function formatDate(dateStr: string) {
@@ -276,9 +320,7 @@ function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('es-CO', {
     day: '2-digit',
     month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    year: 'numeric'
   })
 }
 </script>
