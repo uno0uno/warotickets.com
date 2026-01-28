@@ -80,7 +80,7 @@
                     class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
                     :class="ticket.status === 'confirmed'
                       ? 'bg-green-50 text-green-700 border border-green-100'
-                      : ticket.status === 'checked_in'
+                      : ticket.status === 'used'
                         ? 'bg-blue-50 text-blue-700 border border-blue-100'
                         : ticket.status === 'transferred'
                           ? 'bg-amber-50 text-amber-700 border border-amber-100'
@@ -132,8 +132,17 @@
             <div class="w-[160px] sm:w-[180px] bg-secondary-50/50 p-4 flex flex-col items-center justify-center relative overflow-hidden border-l border-secondary-100">
               <!-- Subtle decorative element -->
               <div class="absolute top-0 right-0 w-24 h-24 bg-primary-500/5 rounded-full -mr-12 -mt-12 blur-2xl"></div>
-              
-              <div v-if="ticket.qr_data" class="relative z-10 cursor-pointer" @click="openQrModal(ticket)">
+
+              <!-- Used ticket: show check indicator instead of QR -->
+              <div v-if="ticket.status === 'used'" class="relative z-10 flex flex-col items-center justify-center gap-2">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
+                  <CheckCircleIcon class="w-10 h-10 sm:w-12 sm:h-12 text-blue-500" />
+                </div>
+                <p class="text-[10px] text-blue-500 font-bold uppercase tracking-wider">Usada</p>
+              </div>
+
+              <!-- Active ticket: show QR -->
+              <div v-else-if="ticket.qr_data" class="relative z-10 cursor-pointer" @click="openQrModal(ticket)">
                 <div class="bg-white p-2 rounded-xl shadow-soft border border-secondary-100 transform group-hover:scale-105 transition-transform duration-500">
                   <img
                     :src="getQrUrl(ticket.qr_data.code)"
@@ -146,7 +155,7 @@
                   {{ ticket.qr_data.code?.slice(0, 8).toUpperCase() }}
                 </p>
               </div>
-              
+
             </div>
           </div>
         </div>
@@ -479,6 +488,7 @@ function formatDate(dateStr: string) {
 function statusLabel(status: string) {
   const labels: Record<string, string> = {
     confirmed: 'Confirmada',
+    used: 'Usada',
     checked_in: 'Ingresado',
     cancelled: 'Cancelada',
     transferred: 'Transferida'
