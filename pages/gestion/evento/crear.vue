@@ -218,6 +218,45 @@
                 />
               </div>
 
+              <!-- Banner Image -->
+              <div class="md:col-span-2">
+                <UiImageUploader
+                  v-model="form.banner_url"
+                  label="Banner del Evento"
+                  type="banner"
+                  recommended-size="1960 x 600 px"
+                  preview-class="max-h-40"
+                  @uploaded="handleBannerUploaded"
+                  @uploading="(v) => isUploadingBanner = v"
+                />
+              </div>
+
+              <!-- Flyer Image -->
+              <div>
+                <UiImageUploader
+                  v-model="form.flyer_url"
+                  label="Flyer del Evento"
+                  type="flyer"
+                  recommended-size="Vertical o cuadrado"
+                  preview-class="max-h-64"
+                  @uploaded="handleFlyerUploaded"
+                  @uploading="(v) => isUploadingFlyer = v"
+                />
+              </div>
+
+              <!-- Cover Image -->
+              <div>
+                <UiImageUploader
+                  v-model="form.cover_url"
+                  label="Imagen de Portada"
+                  type="cover"
+                  recommended-size="400 x 400 px"
+                  preview-class="max-h-48"
+                  @uploaded="handleCoverUploaded"
+                  @uploading="(v) => isUploadingCover = v"
+                />
+              </div>
+
               <!-- Status Checkbox -->
               <div class="md:col-span-2">
                 <label class="flex items-center gap-3 cursor-pointer">
@@ -362,7 +401,7 @@
           </div>
 
           <!-- Location Information -->
-          <div v-if="form.venue_name || form.venue_address || form.city" class="px-4 sm:px-6 md:px-8 py-4 sm:py-6">
+          <div v-if="form.venue_name || form.venue_address || form.city" class="px-4 sm:px-6 md:px-8 py-4 sm:py-6 border-b border-secondary-200">
             <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wide mb-3 sm:mb-4">
               Ubicacion
             </p>
@@ -372,6 +411,44 @@
               <p v-if="form.city || form.country" class="text-sm text-secondary-600">
                 {{ [form.city, locationsStore.getCountryByCode(form.country)?.name].filter(Boolean).join(', ') }}
               </p>
+            </div>
+          </div>
+
+          <!-- Images Preview -->
+          <div v-if="form.banner_url || form.flyer_url || form.cover_url" class="px-4 sm:px-6 md:px-8 py-4 sm:py-6">
+            <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wide mb-3 sm:mb-4">
+              Imagenes del Evento
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Banner Preview -->
+              <div v-if="form.banner_url" class="md:col-span-3">
+                <p class="text-sm text-secondary-600 mb-2">Banner (1960x600)</p>
+                <img
+                  :src="form.banner_url"
+                  alt="Banner del evento"
+                  class="w-full max-h-32 object-cover rounded-lg border border-secondary-200"
+                />
+              </div>
+
+              <!-- Flyer Preview -->
+              <div v-if="form.flyer_url">
+                <p class="text-sm text-secondary-600 mb-2">Flyer</p>
+                <img
+                  :src="form.flyer_url"
+                  alt="Flyer del evento"
+                  class="w-full max-h-48 object-contain rounded-lg border border-secondary-200"
+                />
+              </div>
+
+              <!-- Cover Preview -->
+              <div v-if="form.cover_url">
+                <p class="text-sm text-secondary-600 mb-2">Portada</p>
+                <img
+                  :src="form.cover_url"
+                  alt="Portada del evento"
+                  class="w-32 h-32 object-cover rounded-lg border border-secondary-200"
+                />
+              </div>
             </div>
           </div>
 
@@ -412,11 +489,11 @@
             v-else
             type="button"
             @click="submitEvent"
-            :disabled="isSubmitting"
+            :disabled="isSubmitting || isUploadingImages"
             class="px-4 sm:px-6 py-2 sm:py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
           >
-            <div v-if="isSubmitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-            <span>{{ isSubmitting ? 'Creando...' : 'Crear Evento' }}</span>
+            <div v-if="isSubmitting || isUploadingImages" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            <span>{{ isUploadingImages ? 'Subiendo imagenes...' : isSubmitting ? 'Creando...' : 'Crear Evento' }}</span>
           </button>
         </div>
       </div>
@@ -458,7 +535,53 @@ const form = reactive({
   venue_address: '',
   city: '',
   country: 'CO', // Default to Colombia
-  is_active: false
+  is_active: false,
+  // Images
+  banner_url: null as string | null,
+  flyer_url: null as string | null,
+  cover_url: null as string | null
+})
+
+// Image upload state
+const isUploadingBanner = ref(false)
+const isUploadingFlyer = ref(false)
+const isUploadingCover = ref(false)
+
+// Image dimensions (stored when uploaded)
+const imageDimensions = reactive({
+  banner: { width: 0, height: 0, size: 0 },
+  flyer: { width: 0, height: 0, size: 0 },
+  cover: { width: 0, height: 0, size: 0 }
+})
+
+// Image upload handlers
+function handleBannerUploaded(data: { url: string; width?: number; height?: number; size?: number }) {
+  imageDimensions.banner = {
+    width: data.width || 0,
+    height: data.height || 0,
+    size: data.size || 0
+  }
+}
+
+function handleFlyerUploaded(data: { url: string; width?: number; height?: number; size?: number }) {
+  imageDimensions.flyer = {
+    width: data.width || 0,
+    height: data.height || 0,
+    size: data.size || 0
+  }
+}
+
+function handleCoverUploaded(data: { url: string; width?: number; height?: number; size?: number }) {
+  imageDimensions.cover = {
+    width: data.width || 0,
+    height: data.height || 0,
+    size: data.size || 0
+  }
+}
+
+// Check if any image is uploading
+const isUploadingImages = computed(() => {
+  return isUploadingBanner.value || isUploadingFlyer.value || isUploadingCover.value
 })
 
 // Get cities based on selected country
@@ -575,7 +698,7 @@ function generateSlug(name: string): string {
 
 // Submit
 async function submitEvent() {
-  if (isSubmitting.value) return
+  if (isSubmitting.value || isUploadingImages.value) return
 
   isSubmitting.value = true
 
@@ -607,11 +730,68 @@ async function submitEvent() {
       payload.extra_attributes = extraAttributes
     }
 
-    await $fetch('/api/events', {
+    // Create the event
+    const createdEvent = await $fetch<{ id: number }>('/api/events', {
       method: 'POST',
       body: payload,
       credentials: 'include'
     })
+
+    // Save images to the new event_images table
+    const imagePromises: Promise<any>[] = []
+
+    if (form.banner_url) {
+      imagePromises.push(
+        $fetch(`/api/events/${createdEvent.id}/event-images`, {
+          method: 'POST',
+          body: {
+            image_type: 'banner',
+            image_url: form.banner_url,
+            width: imageDimensions.banner.width || null,
+            height: imageDimensions.banner.height || null,
+            file_size: imageDimensions.banner.size || null
+          },
+          credentials: 'include'
+        })
+      )
+    }
+
+    if (form.flyer_url) {
+      imagePromises.push(
+        $fetch(`/api/events/${createdEvent.id}/event-images`, {
+          method: 'POST',
+          body: {
+            image_type: 'flyer',
+            image_url: form.flyer_url,
+            width: imageDimensions.flyer.width || null,
+            height: imageDimensions.flyer.height || null,
+            file_size: imageDimensions.flyer.size || null
+          },
+          credentials: 'include'
+        })
+      )
+    }
+
+    if (form.cover_url) {
+      imagePromises.push(
+        $fetch(`/api/events/${createdEvent.id}/event-images`, {
+          method: 'POST',
+          body: {
+            image_type: 'cover',
+            image_url: form.cover_url,
+            width: imageDimensions.cover.width || null,
+            height: imageDimensions.cover.height || null,
+            file_size: imageDimensions.cover.size || null
+          },
+          credentials: 'include'
+        })
+      )
+    }
+
+    // Wait for all images to be saved
+    if (imagePromises.length > 0) {
+      await Promise.all(imagePromises)
+    }
 
     // Clear cache and redirect
     clearNuxtData('events-*')

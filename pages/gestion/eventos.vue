@@ -1,5 +1,67 @@
 <template>
   <div>
+    <!-- Confirmation Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <!-- Backdrop -->
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="cancelToggle"></div>
+
+          <!-- Modal Content -->
+          <div class="relative bg-surface rounded-2xl shadow-xl max-w-md w-full p-6 border border-border">
+            <!-- Icon -->
+            <div class="flex justify-center mb-4">
+              <div
+                class="w-16 h-16 rounded-full flex items-center justify-center"
+                :class="eventToToggle?.is_active ? 'bg-warning/10' : 'bg-success/10'"
+              >
+                <EyeSlashIcon v-if="eventToToggle?.is_active" class="w-8 h-8 text-warning" />
+                <EyeIcon v-else class="w-8 h-8 text-success" />
+              </div>
+            </div>
+
+            <!-- Title -->
+            <h3 class="text-xl font-bold text-text-primary text-center mb-2">
+              {{ eventToToggle?.is_active ? 'Desactivar evento' : 'Activar evento' }}
+            </h3>
+
+            <!-- Message -->
+            <p class="text-text-secondary text-center mb-6">
+              <template v-if="eventToToggle?.is_active">
+                El evento <strong class="text-text-primary">{{ eventToToggle?.cluster_name }}</strong>
+                dejara de ser visible para los compradores.
+              </template>
+              <template v-else>
+                El evento <strong class="text-text-primary">{{ eventToToggle?.cluster_name }}</strong>
+                sera visible para los compradores.
+              </template>
+            </p>
+
+            <!-- Actions -->
+            <div class="flex gap-3">
+              <button
+                @click="cancelToggle"
+                class="flex-1 px-4 py-2.5 border border-border rounded-xl text-text-primary hover:bg-surface-secondary transition-colors font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                @click="confirmToggle"
+                :disabled="togglingEventId !== null"
+                class="flex-1 px-4 py-2.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                :class="eventToToggle?.is_active
+                  ? 'bg-warning text-warning-foreground hover:bg-warning/90'
+                  : 'bg-success text-success-foreground hover:bg-success/90'"
+              >
+                <div v-if="togglingEventId" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                <span>{{ eventToToggle?.is_active ? 'Desactivar' : 'Activar' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
     <!-- Loading State -->
     <UiGestionLoader v-if="isLoading" />
 
@@ -107,6 +169,17 @@
         <template #cell-actions="{ row }">
           <div class="flex items-center gap-2 justify-center">
             <button
+              @click.prevent="toggleEventStatus(row)"
+              class="p-1.5 rounded-lg transition-colors"
+              :class="row.is_active ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'"
+              :title="row.is_active ? 'Desactivar evento' : 'Activar evento'"
+              :disabled="togglingEventId === row.id"
+            >
+              <div v-if="togglingEventId === row.id" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+              <EyeSlashIcon v-else-if="row.is_active" class="w-4 h-4" />
+              <EyeIcon v-else class="w-4 h-4" />
+            </button>
+            <button
               @click.prevent="copyEventLink(row)"
               class="p-1.5 rounded-lg transition-colors"
               :class="copiedEventId === row.id ? 'text-success bg-success/10' : 'text-text-secondary hover:bg-surface-secondary'"
@@ -197,7 +270,9 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   LinkIcon,
-  CheckIcon
+  CheckIcon,
+  EyeIcon,
+  EyeSlashIcon
 } from '@heroicons/vue/24/outline'
 
 useHead({ title: 'Eventos - WaRo Tickets' })
@@ -384,4 +459,77 @@ async function copyEventLink(event: any) {
     console.error('Error copying link:', err)
   }
 }
+
+// Toggle event status with confirmation modal
+const togglingEventId = ref<number | null>(null)
+const showConfirmModal = ref(false)
+const eventToToggle = ref<any>(null)
+
+function toggleEventStatus(event: any) {
+  // Show confirmation modal
+  eventToToggle.value = event
+  showConfirmModal.value = true
+}
+
+function cancelToggle() {
+  showConfirmModal.value = false
+  eventToToggle.value = null
+}
+
+async function confirmToggle() {
+  if (!eventToToggle.value || togglingEventId.value === eventToToggle.value.id) return
+
+  const event = eventToToggle.value
+  togglingEventId.value = event.id
+
+  try {
+    await $fetch(`/api/events/${event.id}`, {
+      method: 'PATCH',
+      body: {
+        is_active: !event.is_active
+      },
+      credentials: 'include'
+    })
+
+    // Update local data
+    event.is_active = !event.is_active
+
+    // Clear cache
+    clearNuxtData('events-*')
+
+    // Close modal
+    showConfirmModal.value = false
+    eventToToggle.value = null
+  } catch (err: any) {
+    console.error('Error toggling event status:', err)
+    const message = err?.data?.detail || err?.message || 'Error al cambiar el estado del evento'
+    alert(message)
+  } finally {
+    togglingEventId.value = null
+  }
+}
 </script>
+
+<style scoped>
+/* Modal transitions */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active .relative,
+.modal-leave-active .relative {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.modal-enter-from .relative,
+.modal-leave-to .relative {
+  transform: scale(0.95);
+  opacity: 0;
+}
+</style>

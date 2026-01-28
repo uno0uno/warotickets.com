@@ -237,6 +237,64 @@
                   />
                 </div>
 
+                <!-- Image Uploads Section -->
+                <div class="md:col-span-2 border-t border-secondary-200 pt-6 mt-2">
+                  <h4 class="text-base font-semibold text-secondary-900 mb-4">Imagenes del Evento</h4>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Banner Upload -->
+                    <div>
+                      <UiImageUploader
+                        v-model="form.banner_url"
+                        label="Banner"
+                        type="banner"
+                        recommended-size="1960 x 600 px"
+                        preview-class="max-h-32"
+                        @uploading="isUploadingBanner = $event"
+                        @uploaded="(data) => {
+                          imageDimensions.banner.width = data.width || 0
+                          imageDimensions.banner.height = data.height || 0
+                          imageDimensions.banner.size = data.size || 0
+                        }"
+                      />
+                    </div>
+
+                    <!-- Flyer Upload -->
+                    <div>
+                      <UiImageUploader
+                        v-model="form.flyer_url"
+                        label="Flyer"
+                        type="flyer"
+                        recommended-size="Vertical o cuadrado"
+                        preview-class="max-h-48"
+                        @uploading="isUploadingFlyer = $event"
+                        @uploaded="(data) => {
+                          imageDimensions.flyer.width = data.width || 0
+                          imageDimensions.flyer.height = data.height || 0
+                          imageDimensions.flyer.size = data.size || 0
+                        }"
+                      />
+                    </div>
+
+                    <!-- Cover Upload -->
+                    <div>
+                      <UiImageUploader
+                        v-model="form.cover_url"
+                        label="Cover"
+                        type="cover"
+                        recommended-size="400 x 400 px"
+                        preview-class="max-h-40"
+                        @uploading="isUploadingCover = $event"
+                        @uploaded="(data) => {
+                          imageDimensions.cover.width = data.width || 0
+                          imageDimensions.cover.height = data.height || 0
+                          imageDimensions.cover.size = data.size || 0
+                        }"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <!-- Status Checkbox -->
                 <div class="md:col-span-2">
                   <label class="flex items-center gap-3 cursor-pointer">
@@ -416,7 +474,30 @@ const form = reactive({
   venue_address: '',
   city: '',
   country: '', // Stores country code (e.g., 'CO')
-  is_active: false
+  is_active: false,
+  // Image URLs
+  banner_url: '' as string | null,
+  flyer_url: '' as string | null,
+  cover_url: '' as string | null
+})
+
+// Image upload states
+const isUploadingBanner = ref(false)
+const isUploadingFlyer = ref(false)
+const isUploadingCover = ref(false)
+
+// Track image dimensions for saving
+const imageDimensions = reactive({
+  banner: { width: 0, height: 0, size: 0 },
+  flyer: { width: 0, height: 0, size: 0 },
+  cover: { width: 0, height: 0, size: 0 }
+})
+
+// Track existing image IDs for updates
+const existingImageIds = reactive({
+  banner: null as number | null,
+  flyer: null as number | null,
+  cover: null as number | null
 })
 
 // Get cities based on selected country
@@ -438,7 +519,7 @@ const { data: eventData, pending: isLoading, error: fetchError } = useAsyncData(
 )
 
 // Watch for event data to populate form
-watch(eventData, (newData) => {
+watch(eventData, async (newData) => {
   if (newData) {
     form.cluster_name = newData.cluster_name || ''
     form.cluster_type = newData.cluster_type || ''
@@ -458,12 +539,39 @@ watch(eventData, (newData) => {
     form.country = countryData?.code || ''
     form.city = extra.city || ''
 
+    // Fetch existing event images
+    await loadEventImages(newData.id)
+
     // Mark form as initialized after populating
     nextTick(() => {
       formInitialized.value = true
     })
   }
 }, { immediate: true })
+
+// Load existing images for the event
+async function loadEventImages(eventId: number) {
+  try {
+    const images = await $fetch<any[]>(`/api/events/${eventId}/event-images`, {
+      credentials: 'include'
+    })
+
+    for (const img of images) {
+      if (img.image_type === 'banner') {
+        form.banner_url = img.image_url
+        existingImageIds.banner = img.id
+      } else if (img.image_type === 'flyer') {
+        form.flyer_url = img.image_url
+        existingImageIds.flyer = img.id
+      } else if (img.image_type === 'cover') {
+        form.cover_url = img.image_url
+        existingImageIds.cover = img.id
+      }
+    }
+  } catch (err) {
+    console.error('Error loading event images:', err)
+  }
+}
 
 // Date validation errors
 const dateErrors = reactive({
@@ -546,6 +654,12 @@ function previousStep() {
 async function submitEvent() {
   if (isSubmitting.value) return
 
+  // Check if any image is still uploading
+  if (isUploadingBanner.value || isUploadingFlyer.value || isUploadingCover.value) {
+    alert('Por favor espera a que las imagenes terminen de subir')
+    return
+  }
+
   isSubmitting.value = true
 
   try {
@@ -581,6 +695,9 @@ async function submitEvent() {
       credentials: 'include'
     })
 
+    // Save images
+    await saveEventImages(Number(eventId.value))
+
     // Clear cache and redirect
     clearNuxtData('events-*')
     clearNuxtData(`event-${eventId.value}`)
@@ -591,6 +708,55 @@ async function submitEvent() {
     alert(message)
   } finally {
     isSubmitting.value = false
+  }
+}
+
+// Save event images (create, update, or delete)
+async function saveEventImages(eventId: number) {
+  const imageTypes = ['banner', 'flyer', 'cover'] as const
+
+  for (const type of imageTypes) {
+    const url = form[`${type}_url` as keyof typeof form] as string | null
+    const existingId = existingImageIds[type]
+    const dimensions = imageDimensions[type]
+
+    try {
+      if (existingId && url) {
+        // Update existing image
+        await $fetch(`/api/events/${eventId}/event-images/${existingId}`, {
+          method: 'PUT',
+          body: {
+            image_type: type,
+            image_url: url,
+            width: dimensions.width || null,
+            height: dimensions.height || null,
+            file_size: dimensions.size || null
+          },
+          credentials: 'include'
+        })
+      } else if (existingId && !url) {
+        // Delete existing image
+        await $fetch(`/api/events/${eventId}/event-images/${existingId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        })
+      } else if (!existingId && url) {
+        // Create new image
+        await $fetch(`/api/events/${eventId}/event-images`, {
+          method: 'POST',
+          body: {
+            image_type: type,
+            image_url: url,
+            width: dimensions.width || null,
+            height: dimensions.height || null,
+            file_size: dimensions.size || null
+          },
+          credentials: 'include'
+        })
+      }
+    } catch (err) {
+      console.error(`Error saving ${type} image:`, err)
+    }
   }
 }
 </script>
