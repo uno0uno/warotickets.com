@@ -34,6 +34,14 @@
 
         <!-- Organizer nav (has tenant) -->
         <template v-else>
+          <a
+            href="https://warocol.com"
+            class="flex flex-col items-center justify-center w-16 h-full text-secondary-400"
+          >
+            <Squares2X2Icon class="w-6 h-6" />
+            <span class="text-xs mt-1">Restaurantes</span>
+          </a>
+
           <NuxtLink
             to="/mis-boletas"
             class="flex flex-col items-center justify-center w-16 h-full"
@@ -224,6 +232,7 @@ import {
   ListBulletIcon,
   MapIcon,
   QrCodeIcon,
+  Squares2X2Icon,
   TagIcon,
   TicketIcon
 } from '@heroicons/vue/24/outline'
