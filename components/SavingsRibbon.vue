@@ -27,7 +27,7 @@ const variantText = {
 
 <template>
   <div
-    class="absolute top-0 right-0 text-[9px] font-bold px-4 py-1 rounded-bl-xl uppercase tracking-wider"
+    class="absolute top-0 right-0 text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-bl-xl tracking-wide shadow-sm"
     :class="variantClasses[variant]"
   >
     {{ variantText[variant](amount) }}

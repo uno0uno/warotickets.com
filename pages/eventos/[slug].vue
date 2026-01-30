@@ -147,12 +147,12 @@
               </p>
             </div>
 
-            <!-- Ticket Cards - Same style as Combos -->
-            <div v-if="areas && areas.length > 0" class="space-y-4">
+            <!-- Ticket Cards -->
+            <div v-if="areas && areas.length > 0" class="space-y-3">
                 <div
                   v-for="area in areas"
                   :key="area.id"
-                  class="bg-white rounded-2xl border border-secondary-200 p-5 relative overflow-hidden"
+                  class="bg-white rounded-2xl border border-secondary-200 relative overflow-hidden"
                   :class="{
                     'opacity-60 grayscale': area.units_available === 0
                   }"
@@ -163,84 +163,82 @@
                     class="absolute inset-0 bg-secondary-100/10 backdrop-blur-[1px] flex items-center justify-center z-10"
                   >
                     <span class="bg-white/90 border border-secondary-300 px-6 py-2 rounded-full font-bold text-secondary-500 text-xs uppercase tracking-widest">
-                      Localidad Agotada
+                      Agotado
                     </span>
                   </div>
 
-                  <!-- Savings/Low Stock Ribbon -->
+                  <!-- Low Stock Ribbon (only this one as ribbon) -->
                   <SavingsRibbon
-                    v-if="area.units_available > 0 && getAreaOriginalPrice(area) > getAreaDisplayPrice(area)"
-                    :amount="getAreaOriginalPrice(area) - getAreaDisplayPrice(area)"
-                    variant="savings"
-                  />
-                  <SavingsRibbon
-                    v-else-if="area.units_available > 0 && area.units_available < 20"
+                    v-if="area.units_available > 0 && area.units_available < 20 && !(getAreaOriginalPrice(area) > getAreaDisplayPrice(area))"
                     :amount="area.units_available"
                     variant="low-stock"
                   />
 
-                  <div class="flex flex-col md:flex-row justify-between gap-4">
-                    <!-- Left: Info -->
-                    <div class="flex-1">
-                      <div class="flex items-center gap-3 mb-3">
-                        <div class="w-10 h-10 bg-secondary-100 rounded-xl flex items-center justify-center">
+                  <!-- Card Content -->
+                  <div class="p-4 sm:p-5">
+                    <!-- Header: Name + Price (responsive) -->
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                      <!-- Left: Name -->
+                      <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-10 h-10 bg-secondary-100 rounded-xl flex items-center justify-center flex-shrink-0">
                           <TicketIcon class="w-5 h-5 text-secondary-600" />
                         </div>
-                        <div>
-                          <h3 class="font-extrabold text-lg text-secondary-900">{{ area.area_name }}</h3>
-                          <p v-if="area.description" class="text-sm text-secondary-500">{{ area.description }}</p>
+                        <div class="min-w-0">
+                          <h3 class="font-bold text-base sm:text-lg text-secondary-900 truncate">{{ area.area_name }}</h3>
+                          <p v-if="area.description" class="text-xs sm:text-sm text-secondary-500 truncate">{{ area.description }}</p>
                         </div>
                       </div>
 
-                      <!-- Info Badges -->
-                      <div class="space-y-2">
-                        <span class="text-[10px] font-bold text-secondary-400 uppercase tracking-widest">Detalle</span>
-                        <div class="flex flex-wrap gap-2">
-                          <!-- Stage Badge -->
-                          <Badge v-if="area.active_sale_stage" variant="stage">
-                            Etapa: {{ area.active_sale_stage }}
-                          </Badge>
-                          <!-- Bundle Badge -->
-                          <Badge v-if="getAreaQuantityInStage(area.id, area.active_sale_stage) > 1" variant="bundle">
-                            Promoción {{ getAreaQuantityInStage(area.id, area.active_sale_stage) }}x1
-                          </Badge>
-                          <!-- Available Badge -->
-                          <Badge v-if="area.units_available > 0" variant="info">
-                            {{ formatPrice(area.units_available) }} disponibles
-                          </Badge>
-                        </div>
+                      <!-- Right: Price (always visible) -->
+                      <div class="text-right flex-shrink-0">
+                        <p class="text-xl sm:text-2xl font-black text-secondary-900">
+                          ${{ formatPrice(getAreaDisplayPrice(area)) }}
+                        </p>
+                        <template v-if="getAreaOriginalPrice(area) > getAreaDisplayPrice(area)">
+                          <p class="text-xs text-secondary-400 line-through">
+                            ${{ formatPrice(getAreaOriginalPrice(area)) }}
+                          </p>
+                          <p class="text-xs font-semibold text-green-600">
+                            -${{ formatPrice(getAreaOriginalPrice(area) - getAreaDisplayPrice(area)) }}
+                          </p>
+                        </template>
+                        <p v-else class="text-[10px] text-secondary-400 uppercase">
+                          {{ getAreaQuantityInStage(area.id, area.active_sale_stage) > 1 ? 'por paquete' : 'por boleta' }}
+                        </p>
                       </div>
                     </div>
 
-                    <!-- Right: Price + Controls -->
-                    <div class="flex flex-col items-end justify-between md:border-l border-secondary-100 md:pl-5 min-w-[180px]">
-                      <div class="text-right mb-3">
-                        <p class="text-[10px] text-secondary-400 font-bold uppercase mb-1">
-                          {{ getAreaQuantityInStage(area.id, area.active_sale_stage) > 1 ? 'Precio Paquete' : 'Precio Unitario' }}
-                        </p>
-                        <p class="text-2xl font-extrabold text-secondary-900">
-                          ${{ formatPrice(getAreaDisplayPrice(area)) }}
-                        </p>
-                        <p v-if="getAreaOriginalPrice(area) > getAreaDisplayPrice(area)" class="text-xs text-secondary-400 line-through">
-                          Antes ${{ formatPrice(getAreaOriginalPrice(area)) }}
-                        </p>
-                      </div>
+                    <!-- Info Row: Stage + Available -->
+                    <div class="flex flex-wrap items-center gap-2 mb-4 text-xs">
+                      <span v-if="area.active_sale_stage" class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 text-green-700 font-medium">
+                        <SparklesIcon class="w-3 h-3" />
+                        {{ area.active_sale_stage }}
+                      </span>
+                      <span v-if="getAreaQuantityInStage(area.id, area.active_sale_stage) > 1" class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary-50 text-primary-700 font-medium">
+                        {{ getAreaQuantityInStage(area.id, area.active_sale_stage) }}x1
+                      </span>
+                      <span v-if="area.units_available > 0" class="text-secondary-400">
+                        {{ formatPrice(area.units_available) }} disponibles
+                      </span>
+                    </div>
 
+                    <!-- Action Row: Quantity + Button -->
+                    <div v-if="area.units_available > 0" class="flex items-center justify-between gap-3 pt-3 border-t border-secondary-100">
                       <!-- Quantity Controls -->
-                      <div v-if="area.units_available > 0" class="flex items-center gap-3 mb-3">
+                      <div class="flex items-center gap-2">
                         <button
                           @click="decrementQuantity(area.id)"
                           :disabled="getSelectedQuantity(area.id) <= 0"
-                          class="w-8 h-8 rounded-lg flex items-center justify-center transition-all
+                          class="w-9 h-9 rounded-lg flex items-center justify-center transition-all
                             disabled:opacity-40 disabled:cursor-not-allowed
-                            bg-secondary-200 hover:bg-secondary-300 text-secondary-700"
+                            bg-secondary-100 hover:bg-secondary-200 text-secondary-700"
                         >
                           <MinusIcon class="w-4 h-4" />
                         </button>
-                        <span class="w-8 text-center font-bold text-secondary-900">{{ getSelectedQuantity(area.id) }}</span>
+                        <span class="w-8 text-center font-bold text-secondary-900 text-lg">{{ getSelectedQuantity(area.id) }}</span>
                         <button
                           @click="incrementQuantity(area.id)"
-                          class="w-8 h-8 rounded-lg flex items-center justify-center transition-all
+                          class="w-9 h-9 rounded-lg flex items-center justify-center transition-all
                             bg-primary-100 hover:bg-primary-200 text-primary-700"
                         >
                           <PlusIcon class="w-4 h-4" />
@@ -249,10 +247,9 @@
 
                       <!-- Add to Cart Button -->
                       <button
-                        v-if="area.units_available > 0"
                         @click="addToCart(area)"
                         :disabled="getSelectedQuantity(area.id) <= 0 || addingToCart === area.id"
-                        class="w-full py-2.5 px-4 rounded-xl font-semibold text-sm transition-all
+                        class="flex-1 max-w-[200px] py-2.5 px-4 rounded-xl font-semibold text-sm transition-all
                           bg-primary-600 hover:bg-primary-700 text-white
                           disabled:opacity-40 disabled:cursor-not-allowed"
                       >
@@ -261,11 +258,10 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                           </svg>
-                          {{ getAreaInCart(area.id) > 0 ? 'Actualizando...' : 'Agregando...' }}
                         </span>
                         <span v-else class="flex items-center justify-center gap-2">
                           <ShoppingCartIcon class="w-4 h-4" />
-                          {{ getAreaInCart(area.id) > 0 ? 'Actualizar' : 'Agregar' }}
+                          Agregar
                         </span>
                       </button>
                     </div>
@@ -388,11 +384,11 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                           </svg>
-                          {{ getPromoInCart(promo.id) > 0 ? 'Actualizando...' : 'Agregando...' }}
+                          Agregando...
                         </span>
                         <span v-else class="flex items-center justify-center gap-2">
                           <ShoppingCartIcon class="w-4 h-4" />
-                          {{ getPromoInCart(promo.id) > 0 ? 'Actualizar' : 'Agregar' }}
+                          Agregar
                         </span>
                       </button>
                     </div>
@@ -427,37 +423,33 @@
       v-if="!cartLoading && cartStore.summary?.itemsCount > 0"
       class="fixed bottom-0 left-0 right-0 bg-white border-t border-secondary-200 shadow-2xl z-50"
     >
-      <div class="container mx-auto px-4 py-4">
-        <div class="flex items-center justify-between gap-4">
-          <!-- Cart Info -->
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
-              <ShoppingCartIcon class="w-6 h-6 text-primary-600" />
+      <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center justify-between gap-3">
+          <!-- Left: Info -->
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="hidden sm:flex w-10 h-10 bg-primary-100 rounded-xl items-center justify-center flex-shrink-0">
+              <ShoppingCartIcon class="w-5 h-5 text-primary-600" />
             </div>
-            <div>
-              <p class="font-bold text-secondary-900">
+            <div class="min-w-0">
+              <p class="font-bold text-secondary-900 text-sm sm:text-base truncate">
                 {{ cartStore.summary?.ticketsCount || 0 }} {{ (cartStore.summary?.ticketsCount || 0) === 1 ? 'boleta' : 'boletas' }}
               </p>
-              <p class="text-sm text-secondary-500">
-                {{ cartStore.summary?.itemsCount || 0 }} {{ (cartStore.summary?.itemsCount || 0) === 1 ? 'item' : 'items' }} en el carrito
+              <p class="text-xs sm:text-sm text-secondary-500">
+                ${{ formatPrice(cartStore.summary?.total || 0) }}
               </p>
             </div>
           </div>
 
-          <!-- Total + Button -->
-          <div class="flex items-center gap-4">
-            <div class="text-right">
-              <p class="text-xs text-secondary-500 font-medium">Total</p>
-              <p class="text-2xl font-black text-secondary-900">${{ formatPrice(cartStore.summary?.total || 0) }}</p>
-            </div>
-            <button
-              @click="goToCart"
-              class="py-3 px-6 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold transition-all flex items-center gap-2"
-            >
-              Ver carrito
-              <ArrowLeftIcon class="w-4 h-4 rotate-180" />
-            </button>
-          </div>
+          <!-- Right: Button -->
+          <button
+            @click="goToCart"
+            class="py-2.5 px-4 sm:py-3 sm:px-6 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold transition-all flex items-center gap-2 flex-shrink-0"
+          >
+            <ShoppingCartIcon class="w-4 h-4 sm:hidden" />
+            <span class="hidden sm:inline">Ver carrito</span>
+            <span class="sm:hidden">Pagar</span>
+            <ArrowLeftIcon class="w-4 h-4 rotate-180" />
+          </button>
         </div>
       </div>
     </div>

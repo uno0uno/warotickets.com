@@ -200,64 +200,59 @@
             <div
               v-for="pkg in promotionPackages"
               :key="pkg.promotionId"
-              class="bg-white rounded-2xl border border-primary-200 p-5 relative overflow-hidden"
+              class="bg-white rounded-2xl border border-primary-200 relative overflow-hidden"
             >
-              <!-- Savings Badge -->
-              <SavingsRibbon
-                v-if="pkg.originalTotal > pkg.subtotal"
-                :amount="pkg.originalTotal - pkg.subtotal"
-                variant="savings"
-              />
-
-              <div class="flex flex-col md:flex-row justify-between gap-4">
-                <!-- Left: Info -->
-                <div class="flex-1">
-                  <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
+              <!-- Card Content -->
+              <div class="p-4 sm:p-5">
+                <!-- Header: Name + Price -->
+                <div class="flex items-start justify-between gap-4 mb-4">
+                  <!-- Left: Name -->
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0">
                       <GiftIcon class="w-5 h-5 text-primary-600" />
                     </div>
-                    <div>
-                      <h3 class="font-extrabold text-lg text-secondary-900">{{ pkg.promotionName }}</h3>
+                    <div class="min-w-0">
+                      <h3 class="font-bold text-base sm:text-lg text-secondary-900 truncate">{{ pkg.promotionName }}</h3>
+                      <p class="text-xs text-secondary-500">{{ pkg.packageCount }} {{ pkg.packageCount === 1 ? 'combo' : 'combos' }}</p>
                     </div>
                   </div>
 
-                  <!-- Included Items - Badge Style (per unit combo) -->
-                  <div class="space-y-2">
-                    <span class="text-[10px] font-bold text-secondary-400 uppercase tracking-widest">Cada combo incluye</span>
-                    <div class="flex flex-wrap gap-2">
-                      <Badge
-                        v-for="item in pkg.items"
-                        :key="item.id"
-                        variant="info"
-                      >
-                        <strong>{{ item.ticketsPerPackage }}x</strong> {{ item.areaName }}
-                      </Badge>
-                    </div>
+                  <!-- Right: Price -->
+                  <div class="text-right flex-shrink-0">
+                    <p class="text-xl sm:text-2xl font-black text-secondary-900">${{ formatPrice(pkg.subtotal) }}</p>
+                    <template v-if="pkg.originalTotal > pkg.subtotal">
+                      <p class="text-xs text-secondary-400 line-through">${{ formatPrice(pkg.originalTotal) }}</p>
+                      <p class="text-xs font-semibold text-green-600">-${{ formatPrice(pkg.originalTotal - pkg.subtotal) }}</p>
+                    </template>
+                    <p v-else class="text-[10px] text-secondary-400 uppercase">por combo</p>
                   </div>
                 </div>
 
-                <!-- Right: Price + Controls -->
-                <div class="flex flex-col items-end justify-between md:border-l border-secondary-100 md:pl-5 min-w-[180px]">
-                  <div class="text-right mb-3">
-                    <p class="text-[10px] text-secondary-400 font-bold uppercase mb-1">Precio Combo</p>
-                    <p class="text-2xl font-extrabold text-secondary-900">${{ formatPrice(pkg.subtotal) }}</p>
-                    <p v-if="pkg.originalTotal > pkg.subtotal" class="text-xs text-secondary-400 line-through">
-                      Antes ${{ formatPrice(pkg.originalTotal) }}
-                    </p>
-                  </div>
+                <!-- Included Items -->
+                <div class="flex flex-wrap items-center gap-2 mb-4 text-xs">
+                  <Badge
+                    v-for="item in pkg.items"
+                    :key="item.id"
+                    variant="info"
+                  >
+                    <strong>{{ item.ticketsPerPackage }}x</strong> {{ item.areaName }}
+                  </Badge>
+                </div>
 
+                <!-- Action Row -->
+                <div class="flex items-center justify-between gap-3 pt-3 border-t border-secondary-100">
                   <!-- Quantity Controls -->
-                  <div class="flex items-center gap-3 mb-3">
+                  <div class="flex items-center gap-2">
                     <button
                       @click="decrementPromoQty(pkg.promotionId, pkg.packageCount)"
                       :disabled="cartStore.isLoading || updatingPromo === pkg.promotionId || getPendingPromoQty(pkg.promotionId, pkg.packageCount) <= 0"
-                      class="w-8 h-8 rounded-lg flex items-center justify-center transition-all
+                      class="w-9 h-9 rounded-lg flex items-center justify-center transition-all
                         disabled:opacity-40 disabled:cursor-not-allowed
-                        bg-secondary-200 hover:bg-secondary-300 text-secondary-700"
+                        bg-secondary-100 hover:bg-secondary-200 text-secondary-700"
                     >
                       <MinusIcon class="w-4 h-4" />
                     </button>
-                    <span class="w-8 text-center font-bold text-secondary-900">
+                    <span class="w-8 text-center font-bold text-secondary-900 text-lg">
                       <template v-if="updatingPromo === pkg.promotionId">
                         <svg class="animate-spin w-4 h-4 mx-auto" viewBox="0 0 24 24">
                           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
@@ -269,8 +264,7 @@
                     <button
                       @click="incrementPromoQty(pkg.promotionId, pkg.packageCount)"
                       :disabled="cartStore.isLoading || updatingPromo === pkg.promotionId || getPendingPromoQty(pkg.promotionId, pkg.packageCount) >= 5"
-                      class="w-8 h-8 rounded-lg flex items-center justify-center transition-all
-                        disabled:opacity-40 disabled:cursor-not-allowed
+                      class="w-9 h-9 rounded-lg flex items-center justify-center transition-all
                         bg-primary-100 hover:bg-primary-200 text-primary-700"
                     >
                       <PlusIcon class="w-4 h-4" />
@@ -281,7 +275,7 @@
                   <button
                     @click="applyPromoUpdate(pkg.promotionId, pkg.packageCount)"
                     :disabled="!hasPromoPendingChanges(pkg.promotionId, pkg.packageCount) || updatingPromo === pkg.promotionId"
-                    class="w-full py-2.5 px-4 rounded-xl font-semibold text-sm transition-all
+                    class="flex-1 max-w-[200px] py-2.5 px-4 rounded-xl font-semibold text-sm transition-all
                       disabled:opacity-40 disabled:cursor-not-allowed"
                     :class="hasPromoPendingChanges(pkg.promotionId, pkg.packageCount)
                       ? 'bg-primary-600 hover:bg-primary-700 text-white'
@@ -292,13 +286,12 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
-                      Actualizando...
                     </span>
                     <span v-else-if="getPendingPromoQty(pkg.promotionId, pkg.packageCount) === 0" class="flex items-center justify-center gap-2">
                       <TrashIcon class="w-4 h-4" />
                       Eliminar
                     </span>
-                    <span v-else>Actualizar</span>
+                    <span v-else>Guardar</span>
                   </button>
                 </div>
               </div>
@@ -314,111 +307,95 @@
                 </div>
               </div>
 
-              <!-- Individual Ticket Cards - Same style as Event Page -->
+              <!-- Individual Ticket Cards -->
               <div
                 v-for="item in regularItems"
                 :key="item.id"
-                class="bg-white rounded-2xl border border-secondary-200 p-5 relative overflow-hidden"
+                class="bg-white rounded-2xl border border-secondary-200 relative overflow-hidden"
               >
-                <!-- Savings Ribbon - Show per-unit savings (like event page) -->
-                <SavingsRibbon
-                  v-if="getItemSavingsPerBundle(item) > 0"
-                  :amount="getItemSavingsPerBundle(item)"
-                  variant="savings"
-                />
-
-                <div class="flex flex-col md:flex-row justify-between gap-4">
-                  <!-- Left: Info -->
-                  <div class="flex-1">
-                    <div class="flex items-center gap-3 mb-3">
-                      <div class="w-10 h-10 bg-secondary-100 rounded-xl flex items-center justify-center">
+                <!-- Card Content -->
+                <div class="p-4 sm:p-5">
+                  <!-- Header: Name + Price -->
+                  <div class="flex items-start justify-between gap-4 mb-4">
+                    <!-- Left: Name -->
+                    <div class="flex items-center gap-3 min-w-0">
+                      <div class="w-10 h-10 bg-secondary-100 rounded-xl flex items-center justify-center flex-shrink-0">
                         <TicketIcon class="w-5 h-5 text-secondary-600" />
                       </div>
-                      <div>
-                        <h3 class="font-extrabold text-lg text-secondary-900">{{ item.areaName }}</h3>
+                      <div class="min-w-0">
+                        <h3 class="font-bold text-base sm:text-lg text-secondary-900 truncate">{{ item.areaName }}</h3>
+                        <p class="text-xs text-secondary-500">{{ item.ticketsCount }} {{ item.ticketsCount === 1 ? 'boleta' : 'boletas' }}</p>
                       </div>
                     </div>
 
-                    <!-- Info Badges - Same as Event Page -->
-                    <div class="space-y-2">
-                      <span class="text-[10px] font-bold text-secondary-400 uppercase tracking-widest">Detalle</span>
-                      <div class="flex flex-wrap gap-2">
-                        <!-- Stage Badge - from API response -->
-                        <Badge v-if="item.stageStatus === 'active' && item.stageName" variant="stage">
-                          Etapa: {{ item.stageName }}
-                        </Badge>
-                        <!-- Bundle Badge - from API response -->
-                        <Badge v-if="item.bundleSize > 1" variant="bundle">
-                          Promoción {{ item.bundleSize }}x1
-                        </Badge>
-                      </div>
+                    <!-- Right: Price -->
+                    <div class="text-right flex-shrink-0">
+                      <template v-if="item.bundleSize > 1">
+                        <p class="text-xl sm:text-2xl font-black text-secondary-900">${{ formatPrice(item.bundlePrice ?? (item.unitPrice * item.bundleSize)) }}</p>
+                        <template v-if="(item.originalPrice * item.bundleSize) > (item.bundlePrice ?? (item.unitPrice * item.bundleSize))">
+                          <p class="text-xs text-secondary-400 line-through">${{ formatPrice(item.originalPrice * item.bundleSize) }}</p>
+                          <p class="text-xs font-semibold text-green-600">-${{ formatPrice((item.originalPrice * item.bundleSize) - (item.bundlePrice ?? (item.unitPrice * item.bundleSize))) }}</p>
+                        </template>
+                        <p v-else class="text-[10px] text-secondary-400 uppercase">por paquete</p>
+                      </template>
+                      <template v-else>
+                        <p class="text-xl sm:text-2xl font-black text-secondary-900">${{ formatPrice(item.unitPrice) }}</p>
+                        <template v-if="item.originalPrice > item.unitPrice">
+                          <p class="text-xs text-secondary-400 line-through">${{ formatPrice(item.originalPrice) }}</p>
+                          <p class="text-xs font-semibold text-green-600">-${{ formatPrice(item.originalPrice - item.unitPrice) }}</p>
+                        </template>
+                        <p v-else class="text-[10px] text-secondary-400 uppercase">por boleta</p>
+                      </template>
                     </div>
                   </div>
 
-                  <!-- Right: Price + Controls -->
-                  <div class="flex flex-col items-end justify-between md:border-l border-secondary-100 md:pl-5 min-w-[180px]">
-                    <div class="text-right mb-3">
-                      <!-- Bundle: Show package price -->
-                      <template v-if="item.bundleSize > 1">
-                        <p class="text-[10px] text-secondary-400 font-bold uppercase mb-1">Precio Promoción</p>
-                        <p class="text-2xl font-extrabold text-secondary-900">${{ formatPrice(item.bundlePrice ?? (item.unitPrice * item.bundleSize)) }}</p>
-                        <p v-if="(item.originalPrice * item.bundleSize) > (item.bundlePrice ?? (item.unitPrice * item.bundleSize))" class="text-xs text-secondary-400 line-through">
-                          Antes ${{ formatPrice(item.originalPrice * item.bundleSize) }}
-                        </p>
-                      </template>
-                      <!-- No Bundle: Show unit price -->
-                      <template v-else>
-                        <p class="text-[10px] text-secondary-400 font-bold uppercase mb-1">Precio Unitario</p>
-                        <p class="text-2xl font-extrabold text-secondary-900">${{ formatPrice(item.unitPrice) }}</p>
-                        <p v-if="item.originalPrice > item.unitPrice" class="text-xs text-secondary-400 line-through">
-                          Antes ${{ formatPrice(item.originalPrice) }}
-                        </p>
-                      </template>
-                    </div>
+                  <!-- Info Row: Stage + Bundle -->
+                  <div class="flex flex-wrap items-center gap-2 mb-4 text-xs">
+                    <span v-if="item.stageStatus === 'active' && item.stageName" class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 text-green-700 font-medium">
+                      {{ item.stageName }}
+                    </span>
+                    <span v-if="item.bundleSize > 1" class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary-50 text-primary-700 font-medium">
+                      {{ item.bundleSize }}x1
+                    </span>
+                  </div>
 
+                  <!-- Action Row -->
+                  <div class="flex items-center justify-between gap-3 pt-3 border-t border-secondary-100">
                     <!-- Quantity Controls -->
-                    <div class="flex flex-col items-center gap-1 mb-3">
-                      <p class="text-[10px] text-secondary-400 font-bold uppercase">
-                        {{ item.bundleSize > 1 ? 'Paquetes' : 'Boletas' }}
-                      </p>
-                      <div class="flex items-center gap-3">
-                        <button
-                          @click="decrementItemQty(item.areaId, item.quantity)"
-                          :disabled="cartStore.isLoading || updatingItem === item.areaId || getPendingItemQty(item.areaId, item.quantity) <= 0"
-                          class="w-8 h-8 rounded-lg flex items-center justify-center transition-all
-                            disabled:opacity-40 disabled:cursor-not-allowed
-                            bg-secondary-200 hover:bg-secondary-300 text-secondary-700"
-                        >
-                          <MinusIcon class="w-4 h-4" />
-                        </button>
-                        <span class="w-8 text-center font-bold text-secondary-900">
-                          <template v-if="updatingItem === item.areaId">
-                            <svg class="animate-spin w-4 h-4 mx-auto" viewBox="0 0 24 24">
-                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
-                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                            </svg>
-                          </template>
-                          <template v-else>{{ getPendingItemQty(item.areaId, item.quantity) }}</template>
-                        </span>
-                        <button
-                          @click="incrementItemQty(item.areaId, item.quantity)"
-                          :disabled="cartStore.isLoading || updatingItem === item.areaId"
-                          class="w-8 h-8 rounded-lg flex items-center justify-center transition-all
-                            bg-primary-100 hover:bg-primary-200 text-primary-700"
-                        >
-                          <PlusIcon class="w-4 h-4" />
-                        </button>
-                      </div>
-                      <p v-if="item.bundleSize > 1" class="text-[10px] text-secondary-400">
-                        = {{ getPendingItemQty(item.areaId, item.quantity) * item.bundleSize }} boletas
-                      </p>
+                    <div class="flex items-center gap-2">
+                      <button
+                        @click="decrementItemQty(item.areaId, item.quantity)"
+                        :disabled="cartStore.isLoading || updatingItem === item.areaId || getPendingItemQty(item.areaId, item.quantity) <= 0"
+                        class="w-9 h-9 rounded-lg flex items-center justify-center transition-all
+                          disabled:opacity-40 disabled:cursor-not-allowed
+                          bg-secondary-100 hover:bg-secondary-200 text-secondary-700"
+                      >
+                        <MinusIcon class="w-4 h-4" />
+                      </button>
+                      <span class="w-8 text-center font-bold text-secondary-900 text-lg">
+                        <template v-if="updatingItem === item.areaId">
+                          <svg class="animate-spin w-4 h-4 mx-auto" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        </template>
+                        <template v-else>{{ getPendingItemQty(item.areaId, item.quantity) }}</template>
+                      </span>
+                      <button
+                        @click="incrementItemQty(item.areaId, item.quantity)"
+                        :disabled="cartStore.isLoading || updatingItem === item.areaId"
+                        class="w-9 h-9 rounded-lg flex items-center justify-center transition-all
+                          bg-primary-100 hover:bg-primary-200 text-primary-700"
+                      >
+                        <PlusIcon class="w-4 h-4" />
+                      </button>
                     </div>
 
                     <!-- Update Button -->
                     <button
                       @click="applyItemUpdate(item.areaId, item.quantity)"
                       :disabled="!hasItemPendingChanges(item.areaId, item.quantity) || updatingItem === item.areaId"
-                      class="w-full py-2.5 px-4 rounded-xl font-semibold text-sm transition-all
+                      class="flex-1 max-w-[200px] py-2.5 px-4 rounded-xl font-semibold text-sm transition-all
                         disabled:opacity-40 disabled:cursor-not-allowed"
                       :class="hasItemPendingChanges(item.areaId, item.quantity)
                         ? 'bg-primary-600 hover:bg-primary-700 text-white'
@@ -429,13 +406,12 @@
                           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
                           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                         </svg>
-                        Actualizando...
                       </span>
                       <span v-else-if="getPendingItemQty(item.areaId, item.quantity) === 0" class="flex items-center justify-center gap-2">
                         <TrashIcon class="w-4 h-4" />
                         Eliminar
                       </span>
-                      <span v-else>Actualizar</span>
+                      <span v-else>Guardar</span>
                     </button>
                   </div>
                 </div>
