@@ -636,7 +636,8 @@ async function addToCart(area: any) {
   try {
     const clusterId = event.value?.cluster_id || event.value?.id
     await cartStore.addItem(clusterId, area.id, qty)
-    // Keep the quantity as-is (don't reset to 0)
+    // Reset quantity to 0 after adding to cart
+    selectedQuantities.value[area.id] = 0
   } finally {
     addingToCart.value = null
   }
@@ -701,8 +702,10 @@ async function addPromoToCart(promo: any) {
       errorMessage.value = result?.error || 'Error al agregar el paquete'
       // Auto-hide error after 5 seconds
       setTimeout(() => { errorMessage.value = null }, 5000)
+    } else {
+      // Reset quantity to 0 after successfully adding to cart
+      selectedPromoQuantities.value[promo.id] = 0
     }
-    // Keep the quantity as-is (don't reset to 0)
   } finally {
     addingPromoId.value = null
   }
