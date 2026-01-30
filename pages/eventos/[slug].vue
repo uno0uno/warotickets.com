@@ -549,8 +549,6 @@ onMounted(async () => {
 
     if (cartStore.summary.cartId) {
       await cartStore.fetchCart(cartStore.summary.cartId)
-      await nextTick()
-      initQuantitiesFromCart()
     }
   } catch (e) {
     console.error('Error loading cart:', e)
@@ -558,28 +556,6 @@ onMounted(async () => {
     cartLoading.value = false
   }
 })
-
-// Initialize quantities from cart (both areas and promos)
-function initQuantitiesFromCart() {
-  if (!cartStore.cart?.items) return
-
-  // Initialize area quantities (non-promo items)
-  for (const item of cartStore.cart.items) {
-    if (!item.promotionId) {
-      selectedQuantities.value[item.areaId] = item.quantity
-    }
-  }
-
-  // Initialize promo quantities
-  if (promotions.value) {
-    for (const promo of promotions.value) {
-      const qty = getPromoInCart(promo.id)
-      if (qty > 0) {
-        selectedPromoQuantities.value[promo.id] = qty
-      }
-    }
-  }
-}
 
 // Get area quantity in cart (non-promo)
 function getAreaInCart(areaId: number): number {
