@@ -123,33 +123,35 @@ useHead({
 const searchQuery = ref('')
 const selectedType = ref('')
 
-// Fetch events - SSR siempre (filtrado por Bogotá)
+// Fetch all events once - SSR (no API calls on filter changes)
 const { data: events, error, refresh } = await useAsyncData(
   'public-events',
   () => $fetch('/api/public/events', {
     params: {
       limit: 50,
-      event_type: selectedType.value || undefined,
       city: 'Bogotá'
     }
-  }),
-  {
-    watch: [selectedType]
-  }
+  })
 )
 
-// Filtered events
+// Filtered events - local filtering (no API calls)
 const filteredEvents = computed(() => {
   if (!events.value) return []
 
   let result = events.value as any[]
 
+  // Filter by search query
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     result = result.filter(event =>
       event.cluster_name.toLowerCase().includes(query) ||
       (event.description && event.description.toLowerCase().includes(query))
     )
+  }
+
+  // Filter by event type
+  if (selectedType.value) {
+    result = result.filter(event => event.cluster_type === selectedType.value)
   }
 
   return result
