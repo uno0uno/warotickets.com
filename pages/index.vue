@@ -87,73 +87,65 @@
             </div>
 
             <!-- Events Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
               <NuxtLink
                 v-for="event in group.events"
                 :key="event.id"
                 :to="`/eventos/${event.slug_cluster}`"
-                class="group block bg-surface rounded-2xl border border-border hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+                class="group block bg-surface rounded-2xl border border-border shadow-sm hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 overflow-hidden"
               >
-                <div class="p-4 sm:p-5">
-                  <div class="flex gap-4 sm:gap-5">
-                    <!-- Event Image -->
-                    <div class="relative w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-primary/70 to-primary">
-                      <img
-                        v-if="event.cover_image_url"
-                        :src="event.cover_image_url"
-                        :alt="event.cluster_name"
-                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div v-else class="w-full h-full flex items-center justify-center">
-                        <TicketIcon class="w-10 h-10 text-primary-foreground/50" />
-                      </div>
-
-                      <!-- Status Badge -->
-                      <div v-if="event.tickets_available === 0" class="absolute top-2 left-2">
-                        <span class="px-2 py-1 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-md uppercase tracking-wide">
-                          Agotado
-                        </span>
-                      </div>
-                      <div v-else-if="event.tickets_available && event.tickets_available < 50" class="absolute top-2 left-2">
-                        <span class="px-2 py-1 bg-warning text-warning-foreground text-[10px] font-bold rounded-md uppercase tracking-wide">
-                          Ultimas
-                        </span>
-                      </div>
+                <div class="flex">
+                  <!-- Event Image -->
+                  <div class="relative w-28 h-28 sm:w-36 sm:h-36 flex-shrink-0 bg-gradient-to-br from-primary/70 to-primary">
+                    <img
+                      v-if="event.cover_image_url"
+                      :src="event.cover_image_url"
+                      :alt="event.cluster_name"
+                      class="w-full h-full object-cover"
+                    />
+                    <div v-else class="w-full h-full flex items-center justify-center">
+                      <TicketIcon class="w-10 h-10 text-primary-foreground/50" />
                     </div>
 
-                    <!-- Event Info -->
-                    <div class="flex-1 min-w-0">
-                      <!-- Date & Type -->
-                      <div class="flex items-center gap-2 text-primary text-sm font-medium mb-1.5">
-                        <span>{{ formatTime(event.start_date) }}</span>
-                        <span v-if="event.cluster_type" class="text-border">·</span>
-                        <span v-if="event.cluster_type" class="text-text-secondary font-normal">
-                          {{ getEventTypeLabel(event.cluster_type) }}
-                        </span>
-                      </div>
+                    <!-- Status Badge -->
+                    <div v-if="event.tickets_available === 0" class="absolute top-2 left-2">
+                      <span class="px-2 py-1 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-md uppercase tracking-wide">
+                        Agotado
+                      </span>
+                    </div>
+                    <div v-else-if="event.tickets_available && event.tickets_available < 50" class="absolute top-2 left-2">
+                      <span class="px-2 py-1 bg-orange-500 text-white text-[10px] font-bold rounded-md uppercase tracking-wide">
+                        Últimas
+                      </span>
+                    </div>
+                  </div>
 
+                  <!-- Event Info -->
+                  <div class="flex-1 min-w-0 p-4 flex flex-col justify-between">
+                    <div>
                       <!-- Title -->
-                      <h3 class="text-base sm:text-lg font-semibold text-text-primary group-hover:text-primary transition-colors mb-2 line-clamp-2">
+                      <h3 class="text-base sm:text-lg font-bold text-text-primary group-hover:text-primary transition-colors mb-1 line-clamp-2">
                         {{ event.cluster_name }}
                       </h3>
 
-                      <!-- Footer Info -->
-                      <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text-secondary">
-                        <!-- Price -->
-                        <div v-if="event.min_price" class="flex items-center gap-1.5">
-                          <span class="font-semibold text-text-primary">
-                            ${{ formatPrice(event.min_price) }}
-                          </span>
-                          <span v-if="event.min_price !== event.max_price" class="text-text-tertiary">
-                            - ${{ formatPrice(event.max_price) }}
-                          </span>
-                        </div>
+                      <!-- Date & Type -->
+                      <div class="flex items-center gap-2 text-xs sm:text-sm text-text-secondary mb-2">
+                        <span class="text-primary font-medium">{{ formatDateShort(event.start_date) }}</span>
+                        <span class="text-border">·</span>
+                        <span>{{ formatTime(event.start_date) }}</span>
+                      </div>
+                    </div>
 
-                        <!-- Availability -->
-                        <div v-if="event.tickets_available && event.tickets_available > 0" class="flex items-center gap-1.5">
-                          <TicketIcon class="w-4 h-4 text-text-tertiary" />
-                          <span>{{ event.tickets_available }} disponibles</span>
-                        </div>
+                    <!-- Footer: Price prominent -->
+                    <div class="flex items-end justify-between gap-2">
+                      <div v-if="event.min_price">
+                        <p class="text-[10px] text-text-tertiary uppercase font-medium">Desde</p>
+                        <p class="text-lg sm:text-xl font-black text-text-primary">
+                          ${{ formatPrice(event.min_price) }}
+                        </p>
+                      </div>
+                      <div v-if="event.tickets_available && event.tickets_available > 0" class="text-right">
+                        <span class="text-xs text-text-tertiary">{{ event.tickets_available }} disponibles</span>
                       </div>
                     </div>
                   </div>
@@ -264,6 +256,29 @@ const groupedEvents = computed(() => {
 })
 
 // Helpers
+function formatDateShort(dateStr: string) {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const today = new Date()
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+
+  // Check if it's today or tomorrow
+  if (date.toDateString() === today.toDateString()) {
+    return 'Hoy'
+  }
+  if (date.toDateString() === tomorrow.toDateString()) {
+    return 'Mañana'
+  }
+
+  // Otherwise show abbreviated date
+  return date.toLocaleDateString('es-CO', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short'
+  })
+}
+
 function formatTime(dateStr: string) {
   if (!dateStr) return ''
   const date = new Date(dateStr)
