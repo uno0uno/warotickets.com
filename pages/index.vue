@@ -88,69 +88,11 @@
 
             <!-- Events Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              <NuxtLink
+              <EventListCard
                 v-for="event in group.events"
                 :key="event.id"
-                :to="`/eventos/${event.slug_cluster}`"
-                class="group block bg-surface rounded-2xl border border-border shadow-sm hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 overflow-hidden"
-              >
-                <div class="flex">
-                  <!-- Event Image -->
-                  <div class="relative w-28 h-28 sm:w-36 sm:h-36 flex-shrink-0 bg-gradient-to-br from-primary/70 to-primary">
-                    <img
-                      v-if="event.cover_image_url"
-                      :src="event.cover_image_url"
-                      :alt="event.cluster_name"
-                      class="w-full h-full object-cover"
-                    />
-                    <div v-else class="w-full h-full flex items-center justify-center">
-                      <TicketIcon class="w-10 h-10 text-primary-foreground/50" />
-                    </div>
-
-                    <!-- Status Badge -->
-                    <div v-if="event.tickets_available === 0" class="absolute top-2 left-2">
-                      <span class="px-2 py-1 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-md uppercase tracking-wide">
-                        Agotado
-                      </span>
-                    </div>
-                    <div v-else-if="event.tickets_available && event.tickets_available < 50" class="absolute top-2 left-2">
-                      <span class="px-2 py-1 bg-orange-500 text-white text-[10px] font-bold rounded-md uppercase tracking-wide">
-                        Últimas
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- Event Info -->
-                  <div class="flex-1 min-w-0 p-4 flex flex-col justify-between">
-                    <div>
-                      <!-- Title -->
-                      <h3 class="text-base sm:text-lg font-bold text-text-primary group-hover:text-primary transition-colors mb-1 line-clamp-2">
-                        {{ event.cluster_name }}
-                      </h3>
-
-                      <!-- Date & Type -->
-                      <div class="flex items-center gap-2 text-xs sm:text-sm text-text-secondary mb-2">
-                        <span class="text-primary font-medium">{{ formatDateShort(event.start_date) }}</span>
-                        <span class="text-border">·</span>
-                        <span>{{ formatTime(event.start_date) }}</span>
-                      </div>
-                    </div>
-
-                    <!-- Footer: Price prominent -->
-                    <div class="flex items-end justify-between gap-2">
-                      <div v-if="event.min_price">
-                        <p class="text-[10px] text-text-tertiary uppercase font-medium">Desde</p>
-                        <p class="text-lg sm:text-xl font-black text-text-primary">
-                          ${{ formatPrice(event.min_price) }}
-                        </p>
-                      </div>
-                      <div v-if="event.tickets_available && event.tickets_available > 0" class="text-right">
-                        <span class="text-xs text-text-tertiary">{{ event.tickets_available }} disponibles</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </NuxtLink>
+                :event="event"
+              />
             </div>
           </div>
         </template>
@@ -162,7 +104,6 @@
 <script setup lang="ts">
 import {
   MagnifyingGlassIcon,
-  TicketIcon,
   CalendarDaysIcon,
   ExclamationTriangleIcon
 } from '@heroicons/vue/24/outline'
@@ -255,59 +196,4 @@ const groupedEvents = computed(() => {
   return groups
 })
 
-// Helpers
-function formatDateShort(dateStr: string) {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  const today = new Date()
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-
-  // Check if it's today or tomorrow
-  if (date.toDateString() === today.toDateString()) {
-    return 'Hoy'
-  }
-  if (date.toDateString() === tomorrow.toDateString()) {
-    return 'Mañana'
-  }
-
-  // Otherwise show abbreviated date
-  return date.toLocaleDateString('es-CO', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short'
-  })
-}
-
-function formatTime(dateStr: string) {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  return date.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit', hour12: true })
-}
-
-function formatPrice(price: number) {
-  return price?.toLocaleString('es-CO') || '0'
-}
-
-function getEventTypeLabel(type: string) {
-  const labels: Record<string, string> = {
-    concert: 'Concierto',
-    festival: 'Festival',
-    theater: 'Teatro',
-    sports: 'Deportes',
-    conference: 'Conferencia',
-    party: 'Fiesta',
-    other: 'Otro'
-  }
-  return labels[type] || type
-}
 </script>
-
-<style scoped>
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-</style>
