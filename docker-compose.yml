@@ -3,11 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: warotickets-nuxt
+    container_name: warotickets-${APP_ENV:-prod}
     ports:
-      - "3003:3003"
+      - "${HOST_PORT:-3003}:3003"
     env_file:
-      - ${ENV_FILE:-.env}
+      - .env.${APP_ENV:-prod}
     volumes:
       - nuxt-data:/app/storage
     networks:
