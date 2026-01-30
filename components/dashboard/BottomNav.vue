@@ -35,7 +35,7 @@
         <!-- Organizer nav (has tenant) -->
         <template v-else>
           <a
-            href="https://warocol.com"
+            href="https://warocol.com/menu/productos"
             class="flex flex-col items-center justify-center w-16 h-full text-secondary-400"
           >
             <Squares2X2Icon class="w-6 h-6" />
