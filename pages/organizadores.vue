@@ -38,15 +38,9 @@
             class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up"
             style="animation-delay: 0.4s"
           >
-            <NuxtLink to="/auth/register" class="btn-primary text-lg px-8 py-4 hover:scale-105 transition-transform">
-              Crear mi evento gratis
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-              </svg>
-            </NuxtLink>
-            <a href="#features" class="btn-secondary text-lg px-8 py-4 hover:scale-105 transition-transform">
-              Ver funcionalidades
-            </a>
+            <button type="button" class="btn-primary text-lg px-8 py-4 cursor-default">
+              Crea evento gratis
+            </button>
           </div>
 
           <!-- Trust Badges -->
@@ -179,15 +173,9 @@
           Crea tu evento en minutos y empieza a vender hoy. Sin costos fijos, solo pagas cuando vendes.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up-scroll" style="animation-delay: 0.2s">
-          <NuxtLink to="/auth/register" class="btn bg-white text-secondary-900 hover:bg-secondary-100 text-lg px-8 py-4 hover:scale-105 transition-transform">
-            Empezar ahora
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-            </svg>
-          </NuxtLink>
-          <a href="mailto:hola@warotickets.com" class="btn border-2 border-white/30 text-white hover:bg-white/10 text-lg px-8 py-4 hover:scale-105 transition-transform">
-            Contactar ventas
-          </a>
+          <button type="button" class="btn bg-white text-secondary-900 text-lg px-8 py-4 cursor-default">
+            Crea evento gratis
+          </button>
         </div>
       </div>
     </section>
