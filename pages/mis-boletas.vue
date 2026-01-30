@@ -97,24 +97,24 @@
                 </p>
               </div>
 
-              <div class="flex items-end justify-between">
-                <div>
+              <div class="flex items-end justify-between flex-wrap gap-2">
+                <div class="min-w-0">
                   <p class="text-[10px] text-secondary-400 font-bold uppercase tracking-[0.2em] mb-0.5">Referencia</p>
                   <p class="text-xs font-mono text-secondary-600 font-bold">{{ ticket.reservation_id.slice(0, 8).toUpperCase() }}</p>
                 </div>
                 <!-- Transfer actions for transferred tickets -->
-                <div v-if="ticket.status === 'transferred'" class="flex items-center gap-1.5">
-                  <div @click="cancelTransfer(ticket)" class="flex items-center gap-1 text-[10px] text-red-500 font-bold cursor-pointer hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100">
+                <div v-if="ticket.status === 'transferred'" class="flex items-center gap-1.5 flex-shrink-0">
+                  <div @click="cancelTransfer(ticket)" class="flex items-center gap-1 text-[10px] text-red-500 font-bold cursor-pointer hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100 whitespace-nowrap">
                     <XMarkIcon class="w-3 h-3" />
                     CANCELAR
                   </div>
-                  <div @click="resendTransfer(ticket)" class="flex items-center gap-1 text-[10px] text-amber-600 font-bold cursor-pointer hover:text-amber-700 transition-colors bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">
+                  <div @click="resendTransfer(ticket)" class="flex items-center gap-1 text-[10px] text-amber-600 font-bold cursor-pointer hover:text-amber-700 transition-colors bg-amber-50 px-2 py-1 rounded-lg border border-amber-100 whitespace-nowrap">
                     <ArrowPathIcon class="w-3 h-3" />
                     {{ resendingTicketId === ticket.reservation_unit_id ? 'ENVIANDO...' : 'REENVIAR' }}
                   </div>
                 </div>
                 <!-- Transfer button for confirmed tickets -->
-                <div v-else-if="ticket.can_transfer" @click="openTransferModal(ticket)" class="flex items-center gap-1.5 text-xs text-secondary-500 font-bold cursor-pointer hover:text-primary-600 transition-colors bg-secondary-50 px-3 py-1.5 rounded-lg border border-secondary-100">
+                <div v-else-if="ticket.can_transfer" @click="openTransferModal(ticket)" class="flex items-center gap-1.5 text-xs text-secondary-500 font-bold cursor-pointer hover:text-primary-600 transition-colors bg-secondary-50 px-3 py-1.5 rounded-lg border border-secondary-100 flex-shrink-0 whitespace-nowrap">
                   <ArrowsRightLeftIcon class="w-3.5 h-3.5" />
                   TRANSFERIR
                 </div>
