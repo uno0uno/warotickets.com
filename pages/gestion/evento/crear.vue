@@ -167,6 +167,7 @@
                   <option value="concert">Concierto</option>
                   <option value="festival">Festival</option>
                   <option value="theater">Teatro</option>
+                  <option value="standup">Standup Comedy</option>
                   <option value="sports">Deportes</option>
                   <option value="conference">Conferencia</option>
                   <option value="party">Fiesta</option>
@@ -602,6 +603,7 @@ const eventTypeLabels: Record<string, string> = {
   concert: 'Concierto',
   festival: 'Festival',
   theater: 'Teatro',
+  standup: 'Standup Comedy',
   sports: 'Deportes',
   conference: 'Conferencia',
   party: 'Fiesta',
