@@ -44,20 +44,12 @@
           Tambien puedes verlas en la seccion "Mis Eventos".
         </p>
 
-        <div class="flex flex-col sm:flex-row gap-3">
-          <NuxtLink
-            to="/mis-eventos"
-            class="flex-1 py-3 px-6 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors text-center"
-          >
-            Ver mis boletas
-          </NuxtLink>
-          <NuxtLink
-            to="/"
-            class="flex-1 py-3 px-6 bg-secondary-100 text-secondary-700 rounded-xl font-semibold hover:bg-secondary-200 transition-colors text-center"
-          >
-            Volver al inicio
-          </NuxtLink>
-        </div>
+        <NuxtLink
+          to="/"
+          class="inline-flex items-center gap-2 py-3 px-6 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors"
+        >
+          Volver al inicio
+        </NuxtLink>
       </div>
     </div>
 
