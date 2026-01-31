@@ -1,6 +1,6 @@
 <template>
   <!-- Bottom Navigation - Mobile & Tablet -->
-  <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-secondary-200 shadow-lg z-50 safe-area-bottom">
+  <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-secondary-900 border-t border-secondary-800 shadow-lg z-50 safe-area-bottom">
     <div class="flex items-center justify-between px-4 py-2">
 
       <!-- User Profile -->
@@ -9,11 +9,11 @@
           <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center font-semibold text-white text-sm">
             {{ authStore.initials }}
           </div>
-          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-secondary-900 rounded-full"></span>
         </div>
         <div class="flex flex-col">
-          <span class="text-sm font-semibold text-secondary-900 leading-tight">{{ authStore.displayName }}</span>
-          <span class="text-xs text-secondary-500 leading-tight">{{ tenantsStore.selectedTenant?.name || 'Sin tenant' }}</span>
+          <span class="text-sm font-semibold text-white leading-tight">{{ authStore.displayName }}</span>
+          <span class="text-xs text-secondary-400 leading-tight">{{ tenantsStore.selectedTenant?.name || 'Sin tenant' }}</span>
         </div>
       </div>
 
@@ -23,25 +23,25 @@
         <button
           v-if="onRefresh"
           @click="onRefresh"
-          class="w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 hover:bg-secondary-100"
+          class="w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 hover:bg-secondary-800"
         >
-          <ArrowPathIcon class="w-5 h-5 text-secondary-500" />
+          <ArrowPathIcon class="w-5 h-5 text-secondary-400" />
         </button>
 
         <!-- Menú (all navigation) -->
         <button
           @click="showMenuModal = true"
-          class="w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 hover:bg-secondary-100"
+          class="w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 hover:bg-secondary-800"
         >
-          <Bars3Icon class="w-5 h-5 text-secondary-500" />
+          <Bars3Icon class="w-5 h-5 text-secondary-400" />
         </button>
 
         <!-- Configuración/Tenant -->
         <button
           @click="showTenantModal = true"
-          class="w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 hover:bg-secondary-100"
+          class="w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 hover:bg-secondary-800"
         >
-          <Cog6ToothIcon class="w-5 h-5 text-secondary-500" />
+          <Cog6ToothIcon class="w-5 h-5 text-secondary-400" />
         </button>
       </div>
 
@@ -52,15 +52,15 @@
       <Transition name="modal">
         <div v-if="showMenuModal" class="fixed inset-0 z-[100]" @click.self="showMenuModal = false">
           <div class="absolute inset-0 bg-black/50" @click="showMenuModal = false"></div>
-          <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl safe-area-bottom">
+          <div class="absolute bottom-0 left-0 right-0 bg-secondary-900 rounded-t-2xl safe-area-bottom">
             <!-- Header -->
-            <div class="flex items-center justify-between px-4 py-4 border-b border-secondary-200">
-              <h3 class="text-lg font-semibold text-secondary-900">Navegación</h3>
+            <div class="flex items-center justify-between px-4 py-4 border-b border-secondary-800">
+              <h3 class="text-lg font-semibold text-white">Navegación</h3>
               <button
                 @click="showMenuModal = false"
-                class="p-2 hover:bg-secondary-100 rounded-lg transition-colors"
+                class="p-2 hover:bg-secondary-800 rounded-lg transition-colors"
               >
-                <XMarkIcon class="w-5 h-5 text-secondary-500" />
+                <XMarkIcon class="w-5 h-5 text-secondary-400" />
               </button>
             </div>
 
@@ -76,14 +76,14 @@
                   >
                     <div
                       class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                      :class="isActive('/mis-boletas') ? 'bg-primary-100' : 'bg-secondary-100 hover:bg-secondary-200'"
+                      :class="isActive('/mis-boletas') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
                     >
                       <TicketIcon
                         class="w-6 h-6"
-                        :class="isActive('/mis-boletas') ? 'text-primary-600' : 'text-secondary-600'"
+                        :class="isActive('/mis-boletas') ? 'text-primary-400' : 'text-secondary-300'"
                       />
                     </div>
-                    <span class="text-[10px] text-secondary-600">Boletas</span>
+                    <span class="text-[10px] text-secondary-300">Boletas</span>
                   </NuxtLink>
 
                   <NuxtLink
@@ -93,14 +93,14 @@
                   >
                     <div
                       class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                      :class="isActive('/mis-facturas') ? 'bg-primary-100' : 'bg-secondary-100 hover:bg-secondary-200'"
+                      :class="isActive('/mis-facturas') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
                     >
                       <DocumentTextIcon
                         class="w-6 h-6"
-                        :class="isActive('/mis-facturas') ? 'text-primary-600' : 'text-secondary-600'"
+                        :class="isActive('/mis-facturas') ? 'text-primary-400' : 'text-secondary-300'"
                       />
                     </div>
-                    <span class="text-[10px] text-secondary-600">Facturas</span>
+                    <span class="text-[10px] text-secondary-300">Facturas</span>
                   </NuxtLink>
                 </div>
               </template>
@@ -117,14 +117,14 @@
                   >
                     <div
                       class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                      :class="isActive('/gestion/eventos') ? 'bg-primary-100' : 'bg-secondary-100 hover:bg-secondary-200'"
+                      :class="isActive('/gestion/eventos') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
                     >
                       <CalendarDaysIcon
                         class="w-6 h-6"
-                        :class="isActive('/gestion/eventos') ? 'text-primary-600' : 'text-secondary-600'"
+                        :class="isActive('/gestion/eventos') ? 'text-primary-400' : 'text-secondary-300'"
                       />
                     </div>
-                    <span class="text-[10px] text-secondary-600">Eventos</span>
+                    <span class="text-[10px] text-secondary-300">Eventos</span>
                   </NuxtLink>
 
                   <NuxtLink
@@ -134,14 +134,14 @@
                   >
                     <div
                       class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                      :class="isActive('/gestion/areas') ? 'bg-primary-100' : 'bg-secondary-100 hover:bg-secondary-200'"
+                      :class="isActive('/gestion/areas') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
                     >
                       <MapIcon
                         class="w-6 h-6"
-                        :class="isActive('/gestion/areas') ? 'text-primary-600' : 'text-secondary-600'"
+                        :class="isActive('/gestion/areas') ? 'text-primary-400' : 'text-secondary-300'"
                       />
                     </div>
-                    <span class="text-[10px] text-secondary-600">Areas</span>
+                    <span class="text-[10px] text-secondary-300">Areas</span>
                   </NuxtLink>
 
                   <NuxtLink
@@ -151,14 +151,14 @@
                   >
                     <div
                       class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                      :class="isActive('/gestion/etapas') ? 'bg-primary-100' : 'bg-secondary-100 hover:bg-secondary-200'"
+                      :class="isActive('/gestion/etapas') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
                     >
                       <ListBulletIcon
                         class="w-6 h-6"
-                        :class="isActive('/gestion/etapas') ? 'text-primary-600' : 'text-secondary-600'"
+                        :class="isActive('/gestion/etapas') ? 'text-primary-400' : 'text-secondary-300'"
                       />
                     </div>
-                    <span class="text-[10px] text-secondary-600">Etapas</span>
+                    <span class="text-[10px] text-secondary-300">Etapas</span>
                   </NuxtLink>
 
                   <NuxtLink
@@ -168,14 +168,14 @@
                   >
                     <div
                       class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                      :class="isActive('/gestion/promociones') ? 'bg-primary-100' : 'bg-secondary-100 hover:bg-secondary-200'"
+                      :class="isActive('/gestion/promociones') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
                     >
                       <TagIcon
                         class="w-6 h-6"
-                        :class="isActive('/gestion/promociones') ? 'text-primary-600' : 'text-secondary-600'"
+                        :class="isActive('/gestion/promociones') ? 'text-primary-400' : 'text-secondary-300'"
                       />
                     </div>
-                    <span class="text-[10px] text-secondary-600">Promos</span>
+                    <span class="text-[10px] text-secondary-300">Promos</span>
                   </NuxtLink>
                 </div>
 
@@ -189,14 +189,14 @@
                   >
                     <div
                       class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                      :class="isActive('/operaciones/check-in') ? 'bg-primary-100' : 'bg-secondary-100 hover:bg-secondary-200'"
+                      :class="isActive('/operaciones/check-in') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
                     >
                       <QrCodeIcon
                         class="w-6 h-6"
-                        :class="isActive('/operaciones/check-in') ? 'text-primary-600' : 'text-secondary-600'"
+                        :class="isActive('/operaciones/check-in') ? 'text-primary-400' : 'text-secondary-300'"
                       />
                     </div>
-                    <span class="text-[10px] text-secondary-600">Check-in</span>
+                    <span class="text-[10px] text-secondary-300">Check-in</span>
                   </NuxtLink>
 
                   <NuxtLink
@@ -206,14 +206,14 @@
                   >
                     <div
                       class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                      :class="isActive('/operaciones/reservas') ? 'bg-primary-100' : 'bg-secondary-100 hover:bg-secondary-200'"
+                      :class="isActive('/operaciones/reservas') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
                     >
                       <ClipboardDocumentListIcon
                         class="w-6 h-6"
-                        :class="isActive('/operaciones/reservas') ? 'text-primary-600' : 'text-secondary-600'"
+                        :class="isActive('/operaciones/reservas') ? 'text-primary-400' : 'text-secondary-300'"
                       />
                     </div>
-                    <span class="text-[10px] text-secondary-600">Reservas</span>
+                    <span class="text-[10px] text-secondary-300">Reservas</span>
                   </NuxtLink>
 
                   <NuxtLink
@@ -223,14 +223,14 @@
                   >
                     <div
                       class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                      :class="isActive('/operaciones/transfers') ? 'bg-primary-100' : 'bg-secondary-100 hover:bg-secondary-200'"
+                      :class="isActive('/operaciones/transfers') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
                     >
                       <ArrowsRightLeftIcon
                         class="w-6 h-6"
-                        :class="isActive('/operaciones/transfers') ? 'text-primary-600' : 'text-secondary-600'"
+                        :class="isActive('/operaciones/transfers') ? 'text-primary-400' : 'text-secondary-300'"
                       />
                     </div>
-                    <span class="text-[10px] text-secondary-600">Transfers</span>
+                    <span class="text-[10px] text-secondary-300">Transfers</span>
                   </NuxtLink>
                 </div>
 
@@ -244,14 +244,14 @@
                   >
                     <div
                       class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                      :class="isActive('/mis-boletas') ? 'bg-primary-100' : 'bg-secondary-100 hover:bg-secondary-200'"
+                      :class="isActive('/mis-boletas') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
                     >
                       <TicketIcon
                         class="w-6 h-6"
-                        :class="isActive('/mis-boletas') ? 'text-primary-600' : 'text-secondary-600'"
+                        :class="isActive('/mis-boletas') ? 'text-primary-400' : 'text-secondary-300'"
                       />
                     </div>
-                    <span class="text-[10px] text-secondary-600">Mis Boletas</span>
+                    <span class="text-[10px] text-secondary-300">Mis Boletas</span>
                   </NuxtLink>
 
                   <NuxtLink
@@ -261,14 +261,14 @@
                   >
                     <div
                       class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
-                      :class="isActive('/mis-facturas') ? 'bg-primary-100' : 'bg-secondary-100 hover:bg-secondary-200'"
+                      :class="isActive('/mis-facturas') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
                     >
                       <DocumentTextIcon
                         class="w-6 h-6"
-                        :class="isActive('/mis-facturas') ? 'text-primary-600' : 'text-secondary-600'"
+                        :class="isActive('/mis-facturas') ? 'text-primary-400' : 'text-secondary-300'"
                       />
                     </div>
-                    <span class="text-[10px] text-secondary-600">Mis Facturas</span>
+                    <span class="text-[10px] text-secondary-300">Mis Facturas</span>
                   </NuxtLink>
                 </div>
 
@@ -280,10 +280,10 @@
                     target="_blank"
                     class="flex flex-col items-center gap-1"
                   >
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-secondary-100 hover:bg-secondary-200 transition-colors">
-                      <Squares2X2Icon class="w-6 h-6 text-secondary-600" />
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-secondary-800 hover:bg-secondary-700 transition-colors">
+                      <Squares2X2Icon class="w-6 h-6 text-secondary-300" />
                     </div>
-                    <span class="text-[10px] text-secondary-600">Restaurantes</span>
+                    <span class="text-[10px] text-secondary-300">Restaurantes</span>
                   </a>
                 </div>
               </template>
@@ -298,22 +298,22 @@
       <Transition name="modal">
         <div v-if="showTenantModal" class="fixed inset-0 z-[100]" @click.self="showTenantModal = false">
           <div class="absolute inset-0 bg-black/50" @click="showTenantModal = false"></div>
-          <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl safe-area-bottom">
+          <div class="absolute bottom-0 left-0 right-0 bg-secondary-900 rounded-t-2xl safe-area-bottom">
             <!-- Header -->
-            <div class="flex items-center justify-between px-4 py-4 border-b border-secondary-200">
-              <h3 class="text-lg font-semibold text-secondary-900">Configuración</h3>
+            <div class="flex items-center justify-between px-4 py-4 border-b border-secondary-800">
+              <h3 class="text-lg font-semibold text-white">Configuración</h3>
               <button
                 @click="showTenantModal = false"
-                class="p-2 hover:bg-secondary-100 rounded-lg transition-colors"
+                class="p-2 hover:bg-secondary-800 rounded-lg transition-colors"
               >
-                <XMarkIcon class="w-5 h-5 text-secondary-500" />
+                <XMarkIcon class="w-5 h-5 text-secondary-400" />
               </button>
             </div>
 
             <div class="p-4 space-y-6">
               <!-- Tenant Selector -->
               <div v-if="tenantsStore.tenants.length > 0">
-                <label class="text-sm text-secondary-600 font-medium mb-2 block">Seleccionar Tenant</label>
+                <label class="text-sm text-secondary-400 font-medium mb-2 block">Seleccionar Tenant</label>
                 <div class="space-y-2">
                   <button
                     v-for="tenant in tenantsStore.tenants"
@@ -322,33 +322,33 @@
                     :disabled="tenantsStore.isLoading"
                     class="w-full flex items-center justify-between px-4 py-3 rounded-lg border-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     :class="tenantsStore.selectedTenant?.id === tenant.id
-                      ? 'border-primary-600 bg-primary-50'
-                      : 'border-secondary-200 hover:border-primary-300 hover:bg-secondary-50'"
+                      ? 'border-primary-500 bg-primary-600/20'
+                      : 'border-secondary-700 hover:border-primary-500 hover:bg-secondary-800'"
                   >
                     <div class="flex items-center gap-3">
                       <div
                         class="w-3 h-3 rounded-full"
-                        :class="tenantsStore.selectedTenant?.id === tenant.id ? 'bg-primary-600' : 'bg-secondary-400'"
+                        :class="tenantsStore.selectedTenant?.id === tenant.id ? 'bg-primary-500' : 'bg-secondary-500'"
                       ></div>
-                      <span class="font-medium text-secondary-900">{{ tenant.name }}</span>
+                      <span class="font-medium text-white">{{ tenant.name }}</span>
                     </div>
                     <CheckCircleIcon
                       v-if="tenantsStore.selectedTenant?.id === tenant.id"
-                      class="w-5 h-5 text-primary-600"
+                      class="w-5 h-5 text-primary-400"
                     />
                   </button>
                 </div>
               </div>
 
               <!-- User Info -->
-              <div class="pt-4 border-t border-secondary-200">
-                <div class="flex items-center gap-3 px-4 py-3 bg-secondary-50 rounded-lg">
+              <div class="pt-4 border-t border-secondary-800">
+                <div class="flex items-center gap-3 px-4 py-3 bg-secondary-800/50 rounded-lg">
                   <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center font-bold text-white text-sm">
                     {{ authStore.initials }}
                   </div>
                   <div class="flex-1 min-w-0">
-                    <div class="font-semibold text-sm text-secondary-900">{{ authStore.displayName }}</div>
-                    <div class="text-xs text-secondary-600 truncate">{{ authStore.user?.email }}</div>
+                    <div class="font-semibold text-sm text-white">{{ authStore.displayName }}</div>
+                    <div class="text-xs text-secondary-400 truncate">{{ authStore.user?.email }}</div>
                   </div>
                 </div>
               </div>
@@ -356,7 +356,7 @@
               <!-- Logout Button -->
               <button
                 @click="handleLogout"
-                class="flex items-center gap-3 w-full p-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors"
+                class="flex items-center gap-3 w-full p-3 rounded-xl text-red-400 hover:bg-red-900/20 transition-colors"
               >
                 <ArrowRightOnRectangleIcon class="w-5 h-5" />
                 Cerrar sesión
