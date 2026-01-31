@@ -232,7 +232,11 @@
                     </div>
                     <span class="text-[10px] text-secondary-600">Transfers</span>
                   </NuxtLink>
+                </div>
 
+                <!-- Mi Cuenta Section -->
+                <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wider mb-3">Mi Cuenta</p>
+                <div class="grid grid-cols-4 gap-4 mb-6">
                   <NuxtLink
                     to="/mis-boletas"
                     @click="showMenuModal = false"
@@ -247,7 +251,24 @@
                         :class="isActive('/mis-boletas') ? 'text-primary-600' : 'text-secondary-600'"
                       />
                     </div>
-                    <span class="text-[10px] text-secondary-600">Boletas</span>
+                    <span class="text-[10px] text-secondary-600">Mis Boletas</span>
+                  </NuxtLink>
+
+                  <NuxtLink
+                    to="/mis-facturas"
+                    @click="showMenuModal = false"
+                    class="flex flex-col items-center gap-1"
+                  >
+                    <div
+                      class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+                      :class="isActive('/mis-facturas') ? 'bg-primary-100' : 'bg-secondary-100 hover:bg-secondary-200'"
+                    >
+                      <DocumentTextIcon
+                        class="w-6 h-6"
+                        :class="isActive('/mis-facturas') ? 'text-primary-600' : 'text-secondary-600'"
+                      />
+                    </div>
+                    <span class="text-[10px] text-secondary-600">Mis Facturas</span>
                   </NuxtLink>
                 </div>
 
