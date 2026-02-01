@@ -86,7 +86,7 @@
             <p class="text-sm text-text-secondary">Eventos con descuentos especiales en Bogotá</p>
           </div>
         </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <EventListCard
             v-for="event in eventsWithPromotions"
             :key="'promo-' + event.id"
@@ -95,54 +95,46 @@
         </div>
       </div>
 
-      <!-- Events Grouped by Date -->
-      <div v-else-if="filteredEvents.length > 0" class="space-y-8">
-        <template v-for="(group, groupKey) in groupedEvents" :key="groupKey">
-          <div v-if="group.events.length > 0">
-            <!-- Date Group Header -->
-            <div class="flex items-center gap-4 mb-4">
-              <h2 class="text-lg font-bold text-text-primary">{{ group.label }}</h2>
-              <div class="flex-1 h-px bg-border"></div>
-              <span class="text-sm text-text-tertiary font-medium">{{ group.events.length }} evento{{ group.events.length > 1 ? 's' : '' }}</span>
-            </div>
-
-            <!-- Events Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              <EventListCard
-                v-for="event in group.events"
-                :key="event.id"
-                :event="event"
-              />
-            </div>
-          </div>
-        </template>
+      <!-- Future Events -->
+      <div v-else-if="futureEvents.length > 0" class="space-y-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <EventListCard
+            v-for="event in futureEvents"
+            :key="event.id"
+            :event="event"
+          />
+        </div>
       </div>
 
       <!-- Todos los eventos (cuando hay secciones especiales) -->
-      <div v-if="eventsWithPromotions.length > 0 && !searchQuery && !selectedType" class="space-y-8">
+      <div v-if="eventsWithPromotions.length > 0 && !searchQuery && !selectedType && futureEvents.length > 0" class="space-y-8">
         <div class="flex items-center gap-4 mb-4 mt-6">
           <h2 class="text-xl font-bold text-text-primary">Todos los eventos</h2>
           <div class="flex-1 h-px bg-border"></div>
         </div>
-        <template v-for="(group, groupKey) in groupedEvents">
-          <div v-if="group.events.length > 0" :key="'all-' + groupKey">
-            <!-- Date Group Header -->
-            <div class="flex items-center gap-4 mb-4">
-              <h2 class="text-lg font-bold text-text-primary">{{ group.label }}</h2>
-              <div class="flex-1 h-px bg-border"></div>
-              <span class="text-sm text-text-tertiary font-medium">{{ group.events.length }} evento{{ group.events.length > 1 ? 's' : '' }}</span>
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <EventListCard
+            v-for="event in futureEvents"
+            :key="'all-' + event.id"
+            :event="event"
+          />
+        </div>
+      </div>
 
-            <!-- Events Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              <EventListCard
-                v-for="event in group.events"
-                :key="event.id"
-                :event="event"
-              />
-            </div>
-          </div>
-        </template>
+      <!-- Past Events -->
+      <div v-if="pastEvents.length > 0" class="mt-12">
+        <div class="flex items-center gap-4 mb-4">
+          <h2 class="text-lg font-bold text-text-tertiary">Eventos pasados</h2>
+          <div class="flex-1 h-px bg-border"></div>
+          <span class="text-sm text-text-tertiary font-medium">{{ pastEvents.length }} evento{{ pastEvents.length > 1 ? 's' : '' }}</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 opacity-60">
+          <EventListCard
+            v-for="event in pastEvents"
+            :key="'past-' + event.id"
+            :event="event"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -215,44 +207,20 @@ const eventsWithPromotions = computed(() => {
   }).slice(0, 4)
 })
 
-// Group events by date
-const groupedEvents = computed(() => {
+// Separate future and past events
+const futureEvents = computed(() => {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const endOfWeek = new Date(today)
-  endOfWeek.setDate(endOfWeek.getDate() + (7 - endOfWeek.getDay()))
-  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+  return filteredEvents.value
+    .filter(event => new Date(event.start_date) >= today)
+    .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
+})
 
-  const groups: Record<string, { label: string; events: any[] }> = {
-    today: { label: 'Hoy', events: [] },
-    tomorrow: { label: 'Mañana', events: [] },
-    thisWeek: { label: 'Esta semana', events: [] },
-    thisMonth: { label: 'Este mes', events: [] },
-    upcoming: { label: 'Próximamente', events: [] },
-    past: { label: 'Eventos pasados', events: [] }
-  }
-
-  for (const event of filteredEvents.value) {
-    const eventDate = new Date(event.start_date)
-    const eventDay = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate())
-
-    if (eventDay < today) {
-      groups.past.events.push(event)
-    } else if (eventDay.getTime() === today.getTime()) {
-      groups.today.events.push(event)
-    } else if (eventDay.getTime() === tomorrow.getTime()) {
-      groups.tomorrow.events.push(event)
-    } else if (eventDay > tomorrow && eventDay <= endOfWeek) {
-      groups.thisWeek.events.push(event)
-    } else if (eventDay > endOfWeek && eventDay <= endOfMonth) {
-      groups.thisMonth.events.push(event)
-    } else if (eventDay > endOfMonth) {
-      groups.upcoming.events.push(event)
-    }
-  }
-
-  return groups
+const pastEvents = computed(() => {
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  return filteredEvents.value
+    .filter(event => new Date(event.start_date) < today)
+    .sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime())
 })
 </script>

@@ -77,73 +77,76 @@ const isLowStock = computed(() =>
 <template>
   <NuxtLink
     :to="`/eventos/${event.slug_cluster}`"
-    class="group block bg-white rounded-2xl border border-secondary-200 shadow-sm hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 overflow-hidden"
+    class="block bg-white rounded-2xl border border-secondary-200 shadow-sm hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 overflow-hidden"
   >
-    <div class="flex">
-      <!-- Event Image -->
-      <div class="relative w-28 h-28 sm:w-36 sm:h-36 flex-shrink-0 bg-gradient-to-br from-primary/70 to-primary">
+    <!-- Vertical Card Layout -->
+    <div class="flex flex-col h-full">
+      <!-- Event Image - full natural size -->
+      <div class="relative bg-gradient-to-br from-primary/70 to-primary overflow-hidden">
         <img
           v-if="event.cover_image_url"
           :src="event.cover_image_url"
           :alt="event.cluster_name"
-          class="w-full h-full object-cover"
+          class="w-full h-auto"
         />
-        <div v-else class="w-full h-full flex items-center justify-center">
-          <TicketIcon class="w-10 h-10 text-white/50" />
+        <div v-else class="aspect-video w-full flex items-center justify-center">
+          <TicketIcon class="w-12 h-12 text-white/50" />
         </div>
 
         <!-- Status Badge -->
-        <div v-if="isSoldOut" class="absolute top-2 left-2">
-          <span class="px-2 py-1 bg-red-600 text-white text-[10px] font-bold rounded-md uppercase tracking-wide">
+        <div v-if="isSoldOut" class="absolute top-3 left-3">
+          <span class="px-2.5 py-1 bg-red-600 text-white text-xs font-bold rounded-lg uppercase tracking-wide shadow-lg">
             Agotado
           </span>
         </div>
-        <div v-else-if="isLowStock" class="absolute top-2 left-2">
-          <span class="px-2 py-1 bg-orange-500 text-white text-[10px] font-bold rounded-md uppercase tracking-wide">
+        <div v-else-if="isLowStock" class="absolute top-3 left-3">
+          <span class="px-2.5 py-1 bg-orange-500 text-white text-xs font-bold rounded-lg uppercase tracking-wide shadow-lg">
             Últimas
           </span>
         </div>
+
       </div>
 
       <!-- Event Info -->
-      <div class="flex-1 min-w-0 p-4 flex flex-col justify-between">
-        <div>
-          <!-- Title -->
-          <h3 class="text-base sm:text-lg font-bold text-secondary-900 group-hover:text-primary transition-colors mb-1 line-clamp-2">
-            {{ event.cluster_name }}
-          </h3>
+      <div class="p-4 flex flex-col flex-1">
+        <!-- Title -->
+        <h3 class="text-base sm:text-lg font-bold text-secondary-900 line-clamp-2 leading-tight mb-1">
+          {{ event.cluster_name }}
+        </h3>
 
-          <!-- Date & Time -->
-          <div class="flex items-center gap-2 text-xs sm:text-sm text-secondary-500 mb-2">
-            <span class="text-primary font-medium">{{ formatDateShort(event.start_date) }}</span>
-            <span class="text-secondary-300">·</span>
-            <span>{{ formatTime(event.start_date) }}</span>
-          </div>
-
-          <!-- Badges: Etapa y Promoción -->
-          <div class="flex flex-wrap items-center gap-1.5 mb-1">
-            <span v-if="event.active_sale_stage" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 text-green-700 text-[10px] font-semibold">
-              <SparklesIcon class="w-3 h-3" />
-              {{ event.active_sale_stage }}
-            </span>
-            <span v-if="event.active_stage_bundle && event.active_stage_bundle > 1" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary-50 text-primary-700 text-[10px] font-bold">
-              {{ event.active_stage_bundle }}x1
-            </span>
-            <span v-if="event.featured_promotion?.savings" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 text-[10px] font-semibold">
-              <GiftIcon class="w-3 h-3" />
-              Ahorra ${{ formatPrice(event.featured_promotion.savings) }}
-            </span>
-          </div>
+        <!-- Date & Time -->
+        <div class="flex items-center gap-2 text-sm text-secondary-500 mb-2">
+          <span class="text-primary font-medium">{{ formatDateShort(event.start_date) }}</span>
+          <span class="text-secondary-300">·</span>
+          <span>{{ formatTime(event.start_date) }}</span>
         </div>
 
-        <!-- Footer: Price prominent -->
-        <div class="flex items-end justify-between gap-2">
+        <!-- Badges: Etapa y Promocion -->
+        <div class="flex flex-wrap items-center gap-1.5 mb-3">
+          <span v-if="event.active_sale_stage" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 text-green-700 text-[10px] font-semibold">
+            <SparklesIcon class="w-3 h-3" />
+            {{ event.active_sale_stage }}
+          </span>
+          <span v-if="event.active_stage_bundle && event.active_stage_bundle > 1" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary-50 text-primary-700 text-[10px] font-bold">
+            {{ event.active_stage_bundle }}x1
+          </span>
+          <span v-if="event.featured_promotion?.savings" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 text-[10px] font-semibold">
+            <GiftIcon class="w-3 h-3" />
+            Ahorra ${{ formatPrice(event.featured_promotion.savings) }}
+          </span>
+        </div>
+
+        <!-- Footer: Price + CTA -->
+        <div class="flex items-center justify-between pt-3 border-t border-secondary-100 mt-auto">
           <div v-if="event.min_price">
             <p class="text-[10px] text-secondary-400 uppercase font-medium">Desde</p>
-            <p class="text-lg sm:text-xl font-black text-secondary-900">
+            <p class="text-xl font-black text-secondary-900">
               ${{ formatPrice(event.min_price) }}
             </p>
           </div>
+          <span class="px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg">
+            Comprar
+          </span>
         </div>
       </div>
     </div>
