@@ -282,6 +282,9 @@ definePageMeta({
 
 useHead({ title: 'Promociones - WaRo Tickets' })
 
+// Auth store to ensure session is ready
+const authStore = useAuthStore()
+
 // State
 const selectedEventId = ref<number | ''>('')
 const isLoading = ref(false)
@@ -296,14 +299,14 @@ const showDeleteModal = ref(false)
 const promotionToDelete = ref<any>(null)
 const isDeleting = ref(false)
 
-// Load events for selector
-const { data: eventsData, pending: isLoadingEvents } = useAsyncData('promotions-events-list', () =>
+// Load events for selector - use immediate: false to wait for auth
+const { data: eventsData, pending: isLoadingEvents, refresh: refreshEvents } = useAsyncData('promotions-events-list', () =>
   $fetch('/api/events', {
     credentials: 'include'
   }),
   {
     server: false,
-    lazy: true,
+    immediate: false,
     transform: (response: any) => response.data || response || []
   }
 )
@@ -319,12 +322,17 @@ const eventStore = useEventSelectionStore()
 const initialEventId = route.query.event ? Number(route.query.event) : (eventStore.selectedEventId || '')
 selectedEventId.value = initialEventId
 
-// Load promotions after component is mounted (ensures auth middleware has completed)
-onMounted(() => {
-  if (initialEventId) {
-    loadPromotions()
+// Watch for auth to be ready before fetching data
+watch(() => authStore.user, (user) => {
+  if (user) {
+    // Auth is ready, fetch events
+    refreshEvents()
+    // Load promotions if we have an initial event
+    if (initialEventId && promotions.value.length === 0) {
+      loadPromotions()
+    }
   }
-})
+}, { immediate: true })
 
 // Watch for event selection changes
 watch(selectedEventId, async (newEventId, oldEventId) => {

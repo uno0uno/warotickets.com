@@ -219,14 +219,17 @@ const showDeleteModal = ref(false)
 const areaToDelete = ref<any>(null)
 const isDeleting = ref(false)
 
-// Load events for selector
-const { data: eventsData, pending: isLoadingEvents } = useAsyncData('areas-events-list', () =>
+// Auth store to ensure session is ready
+const authStore = useAuthStore()
+
+// Load events for selector - use immediate: false to wait for auth
+const { data: eventsData, pending: isLoadingEvents, refresh: refreshEvents } = useAsyncData('areas-events-list', () =>
   $fetch('/api/events', {
     credentials: 'include'
   }),
   {
     server: false,
-    lazy: true,
+    immediate: false,
     transform: (response: any) => response.data || response || []
   }
 )
@@ -242,12 +245,17 @@ const eventStore = useEventSelectionStore()
 const initialEventId = route.query.event ? Number(route.query.event) : (eventStore.selectedEventId || '')
 selectedEventId.value = initialEventId
 
-// Load areas after component is mounted (ensures auth middleware has completed)
-onMounted(() => {
-  if (initialEventId) {
-    loadAreas(initialEventId as number)
+// Watch for auth to be ready before fetching data
+watch(() => authStore.user, (user) => {
+  if (user) {
+    // Auth is ready, fetch events
+    refreshEvents()
+    // Load areas if we have an initial event
+    if (initialEventId && areas.value.length === 0) {
+      loadAreas(initialEventId as number)
+    }
   }
-})
+}, { immediate: true })
 
 // Watch for event selection changes (user interaction only)
 watch(selectedEventId, async (newEventId, oldEventId) => {
