@@ -152,7 +152,8 @@ selectedEventId.value = initialEventId
 
 // Watch for event selection changes
 watch(selectedEventId, async (newEventId, oldEventId) => {
-  if (oldEventId === undefined) return
+  // Skip if this is the initial mount (oldEventId will be '' or undefined)
+  if (oldEventId === undefined || oldEventId === '') return
 
   lastResult.value = null
   closeScanner()

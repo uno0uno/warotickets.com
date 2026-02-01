@@ -248,8 +248,8 @@ if (initialEventId) {
 
 // Watch for event selection changes (user interaction only)
 watch(selectedEventId, async (newEventId, oldEventId) => {
-  // Skip if this is the initial load (oldEventId is undefined or same as new)
-  if (oldEventId === undefined) return
+  // Skip if this is the initial load (oldEventId is undefined or empty string)
+  if (oldEventId === undefined || oldEventId === '') return
 
   eventStore.setEvent(newEventId ? Number(newEventId) : null)
 
