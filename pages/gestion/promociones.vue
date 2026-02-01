@@ -327,28 +327,26 @@ watch(() => authStore.user, (user) => {
   if (user) {
     // Auth is ready, fetch events
     refreshEvents()
-    // Load promotions if we have an initial event
-    if (initialEventId && promotions.value.length === 0) {
-      loadPromotions()
-    }
   }
 }, { immediate: true })
 
 // Watch for event selection changes
 watch(selectedEventId, async (newEventId, oldEventId) => {
-  // Skip if this is the initial mount (oldEventId will be '' or undefined)
-  if (oldEventId === undefined || oldEventId === '') return
-
   eventStore.setEvent(newEventId ? Number(newEventId) : null)
 
   if (newEventId) {
     await loadPromotions()
-    router.replace({ query: { event: String(newEventId) } })
+    // Solo actualizar URL si es cambio del usuario (no carga inicial)
+    if (oldEventId !== undefined && oldEventId !== '') {
+      router.replace({ query: { event: String(newEventId) } })
+    }
   } else {
     promotions.value = []
-    router.replace({ query: {} })
+    if (oldEventId !== undefined && oldEventId !== '') {
+      router.replace({ query: {} })
+    }
   }
-})
+}, { immediate: true })
 
 // Load promotions for selected event
 async function loadPromotions() {

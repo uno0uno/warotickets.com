@@ -313,28 +313,26 @@ watch(() => authStore.user, (user) => {
   if (user) {
     // Auth is ready, fetch events
     refreshEvents()
-    // Load stages if we have an initial event
-    if (initialEventId && stages.value.length === 0) {
-      loadStages()
-    }
   }
 }, { immediate: true })
 
 // Watch for event selection changes
 watch(selectedEventId, async (newEventId, oldEventId) => {
-  // Skip if this is the initial mount (oldEventId will be '' or undefined)
-  if (oldEventId === undefined || oldEventId === '') return
-
   eventStore.setEvent(newEventId ? Number(newEventId) : null)
 
   if (newEventId) {
     await loadStages()
-    router.replace({ query: { event: String(newEventId) } })
+    // Solo actualizar URL si es cambio del usuario (no carga inicial)
+    if (oldEventId !== undefined && oldEventId !== '') {
+      router.replace({ query: { event: String(newEventId) } })
+    }
   } else {
     stages.value = []
-    router.replace({ query: {} })
+    if (oldEventId !== undefined && oldEventId !== '') {
+      router.replace({ query: {} })
+    }
   }
-})
+}, { immediate: true })
 
 // Load stages for selected event
 async function loadStages() {

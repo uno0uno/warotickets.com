@@ -250,29 +250,26 @@ watch(() => authStore.user, (user) => {
   if (user) {
     // Auth is ready, fetch events
     refreshEvents()
-    // Load areas if we have an initial event
-    if (initialEventId && areas.value.length === 0) {
-      loadAreas(initialEventId as number)
-    }
   }
 }, { immediate: true })
 
-// Watch for event selection changes (user interaction only)
+// Watch for event selection changes
 watch(selectedEventId, async (newEventId, oldEventId) => {
-  // Skip if this is the initial load (oldEventId is undefined or empty string)
-  if (oldEventId === undefined || oldEventId === '') return
-
   eventStore.setEvent(newEventId ? Number(newEventId) : null)
 
   if (newEventId) {
     await loadAreas(newEventId)
-    // Update URL without triggering navigation
-    router.replace({ query: { event: String(newEventId) } })
+    // Solo actualizar URL si es cambio del usuario (no carga inicial)
+    if (oldEventId !== undefined && oldEventId !== '') {
+      router.replace({ query: { event: String(newEventId) } })
+    }
   } else {
     areas.value = []
-    router.replace({ query: {} })
+    if (oldEventId !== undefined && oldEventId !== '') {
+      router.replace({ query: {} })
+    }
   }
-})
+}, { immediate: true })
 
 // Load areas for selected event
 async function loadAreas(eventId: number) {
