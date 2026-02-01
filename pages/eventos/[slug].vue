@@ -3,7 +3,7 @@
     <!-- Loading State - Skeleton -->
     <div v-if="pending && !data" class="animate-pulse">
       <!-- Cover Skeleton -->
-      <div class="h-72 sm:h-80 lg:h-96 bg-secondary-200"></div>
+      <div class="h-48 sm:h-56 md:h-64 lg:h-80 bg-secondary-200"></div>
 
       <!-- Content Skeleton -->
       <div class="container mx-auto px-4 md:px-8 py-8">
@@ -88,33 +88,23 @@
     <!-- Event Content -->
     <template v-else-if="event">
       <!-- Cover Image -->
-      <div class="relative lg:h-80 bg-gradient-to-br from-primary-800 via-primary-900 to-secondary-900 overflow-hidden">
-        <!-- Mobile: show full cover image without cropping -->
+      <div class="relative w-full" style="background-color: #1a1a2e;">
+        <!-- Desktop banner - full width, natural height -->
+        <img
+          v-if="desktopBannerUrl"
+          :src="desktopBannerUrl"
+          :alt="event.cluster_name"
+          class="hidden lg:block w-full h-auto"
+        />
+        <!-- Mobile cover - full width, natural height -->
         <img
           v-if="event.cover_image_url"
           :src="event.cover_image_url"
           :alt="event.cluster_name"
-          class="lg:hidden w-full"
+          class="lg:hidden w-full h-auto"
         />
-        <!-- Desktop: show banner image (fallback to cover) -->
-        <img
-          v-if="event.banner_image_url || event.cover_image_url"
-          :src="event.banner_image_url || event.cover_image_url"
-          :alt="event.cluster_name"
-          class="hidden lg:block w-full h-full object-cover"
-        />
-        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-
-        <!-- Back Button - aligned with container -->
-        <div class="absolute inset-0 container mx-auto px-4 md:px-8">
-          <NuxtLink
-            to="/"
-            class="absolute top-4 inline-flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm text-secondary-700 rounded-xl hover:bg-white transition-all z-10"
-          >
-            <ArrowLeftIcon class="w-4 h-4" />
-            <span class="text-sm font-medium">Eventos</span>
-          </NuxtLink>
-        </div>
+        <!-- Gradient overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none"></div>
       </div>
 
       <!-- Main Content -->
@@ -498,6 +488,11 @@ const areas = computed(() => data.value?.areas as any[] || [])
 const summary = computed(() => data.value?.summary)
 const promotions = computed(() => data.value?.promotions as any[] || [])
 const saleStages = computed(() => data.value?.saleStages as any[] || [])
+
+// Desktop banner URL (banner or fallback to cover)
+const desktopBannerUrl = computed(() => {
+  return event.value?.banner_image_url || event.value?.cover_image_url || ''
+})
 
 // Cart state
 const selectedQuantities = ref<Record<number, number>>({})
