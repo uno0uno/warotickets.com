@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { TicketIcon } from '@heroicons/vue/24/outline'
+import { TicketIcon, SparklesIcon, GiftIcon } from '@heroicons/vue/24/outline'
+
+interface FeaturedPromotion {
+  id: string
+  promotion_name: string
+  total_tickets: number
+  original_price?: number | null
+  final_price?: number | null
+  savings?: number | null
+}
 
 interface EventData {
   id: string
@@ -9,6 +18,10 @@ interface EventData {
   start_date: string
   min_price?: number | null
   tickets_available?: number | null
+  active_sale_stage?: string | null
+  active_stage_bundle?: number | null  // ej: 2 para "2x1"
+  has_promotions?: boolean
+  featured_promotion?: FeaturedPromotion | null
 }
 
 interface Props {
@@ -106,6 +119,21 @@ const isLowStock = computed(() =>
             <span class="text-secondary-300">·</span>
             <span>{{ formatTime(event.start_date) }}</span>
           </div>
+
+          <!-- Badges: Etapa y Promoción -->
+          <div class="flex flex-wrap items-center gap-1.5 mb-1">
+            <span v-if="event.active_sale_stage" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 text-green-700 text-[10px] font-semibold">
+              <SparklesIcon class="w-3 h-3" />
+              {{ event.active_sale_stage }}
+            </span>
+            <span v-if="event.active_stage_bundle && event.active_stage_bundle > 1" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary-50 text-primary-700 text-[10px] font-bold">
+              {{ event.active_stage_bundle }}x1
+            </span>
+            <span v-if="event.featured_promotion?.savings" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 text-[10px] font-semibold">
+              <GiftIcon class="w-3 h-3" />
+              Ahorra ${{ formatPrice(event.featured_promotion.savings) }}
+            </span>
+          </div>
         </div>
 
         <!-- Footer: Price prominent -->
@@ -115,9 +143,6 @@ const isLowStock = computed(() =>
             <p class="text-lg sm:text-xl font-black text-secondary-900">
               ${{ formatPrice(event.min_price) }}
             </p>
-          </div>
-          <div v-if="event.tickets_available && event.tickets_available > 0" class="text-right">
-            <span class="text-xs text-secondary-400">{{ event.tickets_available }} disponibles</span>
           </div>
         </div>
       </div>

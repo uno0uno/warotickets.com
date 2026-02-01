@@ -75,10 +75,57 @@
         <p class="text-text-secondary">Vuelve pronto para descubrir nuevos eventos</p>
       </div>
 
+      <!-- Sección: Ofertas y Promociones -->
+      <div v-if="eventsWithPromotions.length > 0 && !searchQuery && !selectedType" class="mb-10">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
+            <GiftIcon class="w-5 h-5 text-primary-600" />
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-text-primary">Ofertas y Promociones</h2>
+            <p class="text-sm text-text-secondary">Eventos con descuentos especiales</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <EventListCard
+            v-for="event in eventsWithPromotions"
+            :key="'promo-' + event.id"
+            :event="event"
+          />
+        </div>
+      </div>
+
       <!-- Events Grouped by Date -->
-      <div v-else class="space-y-8">
+      <div v-else-if="filteredEvents.length > 0" class="space-y-8">
         <template v-for="(group, groupKey) in groupedEvents" :key="groupKey">
           <div v-if="group.events.length > 0">
+            <!-- Date Group Header -->
+            <div class="flex items-center gap-4 mb-4">
+              <h2 class="text-lg font-bold text-text-primary">{{ group.label }}</h2>
+              <div class="flex-1 h-px bg-border"></div>
+              <span class="text-sm text-text-tertiary font-medium">{{ group.events.length }} evento{{ group.events.length > 1 ? 's' : '' }}</span>
+            </div>
+
+            <!-- Events Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <EventListCard
+                v-for="event in group.events"
+                :key="event.id"
+                :event="event"
+              />
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Todos los eventos (cuando hay secciones especiales) -->
+      <div v-if="eventsWithPromotions.length > 0 && !searchQuery && !selectedType" class="space-y-8">
+        <div class="flex items-center gap-4 mb-4 mt-6">
+          <h2 class="text-xl font-bold text-text-primary">Todos los eventos</h2>
+          <div class="flex-1 h-px bg-border"></div>
+        </div>
+        <template v-for="(group, groupKey) in groupedEvents">
+          <div v-if="group.events.length > 0" :key="'all-' + groupKey">
             <!-- Date Group Header -->
             <div class="flex items-center gap-4 mb-4">
               <h2 class="text-lg font-bold text-text-primary">{{ group.label }}</h2>
@@ -105,7 +152,8 @@
 import {
   MagnifyingGlassIcon,
   CalendarDaysIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  GiftIcon
 } from '@heroicons/vue/24/outline'
 
 definePageMeta({
@@ -155,6 +203,16 @@ const filteredEvents = computed(() => {
   }
 
   return result
+})
+
+// Eventos con promociones activas (solo futuros)
+const eventsWithPromotions = computed(() => {
+  if (!events.value) return []
+  const now = new Date()
+  return (events.value as any[]).filter(event => {
+    const eventDate = new Date(event.start_date)
+    return event.featured_promotion?.savings && eventDate >= now
+  }).slice(0, 4)
 })
 
 // Group events by date

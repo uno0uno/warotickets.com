@@ -217,9 +217,6 @@
                       <span v-if="getAreaQuantityInStage(area.id, area.active_sale_stage) > 1" class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary-50 text-primary-700 font-medium">
                         {{ getAreaQuantityInStage(area.id, area.active_sale_stage) }}x1
                       </span>
-                      <span v-if="area.units_available > 0" class="text-secondary-400">
-                        {{ formatPrice(area.units_available) }} disponibles
-                      </span>
                     </div>
 
                     <!-- Action Row: Quantity + Button -->
