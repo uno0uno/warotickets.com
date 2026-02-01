@@ -125,7 +125,7 @@
           <div
             v-for="ticket in event.tickets"
             :key="ticket.reservation_unit_id"
-            class="group relative flex bg-white rounded-2xl border border-secondary-200 overflow-hidden hover:shadow-xl hover:shadow-secondary-200/50 transition-all duration-500 h-[180px]"
+            class="group relative flex bg-white rounded-2xl border border-secondary-200 overflow-hidden hover:shadow-xl hover:shadow-secondary-200/50 transition-all duration-500 min-h-[180px]"
           >
             <!-- Left Section: Event Info -->
             <div class="flex-1 p-6 flex flex-col justify-between min-w-0 bg-white">
@@ -160,14 +160,13 @@
                   <p class="text-xs font-mono text-secondary-600 font-bold">{{ ticket.reservation_id.slice(0, 8).toUpperCase() }}</p>
                 </div>
                 <!-- Transfer actions for transferred tickets -->
-                <div v-if="ticket.status === 'transferred'" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 flex-shrink-0">
+                <div v-if="ticket.status === 'transferred'" class="flex flex-row items-center gap-1.5 flex-shrink-0">
                   <div @click="resendTransfer(ticket)" class="flex items-center justify-center gap-1 text-[10px] text-amber-600 font-bold cursor-pointer hover:text-amber-700 transition-colors bg-amber-50 px-2 py-1 rounded-lg border border-amber-100 whitespace-nowrap">
                     <ArrowPathIcon class="w-3 h-3" />
                     {{ resendingTicketId === ticket.reservation_unit_id ? 'ENVIANDO...' : 'REENVIAR' }}
                   </div>
-                  <div @click="cancelTransfer(ticket)" class="flex items-center justify-center gap-1 text-[10px] text-red-500 font-bold cursor-pointer hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100 whitespace-nowrap">
-                    <XMarkIcon class="w-3 h-3" />
-                    CANCELAR
+                  <div @click="cancelTransfer(ticket)" class="flex items-center justify-center text-red-500 cursor-pointer hover:text-red-700 transition-colors bg-red-50 p-1.5 rounded-lg border border-red-100" title="Cancelar transferencia">
+                    <XMarkIcon class="w-4 h-4" />
                   </div>
                 </div>
                 <!-- Transfer button for confirmed tickets -->
