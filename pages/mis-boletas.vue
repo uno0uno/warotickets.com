@@ -17,35 +17,90 @@
       </div>
       <h3 class="text-xl font-bold text-secondary-900 mb-2">Aun no tienes boletas</h3>
       <p class="text-secondary-500 mb-8 text-center max-w-sm">Explora los eventos disponibles y compra tus boletas. Apareceran aqui con su codigo QR.</p>
-      <NuxtLink to="/eventos" class="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/20 text-sm font-semibold">
+      <NuxtLink to="/" class="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/20 text-sm font-semibold">
         <CalendarDaysIcon class="w-5 h-5" />
         Explorar eventos
       </NuxtLink>
     </div>
 
-    <!-- Search Bar -->
+    <!-- Search Bar + Filter -->
     <div v-else-if="tickets && tickets.length > 0" class="space-y-6">
-      <div class="relative">
-        <MagnifyingGlassIcon class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-400 pointer-events-none" />
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Buscar por evento, referencia o ubicacion (ej: VIP-18, 1a2a59f6)"
-          class="w-full pl-11 pr-10 py-3 bg-white border border-secondary-200 rounded-xl text-sm text-secondary-900 placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
-        />
-        <button
-          v-if="searchQuery"
-          @click="searchQuery = ''"
-          class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-secondary-600 transition-colors"
-        >
-          <XMarkIcon class="w-5 h-5" />
-        </button>
+      <div class="flex gap-3">
+        <!-- Search Input -->
+        <div class="relative flex-1">
+          <MagnifyingGlassIcon class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-400 pointer-events-none" />
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Buscar por evento, referencia o ubicacion"
+            class="w-full pl-11 pr-10 py-3 bg-white border border-secondary-200 rounded-xl text-sm text-secondary-900 placeholder-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+          />
+          <button
+            v-if="searchQuery"
+            @click="searchQuery = ''"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-secondary-600 transition-colors"
+          >
+            <XMarkIcon class="w-5 h-5" />
+          </button>
+        </div>
+
+        <!-- Status Filter Dropdown -->
+        <div class="relative">
+          <button
+            @click="showFilterDropdown = !showFilterDropdown"
+            class="flex items-center gap-2 px-4 py-3 bg-white border border-secondary-200 rounded-xl text-sm font-medium text-secondary-700 hover:border-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all whitespace-nowrap"
+          >
+            <FunnelIcon class="w-4 h-4 text-secondary-400" />
+            <span class="hidden sm:inline">{{ currentFilterLabel }}</span>
+            <ChevronDownIcon class="w-4 h-4 text-secondary-400" :class="{ 'rotate-180': showFilterDropdown }" />
+          </button>
+
+          <!-- Dropdown Menu -->
+          <Transition name="dropdown">
+            <div v-if="showFilterDropdown">
+              <!-- Invisible backdrop to close dropdown -->
+              <div class="fixed inset-0 z-40" @click="showFilterDropdown = false"></div>
+              <div class="absolute right-0 top-full mt-2 w-48 bg-white border border-secondary-200 rounded-xl shadow-lg py-2 z-50">
+                <button
+                  v-for="option in statusFilterOptions"
+                  :key="option.value"
+                  @click="statusFilter = option.value; showFilterDropdown = false"
+                  class="w-full px-4 py-2 text-left text-sm hover:bg-secondary-50 transition-colors flex items-center gap-2"
+                  :class="{ 'bg-secondary-50 font-semibold': statusFilter === option.value }"
+                >
+                  <span class="w-2 h-2 rounded-full" :class="option.color.replace('text-', 'bg-').split(' ')[0]"></span>
+                  {{ option.label }}
+                </button>
+              </div>
+            </div>
+          </Transition>
+        </div>
       </div>
 
       <!-- No results -->
       <div v-if="filteredGroupedTickets.length === 0" class="text-center py-12">
         <MagnifyingGlassIcon class="w-10 h-10 text-secondary-300 mx-auto mb-3" />
-        <p class="text-secondary-500 text-sm">No se encontraron boletas para <span class="font-semibold">"{{ searchQuery }}"</span></p>
+        <p class="text-secondary-500 text-sm">
+          <template v-if="searchQuery && statusFilter !== 'all'">
+            No se encontraron boletas <span class="font-semibold">{{ currentFilterLabel.toLowerCase() }}</span> para <span class="font-semibold">"{{ searchQuery }}"</span>
+          </template>
+          <template v-else-if="searchQuery">
+            No se encontraron boletas para <span class="font-semibold">"{{ searchQuery }}"</span>
+          </template>
+          <template v-else-if="statusFilter !== 'all'">
+            No tienes boletas <span class="font-semibold">{{ currentFilterLabel.toLowerCase() }}</span>
+          </template>
+          <template v-else>
+            No se encontraron boletas
+          </template>
+        </p>
+        <button
+          v-if="statusFilter !== 'all' || searchQuery"
+          @click="statusFilter = 'all'; searchQuery = ''"
+          class="mt-3 text-sm text-primary-600 hover:text-primary-700 font-medium"
+        >
+          Limpiar filtros
+        </button>
       </div>
 
       <!-- Tickets grouped by event -->
@@ -84,7 +139,9 @@
                         ? 'bg-blue-50 text-blue-700 border border-blue-100'
                         : ticket.status === 'transferred'
                           ? 'bg-amber-50 text-amber-700 border border-amber-100'
-                          : 'bg-secondary-50 text-secondary-600 border border-secondary-100'"
+                          : ticket.status === 'transferred_out'
+                            ? 'bg-purple-50 text-purple-700 border border-purple-100'
+                            : 'bg-secondary-50 text-secondary-600 border border-secondary-100'"
                   >
                     {{ statusLabel(ticket.status) }}
                   </span>
@@ -103,14 +160,14 @@
                   <p class="text-xs font-mono text-secondary-600 font-bold">{{ ticket.reservation_id.slice(0, 8).toUpperCase() }}</p>
                 </div>
                 <!-- Transfer actions for transferred tickets -->
-                <div v-if="ticket.status === 'transferred'" class="flex items-center gap-1.5 flex-shrink-0">
-                  <div @click="cancelTransfer(ticket)" class="flex items-center gap-1 text-[10px] text-red-500 font-bold cursor-pointer hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100 whitespace-nowrap">
-                    <XMarkIcon class="w-3 h-3" />
-                    CANCELAR
-                  </div>
-                  <div @click="resendTransfer(ticket)" class="flex items-center gap-1 text-[10px] text-amber-600 font-bold cursor-pointer hover:text-amber-700 transition-colors bg-amber-50 px-2 py-1 rounded-lg border border-amber-100 whitespace-nowrap">
+                <div v-if="ticket.status === 'transferred'" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 flex-shrink-0">
+                  <div @click="resendTransfer(ticket)" class="flex items-center justify-center gap-1 text-[10px] text-amber-600 font-bold cursor-pointer hover:text-amber-700 transition-colors bg-amber-50 px-2 py-1 rounded-lg border border-amber-100 whitespace-nowrap">
                     <ArrowPathIcon class="w-3 h-3" />
                     {{ resendingTicketId === ticket.reservation_unit_id ? 'ENVIANDO...' : 'REENVIAR' }}
+                  </div>
+                  <div @click="cancelTransfer(ticket)" class="flex items-center justify-center gap-1 text-[10px] text-red-500 font-bold cursor-pointer hover:text-red-700 transition-colors bg-red-50 px-2 py-1 rounded-lg border border-red-100 whitespace-nowrap">
+                    <XMarkIcon class="w-3 h-3" />
+                    CANCELAR
                   </div>
                 </div>
                 <!-- Transfer button for confirmed tickets -->
@@ -139,6 +196,24 @@
                   <CheckCircleIcon class="w-10 h-10 sm:w-12 sm:h-12 text-blue-500" />
                 </div>
                 <p class="text-[10px] text-blue-500 font-bold uppercase tracking-wider">Usada</p>
+              </div>
+
+              <!-- Transferred ticket: show pending indicator -->
+              <div v-else-if="ticket.status === 'transferred'" class="relative z-10 flex flex-col items-center justify-center gap-2 text-center px-2">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 bg-amber-50 rounded-xl flex items-center justify-center border border-amber-100">
+                  <ArrowsRightLeftIcon class="w-10 h-10 sm:w-12 sm:h-12 text-amber-500" />
+                </div>
+                <p class="text-[10px] text-amber-600 font-bold uppercase tracking-wider leading-tight">Pendiente<br/>de aceptar</p>
+              </div>
+
+              <!-- Transferred out ticket: show gift indicator -->
+              <div v-else-if="ticket.status === 'transferred_out'" class="relative z-10 flex flex-col items-center justify-center gap-2 text-center px-2">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 bg-purple-50 rounded-xl flex items-center justify-center border border-purple-100">
+                  <GiftIcon class="w-10 h-10 sm:w-12 sm:h-12 text-purple-500" />
+                </div>
+                <p class="text-[10px] text-purple-600 font-bold uppercase tracking-wider leading-tight max-w-[100px] truncate" :title="ticket.transferred_to_email">
+                  {{ ticket.transferred_to_email?.split('@')[0] || 'Regalada' }}
+                </p>
               </div>
 
               <!-- Active ticket: show QR -->
@@ -346,7 +421,10 @@ import {
   PaperAirplaneIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  GiftIcon,
+  FunnelIcon,
+  ChevronDownIcon
 } from '@heroicons/vue/24/outline'
 
 definePageMeta({ layout: 'dashboard' })
@@ -369,6 +447,7 @@ interface Ticket {
   qr_data: { code: string; [key: string]: any } | null
   qr_code_url: string | null
   can_transfer: boolean
+  transferred_to_email?: string | null
 }
 
 interface GroupedEvent {
@@ -382,6 +461,20 @@ const loading = ref(true)
 const tickets = ref<Ticket[]>([])
 const fetchError = ref('')
 const searchQuery = ref('')
+const statusFilter = ref<string>('all')
+const showFilterDropdown = ref(false)
+
+const statusFilterOptions = [
+  { value: 'all', label: 'Todas', color: 'bg-secondary-100 text-secondary-700' },
+  { value: 'confirmed', label: 'Confirmadas', color: 'bg-green-50 text-green-700' },
+  { value: 'used', label: 'Usadas', color: 'bg-blue-50 text-blue-700' },
+  { value: 'transferred', label: 'Pendientes', color: 'bg-amber-50 text-amber-700' },
+  { value: 'transferred_out', label: 'Transferidas', color: 'bg-purple-50 text-purple-700' }
+]
+
+const currentFilterLabel = computed(() => {
+  return statusFilterOptions.find(o => o.value === statusFilter.value)?.label || 'Todas'
+})
 
 // Toast notification
 const toast = reactive({ show: false, message: '', type: 'success' as 'success' | 'error' })
@@ -451,18 +544,29 @@ function normalize(str: string) {
 
 const filteredGroupedTickets = computed<GroupedEvent[]>(() => {
   const q = normalize(searchQuery.value.trim())
-  if (!q) return groupedTickets.value
+  const statusFilterVal = statusFilter.value
 
   return groupedTickets.value
     .map(event => {
-      if (normalize(event.name).includes(q)) return event
+      // First apply status filter
+      let filtered = event.tickets
+      if (statusFilterVal !== 'all') {
+        filtered = filtered.filter(t => t.status === statusFilterVal)
+      }
 
-      const filtered = event.tickets.filter(t =>
-        normalize(t.unit_display_name).includes(q)
-        || normalize(t.area_name).includes(q)
-        || normalize(t.reservation_id).includes(q)
-        || (t.qr_data?.code && normalize(t.qr_data.code).includes(q))
-      )
+      // Then apply search filter
+      if (q) {
+        const eventNameMatches = normalize(event.name).includes(q)
+        if (!eventNameMatches) {
+          filtered = filtered.filter(t =>
+            normalize(t.unit_display_name).includes(q)
+            || normalize(t.area_name).includes(q)
+            || normalize(t.reservation_id).includes(q)
+            || (t.qr_data?.code && normalize(t.qr_data.code).includes(q))
+          )
+        }
+      }
+
       if (filtered.length === 0) return null
       return { ...event, tickets: filtered }
     })
@@ -491,7 +595,8 @@ function statusLabel(status: string) {
     used: 'Usada',
     checked_in: 'Ingresado',
     cancelled: 'Cancelada',
-    transferred: 'Transferida'
+    transferred: 'Pendiente',
+    transferred_out: 'Transferida'
   }
   return labels[status] || status
 }
@@ -655,5 +760,16 @@ onMounted(() => {
 
 .qr-modal-enter-from > div:last-child {
   transform: scale(0.9);
+}
+
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }
 </style>
