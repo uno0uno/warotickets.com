@@ -51,7 +51,7 @@
               to="/auth/login"
               class="flex items-center gap-1 px-2 sm:px-3 py-2 text-sm font-medium text-text-secondary hover:text-primary transition-colors"
             >
-              <UserIcon class="w-5 h-5" />
+              <UserIcon class="w-5 h-5 sm:hidden" />
               <span class="hidden sm:inline">Ingresar</span>
             </NuxtLink>
 

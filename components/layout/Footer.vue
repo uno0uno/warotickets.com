@@ -1,28 +1,17 @@
 <template>
-  <footer class="bg-secondary-900 text-white">
-    <div class="container mx-auto px-4 md:px-8 py-12 md:py-16">
-      <div class="flex flex-col items-center text-center">
-        <!-- Brand -->
-        <NuxtLink to="/" class="flex items-center gap-2 mb-4">
-          <div class="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M20 12V6H4v6h16zm0 2H4v4h16v-4zM3 4h18a1 1 0 011 1v14a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1zm3 4h2v2H6V8zm0 6h2v2H6v-2z"/>
-            </svg>
-          </div>
-          <span class="text-xl font-bold font-heading">
-            WaRo<span class="text-primary-400">Tickets</span>
-          </span>
-        </NuxtLink>
-        <p class="text-secondary-400 text-sm leading-relaxed mb-4 max-w-md">
-          Plataforma de venta de boleteria y gestion de eventos. Simplifica la venta de entradas y el control de accesos.
+  <footer class="bg-secondary-900">
+    <div class="container mx-auto px-4 md:px-8 py-6">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-secondary-400 text-sm">
+          &copy; {{ currentYear }} <a href="https://warolabs.com" target="_blank" rel="noopener" class="text-secondary-300 hover:text-white transition-colors">Waro Labs</a>. Todos los derechos reservados.
         </p>
-        <!-- Social Links -->
-        <div class="flex gap-4">
+        <div class="flex items-center gap-4">
+          <!-- Social Links -->
           <a
             href="https://www.tiktok.com/@warocolombia"
             target="_blank"
             rel="noopener"
-            class="text-secondary-400 hover:text-primary-400 transition-colors"
+            class="text-secondary-500 hover:text-white transition-colors"
             aria-label="TikTok"
           >
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -33,7 +22,7 @@
             href="https://github.com/uno0uno/warotickets.com"
             target="_blank"
             rel="noopener"
-            class="text-secondary-400 hover:text-primary-400 transition-colors"
+            class="text-secondary-500 hover:text-white transition-colors"
             aria-label="GitHub"
           >
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -41,16 +30,6 @@
             </svg>
           </a>
         </div>
-      </div>
-
-      <!-- Bottom -->
-      <div class="border-t border-secondary-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-        <p class="text-secondary-500 text-sm">
-          &copy; {{ currentYear }} <a href="https://warolabs.com" target="_blank" rel="noopener" class="hover:text-primary-400 transition-colors">Waro Labs</a>. Todos los derechos reservados.
-        </p>
-        <p class="text-secondary-500 text-sm">
-          Hecho con <span class="text-red-500">&hearts;</span> en Colombia
-        </p>
       </div>
     </div>
   </footer>
