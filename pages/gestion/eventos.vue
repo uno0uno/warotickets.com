@@ -188,6 +188,13 @@
               <CheckIcon v-if="copiedEventId === row.id" class="w-4 h-4" />
               <LinkIcon v-else class="w-4 h-4" />
             </button>
+            <button
+              @click.prevent="downloadEventQR(row)"
+              class="p-1.5 rounded-lg text-text-secondary hover:bg-surface-secondary transition-colors"
+              title="Descargar QR"
+            >
+              <QrCodeIcon class="w-4 h-4" />
+            </button>
             <NuxtLink
               :to="`/gestion/evento/${row.id}`"
               class="p-1.5 text-primary hover:bg-primary/10 rounded-lg"
@@ -272,7 +279,8 @@ import {
   LinkIcon,
   CheckIcon,
   EyeIcon,
-  EyeSlashIcon
+  EyeSlashIcon,
+  QrCodeIcon
 } from '@heroicons/vue/24/outline'
 
 useHead({ title: 'Eventos - WaRo Tickets' })
@@ -440,6 +448,21 @@ function getStatusClass(isActive: boolean) {
 
 function getStatusLabel(isActive: boolean) {
   return isActive ? 'Activo' : 'Inactivo'
+}
+
+// QR Code functionality
+const { downloadQR } = useQRCode()
+
+async function downloadEventQR(event: any) {
+  const slug = event.slug_cluster || event.slug || event.id
+  const url = `${window.location.origin}/eventos/${slug}`
+  const filename = `qr-${slug}`
+
+  try {
+    await downloadQR(url, filename, { width: 400 })
+  } catch (err) {
+    console.error('Error generating QR:', err)
+  }
 }
 
 // Copy link functionality
