@@ -122,6 +122,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import {
   MagnifyingGlassIcon,
   ArrowRightIcon,
@@ -161,9 +162,12 @@ const eventStore = useEventSelectionStore()
 const initialEventId = route.query.event ? Number(route.query.event) : (eventStore.selectedEventId || '')
 selectedEventId.value = initialEventId
 
-if (initialEventId) {
-  loadTransfers(initialEventId as number)
-}
+// Load transfers after component is mounted (ensures auth middleware has completed)
+onMounted(() => {
+  if (initialEventId) {
+    loadTransfers(initialEventId as number)
+  }
+})
 
 // Watch for event selection changes
 watch(selectedEventId, async (newEventId, oldEventId) => {

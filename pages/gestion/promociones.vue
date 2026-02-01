@@ -265,6 +265,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import {
   TicketIcon,
   MagnifyingGlassIcon,
@@ -316,10 +317,14 @@ const eventStore = useEventSelectionStore()
 
 // Initialize from query param, fallback to store
 const initialEventId = route.query.event ? Number(route.query.event) : (eventStore.selectedEventId || '')
-if (initialEventId) {
-  selectedEventId.value = initialEventId
-  loadPromotions()
-}
+selectedEventId.value = initialEventId
+
+// Load promotions after component is mounted (ensures auth middleware has completed)
+onMounted(() => {
+  if (initialEventId) {
+    loadPromotions()
+  }
+})
 
 // Watch for event selection changes
 watch(selectedEventId, async (newEventId, oldEventId) => {

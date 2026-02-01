@@ -252,6 +252,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import {
   ClockIcon,
   MagnifyingGlassIcon,
@@ -302,10 +303,14 @@ const eventStore = useEventSelectionStore()
 
 // Initialize from query param, fallback to store
 const initialEventId = route.query.event ? Number(route.query.event) : (eventStore.selectedEventId || '')
-if (initialEventId) {
-  selectedEventId.value = initialEventId
-  loadStages()
-}
+selectedEventId.value = initialEventId
+
+// Load stages after component is mounted (ensures auth middleware has completed)
+onMounted(() => {
+  if (initialEventId) {
+    loadStages()
+  }
+})
 
 // Watch for event selection changes
 watch(selectedEventId, async (newEventId, oldEventId) => {

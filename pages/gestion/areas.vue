@@ -191,6 +191,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import {
   MagnifyingGlassIcon,
   PlusIcon,
@@ -241,10 +242,12 @@ const eventStore = useEventSelectionStore()
 const initialEventId = route.query.event ? Number(route.query.event) : (eventStore.selectedEventId || '')
 selectedEventId.value = initialEventId
 
-// Load areas if event is pre-selected
-if (initialEventId) {
-  loadAreas(initialEventId as number)
-}
+// Load areas after component is mounted (ensures auth middleware has completed)
+onMounted(() => {
+  if (initialEventId) {
+    loadAreas(initialEventId as number)
+  }
+})
 
 // Watch for event selection changes (user interaction only)
 watch(selectedEventId, async (newEventId, oldEventId) => {

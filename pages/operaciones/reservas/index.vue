@@ -147,6 +147,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import {
   MagnifyingGlassIcon,
   TicketIcon,
@@ -186,9 +187,12 @@ const eventStore = useEventSelectionStore()
 const initialEventId = route.query.event ? Number(route.query.event) : (eventStore.selectedEventId || '')
 selectedEventId.value = initialEventId
 
-if (initialEventId) {
-  loadReservations(initialEventId as number)
-}
+// Load reservations after component is mounted (ensures auth middleware has completed)
+onMounted(() => {
+  if (initialEventId) {
+    loadReservations(initialEventId as number)
+  }
+})
 
 // Watch for event selection changes
 watch(selectedEventId, async (newEventId, oldEventId) => {
