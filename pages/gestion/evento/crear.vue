@@ -232,19 +232,6 @@
                 />
               </div>
 
-              <!-- Flyer Image -->
-              <div>
-                <UiImageUploader
-                  v-model="form.flyer_url"
-                  label="Flyer del Evento"
-                  type="flyer"
-                  recommended-size="Vertical o cuadrado"
-                  preview-class="max-h-64"
-                  @uploaded="handleFlyerUploaded"
-                  @uploading="(v) => isUploadingFlyer = v"
-                />
-              </div>
-
               <!-- Cover Image -->
               <div>
                 <UiImageUploader
@@ -416,7 +403,7 @@
           </div>
 
           <!-- Images Preview -->
-          <div v-if="form.banner_url || form.flyer_url || form.cover_url" class="px-4 sm:px-6 md:px-8 py-4 sm:py-6">
+          <div v-if="form.banner_url || form.cover_url" class="px-4 sm:px-6 md:px-8 py-4 sm:py-6">
             <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wide mb-3 sm:mb-4">
               Imagenes del Evento
             </p>
@@ -428,16 +415,6 @@
                   :src="form.banner_url"
                   alt="Banner del evento"
                   class="w-full max-h-32 object-cover rounded-lg border border-secondary-200"
-                />
-              </div>
-
-              <!-- Flyer Preview -->
-              <div v-if="form.flyer_url">
-                <p class="text-sm text-secondary-600 mb-2">Flyer</p>
-                <img
-                  :src="form.flyer_url"
-                  alt="Flyer del evento"
-                  class="w-full max-h-48 object-contain rounded-lg border border-secondary-200"
                 />
               </div>
 
@@ -539,33 +516,22 @@ const form = reactive({
   is_active: false,
   // Images
   banner_url: null as string | null,
-  flyer_url: null as string | null,
   cover_url: null as string | null
 })
 
 // Image upload state
 const isUploadingBanner = ref(false)
-const isUploadingFlyer = ref(false)
 const isUploadingCover = ref(false)
 
 // Image dimensions (stored when uploaded)
 const imageDimensions = reactive({
   banner: { width: 0, height: 0, size: 0 },
-  flyer: { width: 0, height: 0, size: 0 },
   cover: { width: 0, height: 0, size: 0 }
 })
 
 // Image upload handlers
 function handleBannerUploaded(data: { url: string; width?: number; height?: number; size?: number }) {
   imageDimensions.banner = {
-    width: data.width || 0,
-    height: data.height || 0,
-    size: data.size || 0
-  }
-}
-
-function handleFlyerUploaded(data: { url: string; width?: number; height?: number; size?: number }) {
-  imageDimensions.flyer = {
     width: data.width || 0,
     height: data.height || 0,
     size: data.size || 0
@@ -582,7 +548,7 @@ function handleCoverUploaded(data: { url: string; width?: number; height?: numbe
 
 // Check if any image is uploading
 const isUploadingImages = computed(() => {
-  return isUploadingBanner.value || isUploadingFlyer.value || isUploadingCover.value
+  return isUploadingBanner.value || isUploadingCover.value
 })
 
 // Get cities based on selected country
@@ -752,22 +718,6 @@ async function submitEvent() {
             width: imageDimensions.banner.width || null,
             height: imageDimensions.banner.height || null,
             file_size: imageDimensions.banner.size || null
-          },
-          credentials: 'include'
-        })
-      )
-    }
-
-    if (form.flyer_url) {
-      imagePromises.push(
-        $fetch(`/api/events/${createdEvent.id}/event-images`, {
-          method: 'POST',
-          body: {
-            image_type: 'flyer',
-            image_url: form.flyer_url,
-            width: imageDimensions.flyer.width || null,
-            height: imageDimensions.flyer.height || null,
-            file_size: imageDimensions.flyer.size || null
           },
           credentials: 'include'
         })

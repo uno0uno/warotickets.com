@@ -260,23 +260,6 @@
                       />
                     </div>
 
-                    <!-- Flyer Upload -->
-                    <div>
-                      <UiImageUploader
-                        v-model="form.flyer_url"
-                        label="Flyer"
-                        type="flyer"
-                        recommended-size="Vertical o cuadrado"
-                        preview-class="max-h-48"
-                        @uploading="isUploadingFlyer = $event"
-                        @uploaded="(data) => {
-                          imageDimensions.flyer.width = data.width || 0
-                          imageDimensions.flyer.height = data.height || 0
-                          imageDimensions.flyer.size = data.size || 0
-                        }"
-                      />
-                    </div>
-
                     <!-- Cover Upload -->
                     <div>
                       <UiImageUploader
@@ -478,26 +461,22 @@ const form = reactive({
   is_active: false,
   // Image URLs
   banner_url: '' as string | null,
-  flyer_url: '' as string | null,
   cover_url: '' as string | null
 })
 
 // Image upload states
 const isUploadingBanner = ref(false)
-const isUploadingFlyer = ref(false)
 const isUploadingCover = ref(false)
 
 // Track image dimensions for saving
 const imageDimensions = reactive({
   banner: { width: 0, height: 0, size: 0 },
-  flyer: { width: 0, height: 0, size: 0 },
   cover: { width: 0, height: 0, size: 0 }
 })
 
 // Track existing image IDs for updates
 const existingImageIds = reactive({
   banner: null as number | null,
-  flyer: null as number | null,
   cover: null as number | null
 })
 
@@ -561,9 +540,6 @@ async function loadEventImages(eventId: number) {
       if (img.image_type === 'banner') {
         form.banner_url = img.image_url
         existingImageIds.banner = img.id
-      } else if (img.image_type === 'flyer') {
-        form.flyer_url = img.image_url
-        existingImageIds.flyer = img.id
       } else if (img.image_type === 'cover') {
         form.cover_url = img.image_url
         existingImageIds.cover = img.id
@@ -657,7 +633,7 @@ async function submitEvent() {
   if (isSubmitting.value) return
 
   // Check if any image is still uploading
-  if (isUploadingBanner.value || isUploadingFlyer.value || isUploadingCover.value) {
+  if (isUploadingBanner.value || isUploadingCover.value) {
     alert('Por favor espera a que las imagenes terminen de subir')
     return
   }
@@ -715,7 +691,7 @@ async function submitEvent() {
 
 // Save event images (create, update, or delete)
 async function saveEventImages(eventId: number) {
-  const imageTypes = ['banner', 'flyer', 'cover'] as const
+  const imageTypes = ['banner', 'cover'] as const
 
   for (const type of imageTypes) {
     const url = form[`${type}_url` as keyof typeof form] as string | null

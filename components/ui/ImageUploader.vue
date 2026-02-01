@@ -80,6 +80,9 @@
 <script setup lang="ts">
 import { PhotoIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 
+// Composable for image compression
+const { compressToWebPSafe } = useImageCompression()
+
 interface Props {
   modelValue?: string | null
   label?: string
@@ -153,21 +156,24 @@ async function processFile(file: File) {
     return
   }
 
-  // Validate file size
+  // Validate file size (check original before compression)
   if (file.size > props.maxSize) {
     error.value = `El archivo es muy grande. Max: ${maxSizeMB.value}MB`
     emit('error', error.value)
     return
   }
 
-  // Create local preview
+  // Create local preview with original file
   localPreview.value = URL.createObjectURL(file)
 
-  // Get image dimensions
+  // Get image dimensions from original file
   const dimensions = await getImageDimensions(file)
 
-  // Upload
-  await uploadFile(file, dimensions)
+  // Compress image to WebP before uploading
+  const fileToUpload = await compressToWebPSafe(file, 0.82)
+
+  // Upload compressed file
+  await uploadFile(fileToUpload, dimensions)
 }
 
 function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
