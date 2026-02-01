@@ -142,9 +142,11 @@
                 <div
                   v-for="area in areas"
                   :key="area.id"
-                  class="bg-white rounded-2xl border border-secondary-200 relative overflow-hidden"
+                  class="bg-white rounded-2xl relative overflow-hidden"
                   :class="{
-                    'opacity-60 grayscale': area.units_available === 0
+                    'opacity-60 grayscale border border-secondary-200': area.units_available === 0,
+                    'border border-fuchsia-200': area.units_available > 0 && getAreaQuantityInStage(area.id, area.active_sale_stage) > 1,
+                    'border border-secondary-200': area.units_available > 0 && getAreaQuantityInStage(area.id, area.active_sale_stage) <= 1
                   }"
                 >
                   <!-- Sold Out Overlay -->
@@ -157,9 +159,9 @@
                     </span>
                   </div>
 
-                  <!-- Low Stock Ribbon (only this one as ribbon) -->
+                  <!-- Low Stock Ribbon (only when no bundle) -->
                   <SavingsRibbon
-                    v-if="area.units_available > 0 && area.units_available < 20 && !(getAreaOriginalPrice(area) > getAreaDisplayPrice(area))"
+                    v-if="area.units_available > 0 && area.units_available < 20 && !(getAreaOriginalPrice(area) > getAreaDisplayPrice(area)) && getAreaQuantityInStage(area.id, area.active_sale_stage) <= 1"
                     :amount="area.units_available"
                     variant="low-stock"
                   />
@@ -198,14 +200,16 @@
                       </div>
                     </div>
 
-                    <!-- Info Row: Stage + Available -->
-                    <div class="flex flex-wrap items-center gap-2 mb-4 text-xs">
-                      <span v-if="area.active_sale_stage" class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 text-green-700 font-medium">
+                    <!-- Info Row: Stage + Bundle -->
+                    <div class="flex flex-wrap items-center gap-2 mb-4">
+                      <span v-if="area.active_sale_stage" class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 text-green-700 text-xs font-medium">
                         <SparklesIcon class="w-3 h-3" />
                         {{ area.active_sale_stage }}
                       </span>
-                      <span v-if="getAreaQuantityInStage(area.id, area.active_sale_stage) > 1" class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary-50 text-primary-700 font-medium">
-                        {{ getAreaQuantityInStage(area.id, area.active_sale_stage) }}x1
+                      <!-- Bundle Badge (inline, prominent) -->
+                      <span v-if="getAreaQuantityInStage(area.id, area.active_sale_stage) > 1" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-fuchsia-600 text-white text-xs font-bold">
+                        <FireIcon class="w-3.5 h-3.5" />
+                        {{ getAreaQuantityInStage(area.id, area.active_sale_stage) }}x1 · Pagas 1, llevas {{ getAreaQuantityInStage(area.id, area.active_sale_stage) }}
                       </span>
                     </div>
 
@@ -454,7 +458,8 @@ import {
   PlusIcon,
   MinusIcon,
   ShoppingCartIcon,
-  GiftIcon
+  GiftIcon,
+  FireIcon
 } from '@heroicons/vue/24/outline'
 
 const route = useRoute()

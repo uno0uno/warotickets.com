@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TicketIcon, SparklesIcon, GiftIcon } from '@heroicons/vue/24/outline'
+import { TicketIcon, SparklesIcon, GiftIcon, FireIcon } from '@heroicons/vue/24/outline'
 
 interface FeaturedPromotion {
   id: string
@@ -93,7 +93,7 @@ const isLowStock = computed(() =>
           <TicketIcon class="w-12 h-12 text-white/50" />
         </div>
 
-        <!-- Status Badge -->
+        <!-- Status Badge (top-left) -->
         <div v-if="isSoldOut" class="absolute top-3 left-3">
           <span class="px-2.5 py-1 bg-red-600 text-white text-xs font-bold rounded-lg uppercase tracking-wide shadow-lg">
             Agotado
@@ -104,6 +104,7 @@ const isLowStock = computed(() =>
             Últimas
           </span>
         </div>
+
 
       </div>
 
@@ -121,16 +122,20 @@ const isLowStock = computed(() =>
           <span>{{ formatTime(event.start_date) }}</span>
         </div>
 
-        <!-- Badges: Etapa y Promocion -->
-        <div class="flex flex-wrap items-center gap-1.5 mb-3">
+        <!-- Badges: Stage, Bundle, Savings -->
+        <div v-if="event.active_sale_stage || (event.active_stage_bundle && event.active_stage_bundle > 1) || event.featured_promotion?.savings" class="flex flex-wrap items-center gap-1.5 mb-3">
+          <!-- Sale Stage -->
           <span v-if="event.active_sale_stage" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 text-green-700 text-[10px] font-semibold">
             <SparklesIcon class="w-3 h-3" />
             {{ event.active_sale_stage }}
           </span>
-          <span v-if="event.active_stage_bundle && event.active_stage_bundle > 1" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary-50 text-primary-700 text-[10px] font-bold">
+          <!-- Bundle 2x1 -->
+          <span v-if="event.active_stage_bundle && event.active_stage_bundle > 1 && !isSoldOut" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-fuchsia-600 text-white text-[10px] font-bold">
+            <FireIcon class="w-3 h-3" />
             {{ event.active_stage_bundle }}x1
           </span>
-          <span v-if="event.featured_promotion?.savings" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 text-[10px] font-semibold">
+          <!-- Savings -->
+          <span v-if="event.featured_promotion?.savings && !isSoldOut" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-600 text-white text-[10px] font-bold">
             <GiftIcon class="w-3 h-3" />
             Ahorra ${{ formatPrice(event.featured_promotion.savings) }}
           </span>
