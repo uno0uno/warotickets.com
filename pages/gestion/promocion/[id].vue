@@ -335,23 +335,11 @@
               </div>
             </div>
 
-            <div class="px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-secondary-50 border-b border-secondary-200">
+            <div class="px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-secondary-50 rounded-b-lg">
               <label class="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" v-model="form.is_active" class="w-5 h-5 text-primary-600 border-secondary-300 rounded focus:ring-primary-500" />
                 <span class="text-sm font-medium text-secondary-900">Promocion activa</span>
               </label>
-            </div>
-
-            <div class="px-4 sm:px-6 md:px-8 py-4 sm:py-6">
-              <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="font-medium text-red-800">Eliminar promocion</p>
-                    <p class="text-sm text-red-600">Esta accion no se puede deshacer</p>
-                  </div>
-                  <button type="button" @click="showDeleteModal = true" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors">Eliminar</button>
-                </div>
-              </div>
             </div>
           </div>
         </Transition>
@@ -377,21 +365,6 @@
         </div>
       </form>
     </template>
-
-    <!-- Delete Modal -->
-    <Teleport to="body">
-      <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="fixed inset-0 bg-black/50" @click="showDeleteModal = false"></div>
-        <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-          <h3 class="text-lg font-bold text-secondary-900 mb-2">Eliminar Promocion</h3>
-          <p class="text-secondary-600 mb-4">¿Eliminar <strong>{{ form.promotion_name }}</strong>? Esta accion no se puede deshacer.</p>
-          <div class="flex justify-end gap-3">
-            <button @click="showDeleteModal = false" class="px-4 py-2 border border-secondary-200 rounded-lg text-secondary-600 hover:bg-secondary-50">Cancelar</button>
-            <button @click="deletePromotion" :disabled="isDeleting" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50">{{ isDeleting ? 'Eliminando...' : 'Eliminar' }}</button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
   </div>
 </template>
 
@@ -409,8 +382,6 @@ const eventId = computed(() => route.query.event ? Number(route.query.event) : n
 
 const currentStep = ref(1)
 const isSubmitting = ref(false)
-const isDeleting = ref(false)
-const showDeleteModal = ref(false)
 const isLoadingPromotion = ref(true)
 const isLoadingEvent = ref(true)
 const isLoadingAreas = ref(false)
@@ -532,16 +503,6 @@ async function submitPromotion() {
     await navigateTo(`/gestion/promociones?event=${eventId.value}`)
   } catch (err: any) { alert(err?.data?.detail || 'Error al actualizar') }
   finally { isSubmitting.value = false }
-}
-
-async function deletePromotion() {
-  if (isDeleting.value || !eventId.value || !promoId.value) return
-  isDeleting.value = true
-  try {
-    await $fetch(`/api/promotions/event/${eventId.value}/${promoId.value}`, { method: 'DELETE', credentials: 'include' })
-    await navigateTo(`/gestion/promociones?event=${eventId.value}`)
-  } catch (err: any) { alert(err?.data?.detail || 'Error al eliminar') }
-  finally { isDeleting.value = false; showDeleteModal.value = false }
 }
 </script>
 

@@ -605,25 +605,15 @@
 
         <!-- Navigation Buttons -->
         <div class="flex justify-between mt-4 sm:mt-6 gap-3">
-          <div class="flex gap-3">
-            <button
-              v-if="currentStep > 1"
-              type="button"
-              @click="previousStep"
-              class="px-4 sm:px-6 py-2 sm:py-3 border-2 border-secondary-200 rounded-lg text-secondary-600 hover:text-secondary-900 hover:bg-secondary-50 font-medium transition-colors"
-            >
-              <span class="hidden sm:inline">&larr; Anterior</span>
-              <span class="sm:hidden">&larr;</span>
-            </button>
-            <button
-              v-if="currentStep === 4"
-              type="button"
-              @click="confirmDelete"
-              class="px-4 sm:px-6 py-2 sm:py-3 border-2 border-red-200 rounded-lg text-red-600 hover:bg-red-50 font-medium transition-colors"
-            >
-              Eliminar
-            </button>
-          </div>
+          <button
+            v-if="currentStep > 1"
+            type="button"
+            @click="previousStep"
+            class="px-4 sm:px-6 py-2 sm:py-3 border-2 border-secondary-200 rounded-lg text-secondary-600 hover:text-secondary-900 hover:bg-secondary-50 font-medium transition-colors"
+          >
+            <span class="hidden sm:inline">&larr; Anterior</span>
+            <span class="sm:hidden">&larr;</span>
+          </button>
 
           <div class="flex gap-3">
             <NuxtLink
@@ -655,31 +645,6 @@
           </div>
         </div>
       </form>
-
-      <!-- Delete Confirmation Modal -->
-      <div v-if="showDeleteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg max-w-md w-full p-6">
-          <h3 class="text-lg font-semibold text-secondary-900 mb-2">Eliminar Etapa</h3>
-          <p class="text-secondary-600 mb-6">
-            ¿Estas seguro de eliminar la etapa <strong>{{ form.stage_name }}</strong>? Esta accion no se puede deshacer.
-          </p>
-          <div class="flex gap-3 justify-end">
-            <button
-              @click="showDeleteModal = false"
-              class="px-4 py-2 border border-secondary-200 rounded-lg text-secondary-600 hover:bg-secondary-50 font-medium transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              @click="deleteStage"
-              :disabled="isDeleting"
-              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 transition-colors"
-            >
-              {{ isDeleting ? 'Eliminando...' : 'Eliminar' }}
-            </button>
-          </div>
-        </div>
-      </div>
     </template>
   </div>
 </template>
@@ -725,10 +690,6 @@ const isLoadingAreas = ref(false)
 const areas = ref<any[]>([])
 const selectedEvent = ref<any>(null)
 const originalStage = ref<any>(null)
-
-// Delete modal
-const showDeleteModal = ref(false)
-const isDeleting = ref(false)
 
 // Overlap validation
 const existingStages = ref<any[]>([])
@@ -1128,33 +1089,6 @@ async function submitStage() {
     alert(message)
   } finally {
     isSubmitting.value = false
-  }
-}
-
-// Delete
-function confirmDelete() {
-  showDeleteModal.value = true
-}
-
-async function deleteStage() {
-  if (isDeleting.value || !eventId.value) return
-
-  isDeleting.value = true
-
-  try {
-    await $fetch(`/api/sale-stages/event/${eventId.value}/${stageId.value}`, {
-      method: 'DELETE',
-      credentials: 'include'
-    })
-
-    await navigateTo(`/gestion/etapas?event=${eventId.value}`)
-  } catch (err: any) {
-    console.error('Error deleting stage:', err)
-    const message = err?.data?.detail || err?.message || 'Error al eliminar la etapa'
-    alert(message)
-  } finally {
-    isDeleting.value = false
-    showDeleteModal.value = false
   }
 }
 </script>
