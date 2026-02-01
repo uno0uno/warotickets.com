@@ -222,12 +222,45 @@
                 >
                   <PencilIcon class="w-4 h-4" />
                 </NuxtLink>
+                <button
+                  @click.prevent="confirmDeletePromotion(row)"
+                  class="p-1.5 text-destructive hover:bg-destructive/10 rounded-lg"
+                  title="Eliminar"
+                >
+                  <TrashIcon class="w-4 h-4" />
+                </button>
               </div>
             </template>
           </UiResponsiveDataView>
         </div>
       </template>
     </template>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="showDeleteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div class="bg-surface rounded-xl max-w-md w-full p-6 border border-border shadow-2xl">
+        <h3 class="text-lg font-bold text-text-primary mb-2">Eliminar Promoción</h3>
+        <p class="text-text-secondary mb-6">
+          ¿Estás seguro de eliminar la promoción <strong>{{ promotionToDelete?.promotion_name }}</strong>?
+          Esta acción no se puede deshacer.
+        </p>
+        <div class="flex gap-3 justify-end">
+          <button
+            @click="showDeleteModal = false"
+            class="px-4 py-2 border-2 border-border rounded-lg text-text-secondary hover:bg-surface-secondary font-bold transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            @click="deletePromotion"
+            :disabled="isDeleting"
+            class="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:opacity-90 font-bold disabled:opacity-50 transition-colors"
+          >
+            {{ isDeleting ? 'Eliminando...' : 'Eliminar' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -238,7 +271,8 @@ import {
   PlusIcon,
   PencilIcon,
   LinkIcon,
-  CheckIcon
+  CheckIcon,
+  TrashIcon
 } from '@heroicons/vue/24/outline'
 
 definePageMeta({
@@ -255,6 +289,11 @@ const promotions = ref<any[]>([])
 const searchQuery = ref('')
 const sortField = ref('promotion_name')
 const sortDirection = ref<'asc' | 'desc'>('asc')
+
+// Delete modal state
+const showDeleteModal = ref(false)
+const promotionToDelete = ref<any>(null)
+const isDeleting = ref(false)
 
 // Load events for selector
 const { data: eventsData, pending: isLoadingEvents } = useAsyncData('promotions-events-list', () =>
@@ -464,6 +503,34 @@ async function copyPromoLink(promo: any) {
     }, 2000)
   } catch (err) {
     console.error('Error copying link:', err)
+  }
+}
+
+// Delete functions
+function confirmDeletePromotion(promotion: any) {
+  promotionToDelete.value = promotion
+  showDeleteModal.value = true
+}
+
+async function deletePromotion() {
+  if (!promotionToDelete.value || !selectedEventId.value) return
+
+  isDeleting.value = true
+  try {
+    await $fetch(`/api/promotions/${promotionToDelete.value.id}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    })
+
+    // Actualizar lista local
+    promotions.value = promotions.value.filter(p => p.id !== promotionToDelete.value.id)
+    showDeleteModal.value = false
+    promotionToDelete.value = null
+  } catch (err: any) {
+    console.error('Error deleting promotion:', err)
+    alert(err?.data?.detail || 'Error al eliminar la promoción')
+  } finally {
+    isDeleting.value = false
   }
 }
 </script>

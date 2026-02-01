@@ -209,12 +209,45 @@
                 >
                   <PencilIcon class="w-4 h-4" />
                 </NuxtLink>
+                <button
+                  @click.prevent="confirmDeleteStage(row)"
+                  class="p-1.5 text-destructive hover:bg-destructive/10 rounded-lg"
+                  title="Eliminar"
+                >
+                  <TrashIcon class="w-4 h-4" />
+                </button>
               </div>
             </template>
           </UiResponsiveDataView>
         </div>
       </template>
     </template>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="showDeleteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div class="bg-surface rounded-xl max-w-md w-full p-6 border border-border shadow-2xl">
+        <h3 class="text-lg font-bold text-text-primary mb-2">Eliminar Etapa</h3>
+        <p class="text-text-secondary mb-6">
+          ¿Estás seguro de eliminar la etapa <strong>{{ stageToDelete?.stage_name }}</strong>?
+          Esta acción no se puede deshacer.
+        </p>
+        <div class="flex gap-3 justify-end">
+          <button
+            @click="showDeleteModal = false"
+            class="px-4 py-2 border-2 border-border rounded-lg text-text-secondary hover:bg-surface-secondary font-bold transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            @click="deleteStage"
+            :disabled="isDeleting"
+            class="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:opacity-90 font-bold disabled:opacity-50 transition-colors"
+          >
+            {{ isDeleting ? 'Eliminando...' : 'Eliminar' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -224,7 +257,8 @@ import {
   MagnifyingGlassIcon,
   PlusIcon,
   PencilIcon,
-  TicketIcon
+  TicketIcon,
+  TrashIcon
 } from '@heroicons/vue/24/outline'
 
 definePageMeta({
@@ -241,6 +275,11 @@ const stages = ref<any[]>([])
 const searchQuery = ref('')
 const sortField = ref('priority_order')
 const sortDirection = ref<'asc' | 'desc'>('asc')
+
+// Delete modal state
+const showDeleteModal = ref(false)
+const stageToDelete = ref<any>(null)
+const isDeleting = ref(false)
 
 // Load events for selector
 const { data: eventsData, pending: isLoadingEvents } = useAsyncData('etapas-events-list', () =>
@@ -420,5 +459,33 @@ function getStatusClass(isActive: boolean) {
 
 function getStatusLabel(isActive: boolean) {
   return isActive ? 'Activa' : 'Inactiva'
+}
+
+// Delete functions
+function confirmDeleteStage(stage: any) {
+  stageToDelete.value = stage
+  showDeleteModal.value = true
+}
+
+async function deleteStage() {
+  if (!stageToDelete.value || !selectedEventId.value) return
+
+  isDeleting.value = true
+  try {
+    await $fetch(`/api/sale-stages/${stageToDelete.value.id}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    })
+
+    // Actualizar lista local
+    stages.value = stages.value.filter(s => s.id !== stageToDelete.value.id)
+    showDeleteModal.value = false
+    stageToDelete.value = null
+  } catch (err: any) {
+    console.error('Error deleting stage:', err)
+    alert(err?.data?.detail || 'Error al eliminar la etapa')
+  } finally {
+    isDeleting.value = false
+  }
 }
 </script>
