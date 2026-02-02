@@ -3,6 +3,19 @@
     <!-- Loading Events State -->
     <UiGestionLoader v-if="isLoadingEvents" />
 
+    <!-- Error State -->
+    <div v-else-if="eventsError" class="bg-surface border border-border rounded-xl p-8 text-center">
+      <ExclamationCircleIcon class="w-16 h-16 mx-auto mb-4 text-destructive" />
+      <p class="text-text-primary font-bold mb-2">Error al cargar eventos</p>
+      <p class="text-sm text-text-secondary mb-4">{{ eventsError.message || 'Error desconocido' }}</p>
+      <button
+        @click="refreshEvents"
+        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+      >
+        Reintentar
+      </button>
+    </div>
+
     <template v-else>
       <!-- Event Selector -->
       <div class="bg-surface border border-border rounded-xl p-4 mb-6">
@@ -147,14 +160,17 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import {
   MagnifyingGlassIcon,
   TicketIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  ExclamationCircleIcon
 } from '@heroicons/vue/24/outline'
 
 useHead({ title: 'Reservas - WaRo Tickets' })
+
+// Tenant reactivity
+const { onTenantChange, currentTenant } = useTenantReactive()
 
 // State
 const searchQuery = ref('')
@@ -166,16 +182,23 @@ const sortField = ref('reservation_date')
 const sortDirection = ref<'asc' | 'desc'>('desc')
 
 // Load events for selector
-const { data: eventsData, pending: isLoadingEvents } = useAsyncData('reservas-events-list', () =>
-  $fetch('/api/events', {
-    credentials: 'include'
-  }),
+const { data: eventsData, pending: isLoadingEvents, error: eventsError, refresh: refreshEvents } = useAsyncData(
+  `reservas-events-${currentTenant.value?.id || 'default'}`,
+  () => $fetch('/api/events', { credentials: 'include' }),
   {
     server: false,
-    lazy: true,
+    watch: [currentTenant],
     transform: (response: any) => response.data || response || []
   }
 )
+
+// Refresh on tenant change
+onTenantChange(async () => {
+  selectedEventId.value = ''
+  reservations.value = []
+  await refreshEvents()
+  router.replace({ query: {} })
+})
 
 const events = computed(() => eventsData.value || [])
 
