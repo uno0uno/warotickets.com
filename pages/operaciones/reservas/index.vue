@@ -219,8 +219,8 @@ onMounted(() => {
 
 // Watch for event selection changes
 watch(selectedEventId, async (newEventId, oldEventId) => {
-  // Skip if this is the initial mount (oldEventId will be '' or undefined)
-  if (oldEventId === undefined || oldEventId === '') return
+  // Skip only if this is the very first render before user interaction
+  if (oldEventId === undefined) return
 
   eventStore.setEvent(newEventId ? Number(newEventId) : null)
 
