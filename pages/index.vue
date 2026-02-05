@@ -152,10 +152,29 @@ definePageMeta({
   layout: 'default'
 })
 
+// SEO Configuration
+const config = useRuntimeConfig()
+const siteUrl = config.public.siteUrl || 'https://warotickets.com'
+const defaultImage = `${siteUrl}/hero_waro_tickets.png`
+
 useHead({
   title: 'WaRo Tickets - Encuentra los mejores eventos',
   meta: [
-    { name: 'description', content: 'Encuentra los mejores eventos y compra tus boletas de forma segura' }
+    { name: 'description', content: 'Encuentra los mejores eventos y compra tus boletas de forma segura' },
+
+    // Open Graph
+    { property: 'og:title', content: 'WaRo Tickets - Encuentra los mejores eventos' },
+    { property: 'og:description', content: 'Encuentra los mejores eventos y compra tus boletas de forma segura' },
+    { property: 'og:url', content: siteUrl },
+    { property: 'og:image', content: defaultImage },
+
+    // Twitter
+    { name: 'twitter:title', content: 'WaRo Tickets' },
+    { name: 'twitter:description', content: 'Encuentra los mejores eventos' },
+    { name: 'twitter:image', content: defaultImage }
+  ],
+  link: [
+    { rel: 'canonical', href: siteUrl }
   ]
 })
 

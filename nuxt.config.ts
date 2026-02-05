@@ -63,6 +63,7 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: process.env.NUXT_PUBLIC_SEO_DESCRIPTION || 'Plataforma de venta de boletería y gestión de eventos. Vende entradas, controla accesos con QR y gestiona tu evento de forma simple.' },
+        { name: 'robots', content: 'index, follow' },
         { name: 'theme-color', content: 'hsl(var(--crocus-600))' },
         // Open Graph
         { property: 'og:title', content: process.env.NUXT_PUBLIC_OG_TITLE || 'WaRo Tickets - Sistema de Boletería' },

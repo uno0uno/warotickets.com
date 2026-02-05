@@ -152,10 +152,30 @@ definePageMeta({
   layout: 'default'
 })
 
+// SEO Configuration
+const config = useRuntimeConfig()
+const siteUrl = config.public.siteUrl || 'https://warotickets.com'
+const pageUrl = `${siteUrl}/eventos/bogota`
+const defaultImage = `${siteUrl}/hero_bogota_waro_tickets.png`
+
 useHead({
-  title: 'Eventos en Bogota - WaRo Tickets',
+  title: 'Eventos en Bogotá - WaRo Tickets',
   meta: [
-    { name: 'description', content: 'Encuentra los mejores eventos en Bogota y compra tus boletas de forma segura' }
+    { name: 'description', content: 'Encuentra los mejores eventos en Bogotá y compra tus boletas de forma segura' },
+
+    // Open Graph
+    { property: 'og:title', content: 'Eventos en Bogotá - WaRo Tickets' },
+    { property: 'og:description', content: 'Encuentra los mejores eventos en Bogotá' },
+    { property: 'og:url', content: pageUrl },
+    { property: 'og:image', content: defaultImage },
+
+    // Twitter
+    { name: 'twitter:title', content: 'Eventos en Bogotá' },
+    { name: 'twitter:description', content: 'Encuentra los mejores eventos en Bogotá' },
+    { name: 'twitter:image', content: defaultImage }
+  ],
+  link: [
+    { rel: 'canonical', href: pageUrl }
   ]
 })
 

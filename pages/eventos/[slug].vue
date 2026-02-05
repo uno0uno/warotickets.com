@@ -466,6 +466,8 @@ const route = useRoute()
 const router = useRouter()
 const slug = route.params.slug as string
 const cartStore = useCartStore()
+const config = useRuntimeConfig()
+const baseUrl = config.public.siteUrl || 'https://warotickets.com'
 
 // Page Meta
 definePageMeta({
@@ -685,15 +687,69 @@ async function addPromoToCart(promo: any) {
 }
 
 // Dynamic SEO
-useHead(() => ({
-  title: event.value ? `${event.value.cluster_name} - WaRo Tickets` : 'Evento - WaRo Tickets',
-  meta: [
-    {
-      name: 'description',
-      content: event.value?.description || 'Compra tus boletas de forma segura'
+useHead(() => {
+  // No indexar mientras carga el evento
+  if (!event.value) {
+    return {
+      title: 'Cargando evento... - WaRo Tickets',
+      meta: [
+        { name: 'robots', content: 'noindex' }
+      ]
     }
-  ]
-}))
+  }
+
+  const eventUrl = `${baseUrl}/eventos/${event.value.slug_cluster}`
+  const eventImage = event.value.banner_image_url || event.value.cover_image_url
+  const eventDescription = event.value.description || `Compra tus boletas para ${event.value.cluster_name}`
+
+  return {
+    title: `${event.value.cluster_name} - WaRo Tickets`,
+    meta: [
+      { name: 'description', content: eventDescription },
+
+      // Open Graph
+      { property: 'og:title', content: event.value.cluster_name },
+      { property: 'og:description', content: eventDescription },
+      { property: 'og:url', content: eventUrl },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:image', content: eventImage },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+
+      // Twitter
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: event.value.cluster_name },
+      { name: 'twitter:description', content: eventDescription },
+      { name: 'twitter:image', content: eventImage }
+    ],
+    link: [
+      { rel: 'canonical', href: eventUrl }
+    ],
+    script: [
+      {
+        type: 'application/ld+json',
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Event",
+          "name": event.value.cluster_name,
+          "description": eventDescription,
+          "image": eventImage,
+          "startDate": event.value.start_date,
+          "endDate": event.value.end_date,
+          "eventStatus": "https://schema.org/EventScheduled",
+          "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+          "location": event.value.extra_attributes?.venue || "Por confirmar",
+          "url": eventUrl,
+          "offers": {
+            "@type": "Offer",
+            "url": eventUrl,
+            "availability": "https://schema.org/InStock"
+          }
+        })
+      }
+    ]
+  }
+})
 
 // Helpers
 function formatDateFull(dateStr: string) {
