@@ -175,6 +175,26 @@ useHead({
   ],
   link: [
     { rel: 'canonical', href: siteUrl }
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "WaRo Tickets",
+        "url": siteUrl,
+        "description": "Plataforma de venta de boletería y gestión de eventos",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": `${siteUrl}/?search={search_term_string}`
+          },
+          "query-input": "required name=search_term_string"
+        }
+      })
+    }
   ]
 })
 

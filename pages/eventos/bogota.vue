@@ -176,6 +176,27 @@ useHead({
   ],
   link: [
     { rel: 'canonical', href: pageUrl }
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Eventos en Bogotá",
+        "description": "Encuentra los mejores eventos en Bogotá y compra tus boletas de forma segura",
+        "url": pageUrl,
+        "about": {
+          "@type": "Place",
+          "name": "Bogotá",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Bogotá",
+            "addressCountry": "CO"
+          }
+        }
+      })
+    }
   ]
 })
 
