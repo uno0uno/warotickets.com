@@ -53,9 +53,9 @@ function formatNumber(num: number) {
           >
             {{ eventName }}
           </NuxtLink>
-          <p v-else class="text-sm sm:text-lg font-semibold text-secondary-900">
+          <h1 v-else class="text-sm sm:text-lg font-semibold text-secondary-900">
             {{ eventName }}
-          </p>
+          </h1>
         </div>
       </div>
 
