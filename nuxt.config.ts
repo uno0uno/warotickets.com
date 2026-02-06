@@ -113,7 +113,8 @@ export default defineNuxtConfig({
       apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8001',
       siteName: process.env.NUXT_PUBLIC_SITE_NAME || 'WaRo Tickets',
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://warotickets.com',
-      defaultRedirectUrl: process.env.NUXT_PUBLIC_DEFAULT_REDIRECT_URL || '/gestion/eventos'
+      defaultRedirectUrl: process.env.NUXT_PUBLIC_DEFAULT_REDIRECT_URL || '/gestion/eventos',
+      gtmContainerId: process.env.NUXT_PUBLIC_GTM_CONTAINER_ID || ''
     }
   }
 })
