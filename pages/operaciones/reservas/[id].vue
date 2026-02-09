@@ -190,6 +190,52 @@
         </div>
       </div>
 
+      <!-- Comision Promotor -->
+      <div v-if="detail.commission" class="bg-surface border border-crocus-500/30 rounded-xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-crocus-500/20 bg-crocus-500/5">
+          <div class="flex items-center gap-2">
+            <UserGroupIcon class="w-4 h-4 text-crocus-500" />
+            <h2 class="text-base font-bold text-text-primary">Comision Promotor</h2>
+            <span
+              class="ml-auto px-2 py-1 text-xs font-medium rounded-full"
+              :class="commissionStatusClass(detail.commission.status)"
+            >
+              {{ commissionStatusLabel(detail.commission.status) }}
+            </span>
+          </div>
+        </div>
+        <div class="px-5 py-4">
+          <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4 text-sm">
+            <div>
+              <dt class="text-text-tertiary text-xs uppercase tracking-wider font-medium">Promotor</dt>
+              <dd class="text-text-primary font-medium mt-0.5">{{ detail.commission.promoter_name }}</dd>
+              <dd class="text-text-secondary text-xs">{{ detail.commission.promoter_email }}</dd>
+            </div>
+            <div>
+              <dt class="text-text-tertiary text-xs uppercase tracking-wider font-medium">Codigo</dt>
+              <dd class="text-text-primary font-mono font-medium mt-0.5">{{ detail.commission.promoter_code }}</dd>
+            </div>
+            <div>
+              <dt class="text-text-tertiary text-xs uppercase tracking-wider font-medium">Porcentaje</dt>
+              <dd class="text-text-primary font-bold mt-0.5">{{ detail.commission.commission_percentage }}%</dd>
+            </div>
+            <div>
+              <dt class="text-text-tertiary text-xs uppercase tracking-wider font-medium">Base comision</dt>
+              <dd class="text-text-primary mt-0.5">{{ formatCurrency(detail.commission.total_base_price) }}</dd>
+              <dd class="text-text-tertiary text-xs">{{ detail.commission.tickets_count }} boletas</dd>
+            </div>
+            <div>
+              <dt class="text-text-tertiary text-xs uppercase tracking-wider font-medium">Comision</dt>
+              <dd class="text-crocus-600 font-bold text-lg mt-0.5">{{ formatCurrency(detail.commission.commission_amount) }}</dd>
+            </div>
+            <div v-if="detail.commission.payment_reference">
+              <dt class="text-text-tertiary text-xs uppercase tracking-wider font-medium">Ref. pago promotor</dt>
+              <dd class="text-text-primary font-mono mt-0.5">{{ detail.commission.payment_reference }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
       <!-- Info Adicional -->
       <div class="bg-surface border border-border rounded-xl overflow-hidden">
         <div class="px-5 py-4 border-b border-border">
@@ -231,7 +277,8 @@ import {
   CreditCardIcon,
   ClockIcon,
   BanknotesIcon,
-  TicketIcon
+  TicketIcon,
+  UserGroupIcon
 } from '@heroicons/vue/24/outline'
 
 useHead({ title: 'Detalle Reserva - WaRo Tickets' })
@@ -383,6 +430,24 @@ function unitStatusClass(status: string) {
     cancelled: 'bg-destructive/10 text-destructive',
     transferred: 'bg-warning/10 text-warning',
     reserved: 'bg-surface-secondary text-text-secondary'
+  }
+  return classes[status] || 'bg-surface-secondary text-text-secondary'
+}
+
+function commissionStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    pending: 'Pendiente',
+    approved: 'Aprobada',
+    paid: 'Pagada'
+  }
+  return labels[status] || status
+}
+
+function commissionStatusClass(status: string) {
+  const classes: Record<string, string> = {
+    pending: 'bg-yellow-100 text-yellow-800',
+    approved: 'bg-blue-100 text-blue-800',
+    paid: 'bg-green-100 text-green-800'
   }
   return classes[status] || 'bg-surface-secondary text-text-secondary'
 }

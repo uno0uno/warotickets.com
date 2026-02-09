@@ -70,6 +70,8 @@ interface CheckoutResponse {
 }
 
 export const useCartStore = defineStore('cart', () => {
+  const { getPromoterHeaders } = usePromoterTracking()
+
   // State
   const cart = ref<Cart | null>(null)
   const summary = ref<CartSummary>({
@@ -213,7 +215,8 @@ export const useCartStore = defineStore('cart', () => {
       const response = await $fetch<any>('/api/cart', {
         method: 'POST',
         headers: {
-          'X-Session-Id': getSessionId()
+          'X-Session-Id': getSessionId(),
+          ...getPromoterHeaders()
         },
         body: {
           cluster_id: clusterId,
@@ -335,7 +338,8 @@ export const useCartStore = defineStore('cart', () => {
         const createResponse = await $fetch<any>('/api/cart', {
           method: 'POST',
           headers: {
-            'X-Session-Id': getSessionId()
+            'X-Session-Id': getSessionId(),
+            ...getPromoterHeaders()
           },
           body: { cluster_id: clusterId },
           credentials: 'include'

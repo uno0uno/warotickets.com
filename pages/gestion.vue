@@ -14,8 +14,9 @@ useHead({ title: 'Gestion de Eventos - WaRo Tickets' })
 
 const navigationItems = [
   { to: '/gestion/eventos', label: 'Eventos' },
-  { to: '/gestion/areas', label: 'Areas' },
+  { to: '/gestion/areas', label: 'Áreas' },
   { to: '/gestion/etapas', label: 'Etapas' },
-  { to: '/gestion/promociones', label: 'Promociones' }
+  { to: '/gestion/promociones', label: 'Promociones' },
+  { to: '/gestion/promotores', label: 'Promotores' }
 ]
 </script>

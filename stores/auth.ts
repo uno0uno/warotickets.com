@@ -5,6 +5,7 @@ interface User {
   email: string
   name: string
   phone?: string
+  role?: string
 }
 
 interface Session {
@@ -19,6 +20,10 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoading = ref(false)
 
   const isAuthenticated = computed(() => !!user.value && isSessionValid.value)
+  const userRole = computed(() => user.value?.role || null)
+  const isPromotor = computed(() => userRole.value === 'promotor')
+  const isAdmin = computed(() => userRole.value === 'admin' || userRole.value === 'superuser')
+  const canAccessPromoterPages = computed(() => isPromotor.value || isAdmin.value)
 
   const isSessionValid = computed(() => {
     if (!session.value?.expires_at) return !!user.value
@@ -92,6 +97,7 @@ export const useAuthStore = defineStore('auth', () => {
           id: string
           email: string
           name?: string
+          role?: string
           createdAt?: string
         }
         session?: {
@@ -112,7 +118,8 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = {
           id: response.user.id,
           email: response.user.email,
-          name: response.user.name || ''
+          name: response.user.name || '',
+          role: response.user.role || undefined
         }
         if (response.session) {
           session.value = {
@@ -158,6 +165,10 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading,
     isAuthenticated,
     isSessionValid,
+    userRole,
+    isPromotor,
+    isAdmin,
+    canAccessPromoterPages,
     displayName,
     initials,
     sendMagicLink,

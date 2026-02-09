@@ -1,4 +1,10 @@
 <script setup lang="ts">
-// Redirect to eventos as default
-navigateTo('/gestion/eventos', { replace: true })
+const authStore = useAuthStore()
+
+// Redirect promotors to their module, others to eventos
+if (authStore.isPromotor) {
+  navigateTo('/promotores/mis-ventas', { replace: true })
+} else {
+  navigateTo('/gestion/eventos', { replace: true })
+}
 </script>

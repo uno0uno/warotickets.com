@@ -57,7 +57,8 @@ export default defineNuxtConfig({
     head: {
       title: process.env.NUXT_PUBLIC_SEO_TITLE || 'WaRo Tickets - Sistema de Boletería para Eventos',
       htmlAttrs: {
-        lang: process.env.NUXT_PUBLIC_SITE_LANG || 'es'
+        lang: process.env.NUXT_PUBLIC_SITE_LANG || 'es',
+        class: 'light'
       },
       meta: [
         { charset: 'utf-8' },

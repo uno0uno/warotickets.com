@@ -1,3 +1,17 @@
+const PROMOTOR_ALLOWED_ROUTES = [
+  '/promotores',
+  '/mis-boletas',
+  '/mis-facturas'
+]
+
+function checkPromotorRestriction(authStore: ReturnType<typeof useAuthStore>, path: string) {
+  if (!authStore.isPromotor) return
+  const isAllowed = PROMOTOR_ALLOWED_ROUTES.some(route => path.startsWith(route))
+  if (!isAllowed) {
+    return navigateTo('/promotores/mis-ventas', { replace: true })
+  }
+}
+
 export default defineNuxtRouteMiddleware(async (to) => {
   // Skip on server-side rendering
   if (import.meta.server) return
@@ -21,7 +35,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
     '/eventos/',
     '/auth/',
     '/pago/',
-    '/transfers/'
+    '/transfers/',
+    '/invitations/'
   ]
 
   // Check if route is public
@@ -78,7 +93,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
         uiStore.hideLoading()
       }
     }
-    return
+
+    return checkPromotorRestriction(authStore, to.path)
   }
 
   // Show loading overlay during session verification
@@ -92,6 +108,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
       // Load tenants
       await tenantsStore.fetchUserTenants()
       uiStore.hideLoading()
+
+      return checkPromotorRestriction(authStore, to.path)
     } else {
       // No valid session, redirect to login
       uiStore.hideLoading()

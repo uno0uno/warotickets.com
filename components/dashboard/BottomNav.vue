@@ -107,7 +107,31 @@
 
               <!-- Organizer Links (has tenant) -->
               <template v-else>
-                <!-- Administracion Section -->
+                <!-- Promotor Section (promotor, admin, superuser) -->
+                <template v-if="authStore.canAccessPromoterPages">
+                  <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wider mb-3">Promotor</p>
+                  <div class="grid grid-cols-4 gap-4 mb-6">
+                    <NuxtLink
+                      to="/promotores"
+                      @click="showMenuModal = false"
+                      class="flex flex-col items-center gap-1"
+                    >
+                      <div
+                        class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+                        :class="isActive('/promotores') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
+                      >
+                        <ChartBarIcon
+                          class="w-6 h-6"
+                          :class="isActive('/promotores') ? 'text-primary-400' : 'text-secondary-300'"
+                        />
+                      </div>
+                      <span class="text-[10px] text-secondary-300">Promotor</span>
+                    </NuxtLink>
+                  </div>
+                </template>
+
+                <!-- Administracion Section (only admin/superuser) -->
+                <template v-if="authStore.isAdmin">
                 <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wider mb-3">Administración</p>
                 <div class="grid grid-cols-4 gap-4 mb-6">
                   <NuxtLink
@@ -177,6 +201,40 @@
                     </div>
                     <span class="text-[10px] text-secondary-300">Promos</span>
                   </NuxtLink>
+
+                  <NuxtLink
+                    to="/gestion/promotores"
+                    @click="showMenuModal = false"
+                    class="flex flex-col items-center gap-1"
+                  >
+                    <div
+                      class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+                      :class="isActive('/gestion/promotores') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
+                    >
+                      <UserGroupIcon
+                        class="w-6 h-6"
+                        :class="isActive('/gestion/promotores') ? 'text-primary-400' : 'text-secondary-300'"
+                      />
+                    </div>
+                    <span class="text-[10px] text-secondary-300">Promotores</span>
+                  </NuxtLink>
+
+                  <NuxtLink
+                    to="/equipo/miembros"
+                    @click="showMenuModal = false"
+                    class="flex flex-col items-center gap-1"
+                  >
+                    <div
+                      class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+                      :class="isActive('/equipo/miembros') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
+                    >
+                      <UsersIcon
+                        class="w-6 h-6"
+                        :class="isActive('/equipo/miembros') ? 'text-primary-400' : 'text-secondary-300'"
+                      />
+                    </div>
+                    <span class="text-[10px] text-secondary-300">Miembros</span>
+                  </NuxtLink>
                 </div>
 
                 <!-- Operaciones Section -->
@@ -233,6 +291,7 @@
                     <span class="text-[10px] text-secondary-300">Transfers</span>
                   </NuxtLink>
                 </div>
+                </template>
 
                 <!-- Mi Cuenta Section -->
                 <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wider mb-3">Mi Cuenta</p>
@@ -377,6 +436,7 @@ import {
   ArrowsRightLeftIcon,
   Bars3Icon,
   CalendarDaysIcon,
+  ChartBarIcon,
   CheckCircleIcon,
   ClipboardDocumentListIcon,
   Cog6ToothIcon,
@@ -387,6 +447,8 @@ import {
   Squares2X2Icon,
   TagIcon,
   TicketIcon,
+  UserGroupIcon,
+  UsersIcon,
   XMarkIcon
 } from '@heroicons/vue/24/outline'
 
