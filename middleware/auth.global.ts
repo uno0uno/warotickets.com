@@ -84,6 +84,11 @@ export default defineNuxtRouteMiddleware(async (to) => {
   // Management routes - require auth + tenant
   // Check if we already have a valid session in the store
   if (authStore.user && authStore.isSessionValid) {
+    // If role is missing (e.g. after verifyCode which doesn't return role), re-fetch session
+    if (!authStore.userRole) {
+      await authStore.fetchSession()
+    }
+
     // Load tenants if not loaded yet
     if (!tenantsStore.hasTenants && !tenantsStore.isLoading) {
       uiStore.showLoading(undefined, 'session')

@@ -100,6 +100,9 @@ export const useTenantsStore = defineStore('tenants', () => {
       if (response.success) {
         selectedTenant.value = tenant
         tenantChangeCounter.value++ // Increment counter to trigger reactivity globally
+        // Re-fetch session to update role for the new tenant
+        const authStore = useAuthStore()
+        await authStore.fetchSession()
         return true
       } else {
         error.value = response.message || 'Error switching tenant'
