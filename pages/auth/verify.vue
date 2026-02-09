@@ -81,16 +81,22 @@ onMounted(async () => {
 
     if (response.success) {
       success.value = true
-      // Redirect after brief delay - respect redirect param or smart redirect
+
+      // Fetch session to load user role before redirecting
+      const authStore = useAuthStore()
+      await authStore.fetchSession()
+
       const redirect = route.query.redirect as string
       setTimeout(async () => {
         if (redirect) {
           navigateTo(redirect)
         } else {
-          // Smart redirect: check if user has tenants
+          // Smart redirect based on role
           const tenantsStore = useTenantsStore()
           await tenantsStore.fetchUserTenants()
-          if (tenantsStore.hasTenants) {
+          if (authStore.isPromotor) {
+            navigateTo('/promotores/mis-ventas')
+          } else if (tenantsStore.hasTenants) {
             navigateTo('/gestion/eventos')
           } else {
             navigateTo('/mis-boletas')

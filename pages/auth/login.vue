@@ -245,10 +245,12 @@ onMounted(async () => {
       if (redirectUrl) {
         await navigateTo(redirectUrl)
       } else {
-        // Smart redirect: check if user has tenants
+        // Smart redirect based on role
         const tenantsStore = useTenantsStore()
         await tenantsStore.fetchUserTenants()
-        if (tenantsStore.hasTenants) {
+        if (authStore.isPromotor) {
+          await navigateTo('/promotores/mis-ventas')
+        } else if (tenantsStore.hasTenants) {
           await navigateTo('/gestion/eventos')
         } else {
           await navigateTo('/mis-boletas')
@@ -299,14 +301,19 @@ async function verifyCode() {
   const result = await authStore.verifyCode(email.value, verificationCode.value)
 
   if (result.success) {
+    // Fetch session to load user role after code verification
+    await authStore.fetchSession()
+
     const redirectUrl = route.query.redirect as string
     if (redirectUrl) {
       await navigateTo(redirectUrl)
     } else {
-      // Smart redirect: check if user has tenants
+      // Smart redirect based on role
       const tenantsStore = useTenantsStore()
       await tenantsStore.fetchUserTenants()
-      if (tenantsStore.hasTenants) {
+      if (authStore.isPromotor) {
+        await navigateTo('/promotores/mis-ventas')
+      } else if (tenantsStore.hasTenants) {
         await navigateTo('/gestion/eventos')
       } else {
         await navigateTo('/mis-boletas')
