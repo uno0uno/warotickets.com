@@ -134,6 +134,8 @@ onMounted(() => {
   setPageSubtitle('Gestiona promotores, eventos y comisiones')
 })
 
+const { onTenantChange } = useTenantReactive()
+
 const isLoading = ref(false)
 const error = ref<string | null>(null)
 const sortField = ref('name')
@@ -168,6 +170,11 @@ async function loadPromoters() {
 }
 
 onMounted(() => {
+  loadPromoters()
+})
+
+// Reload when tenant changes
+onTenantChange(() => {
   loadPromoters()
 })
 

@@ -14,21 +14,21 @@ export default defineEventHandler(async (event) => {
   let latestEventDate = today
 
   try {
-    // Obtener eventos públicos activos
-    const response = await $fetch<{ data: Array<{ id: number; slug_cluster: string; start_date: string | null }> }>(`${apiUrl}/public/events`, {
-      query: { limit: 1000 }
+    // Obtener eventos públicos activos (máximo 100 por limitación de API)
+    const events = await $fetch<Array<{ id: number; slug_cluster: string; start_date: string | null }>>(`${apiUrl}/public/events`, {
+      query: { limit: 100 }
     })
 
-    if (response.data && response.data.length > 0) {
+    if (events && events.length > 0) {
       // Obtener la fecha más reciente de todos los eventos
-      const dates = response.data
+      const dates = events
         .filter(e => e.start_date)
         .map(e => new Date(e.start_date!))
       if (dates.length > 0) {
         latestEventDate = new Date(Math.max(...dates.map(d => d.getTime()))).toISOString().split('T')[0]
       }
 
-      eventUrls = response.data.map(event => ({
+      eventUrls = events.map(event => ({
         loc: `/eventos/${event.slug_cluster}`,
         lastmod: event.start_date?.split('T')[0] || today,
         changefreq: 'weekly',
