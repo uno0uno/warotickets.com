@@ -1,0 +1,13 @@
+# docker-compose.override.yml - Development only
+# This file is applied automatically when running: docker-compose up
+
+services:
+  warotickets:
+    build:
+      args:
+        - NUXT_PUBLIC_API_BASE_URL=${NUXT_PUBLIC_API_BASE_URL:-https://api.warotickets.com}
+        - NUXT_PUBLIC_SITE_URL=${NUXT_PUBLIC_SITE_URL:-https://warotickets.com}
+        - NODE_ENV=development
+    container_name: warotickets-dev
+    env_file:
+      - .env.dev
