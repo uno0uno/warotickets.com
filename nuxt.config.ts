@@ -7,11 +7,17 @@ export default defineNuxtConfig({
     port: parseInt(process.env.PORT || '3003')
   },
 
-  ssr: true,
+  ssr: false,
+  experimental: {
+    payloadExtraction: false
+  },
 
   nitro: {
     preset: 'node-server',
     routeRules: {
+      // Assets estáticos — cache 1 día en browser + CDN
+      '/_nuxt/**': { headers: { 'cache-control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=3600' } },
+      '/favicon.ico': { headers: { 'cache-control': 'public, max-age=86400' } },
       '/api/auth/**': {
         proxy: {
           to: `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8001'}/auth/**`,
