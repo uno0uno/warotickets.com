@@ -5,8 +5,8 @@ services:
   warotickets:
     build:
       args:
-        - NUXT_PUBLIC_API_BASE_URL=${NUXT_PUBLIC_API_BASE_URL:-https://api.warotickets.com}
-        - NUXT_PUBLIC_SITE_URL=${NUXT_PUBLIC_SITE_URL:-https://warotickets.com}
+        - NUXT_PUBLIC_API_BASE_URL=${NUXT_PUBLIC_API_BASE_URL:-https://dev.api.warotickets.com}
+        - NUXT_PUBLIC_SITE_URL=${NUXT_PUBLIC_SITE_URL:-https://dev.warotickets.com}
         - NODE_ENV=development
     container_name: warotickets-dev
     env_file:
