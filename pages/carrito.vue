@@ -501,9 +501,16 @@
                 </p>
               </div>
 
+              <!-- Blocked event warning -->
+              <div v-if="isCartBlocked" class="flex items-start gap-3 px-4 py-3 mb-3 rounded-xl bg-amber-50 border border-amber-200">
+                <ExclamationTriangleIcon class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                <p class="text-sm font-medium text-amber-700">Este evento ya no está disponible. Vacía el carrito para continuar.</p>
+              </div>
+
               <button
                 @click="goToCheckout"
-                class="w-full py-4 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-all flex items-center justify-center gap-2"
+                :disabled="isCartBlocked"
+                class="w-full py-4 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Continuar al pago
                 <ArrowLeftIcon class="w-5 h-5 rotate-180" />
@@ -545,6 +552,14 @@ const cartStore = useCartStore()
 const loading = ref(true)
 const updatingPromo = ref<string | null>(null)
 const eventDetails = ref<any>(null)
+
+// True when the cart's event is past or deactivated — blocks checkout
+const isCartBlocked = computed(() => {
+  if (!eventDetails.value) return false
+  if (eventDetails.value.is_active === false) return true
+  if (eventDetails.value.end_date && new Date(eventDetails.value.end_date) < new Date()) return true
+  return false
+})
 
 // Checkout modal state
 const showCheckoutModal = ref(false)
