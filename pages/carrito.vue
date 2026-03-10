@@ -819,18 +819,23 @@ definePageMeta({
 
 // Load cart on mount
 onMounted(async () => {
+  console.log('[carrito] onMounted — fetching summary')
   await cartStore.fetchSummary()
+  console.log('[carrito] summary:', JSON.stringify(cartStore.summary))
 
   if (!cartStore.summary.cartId) {
+    console.log('[carrito] no cartId — redirecting to /')
     await navigateTo('/')
     return
   }
 
+  console.log('[carrito] loading cart', cartStore.summary.cartId)
   await cartStore.fetchCart(cartStore.summary.cartId)
   await loadEventDetails()
 
   stopPhraseRotation()
   loading.value = false
+  console.log('[carrito] ready — items:', cartStore.cart?.items?.length)
 })
 
 // Format price
