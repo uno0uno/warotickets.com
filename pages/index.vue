@@ -51,8 +51,13 @@
         </select>
       </div>
 
+      <!-- Loading State -->
+      <div v-if="pending" class="text-center py-16">
+        <p class="text-text-secondary">[DEBUG] pending=true — cargando eventos...</p>
+      </div>
+
       <!-- Error State -->
-      <div v-if="error" class="text-center py-16">
+      <div v-else-if="error" class="text-center py-16">
         <div class="w-16 h-16 mx-auto mb-4 bg-destructive/10 rounded-full flex items-center justify-center">
           <ExclamationTriangleIcon class="w-8 h-8 text-destructive" />
         </div>
@@ -68,6 +73,7 @@
 
       <!-- Empty State -->
       <div v-else-if="filteredEvents.length === 0" class="text-center py-16">
+        <p class="text-xs text-red-500 mb-2">[DEBUG] filteredEvents=0, events.value={{ events ? JSON.stringify(events).slice(0,80) : 'null' }}</p>
         <div class="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
           <CalendarDaysIcon class="w-8 h-8 text-muted-foreground" />
         </div>
@@ -141,6 +147,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import {
   MagnifyingGlassIcon,
   CalendarDaysIcon,
@@ -182,20 +189,41 @@ useHead({
 const searchQuery = ref('')
 const selectedType = ref('')
 
-// Fetch events on every client navigation (server: false ensures fresh data on return)
-const { data: events, error, refresh } = await useAsyncData(
+// Fetch events — getCachedData: () => undefined forces refetch on every navigation
+console.log('[index] SCRIPT SETUP — registrando useAsyncData')
+const { data: events, pending, error, refresh } = await useAsyncData(
   'public-events',
-  () => $fetch('/api/public/events', {
-    params: {
-      limit: 50,
-      city: 'Bogotá'
+  () => {
+    console.log('[index] useAsyncData FETCHER RUNNING')
+    return $fetch('/api/public/events', {
+      params: {
+        limit: 50,
+        city: 'Bogotá'
+      }
+    })
+  },
+  {
+    server: false,
+    getCachedData: () => {
+      console.log('[index] getCachedData called — returning undefined to force refetch')
+      return undefined
     }
-  }),
-  { server: false }
+  }
 )
+
+console.log('[index] after useAsyncData — events.value:', events.value, 'pending:', pending.value, 'error:', error.value)
+
+watch(pending, (val) => {
+  console.log('[index] pending changed →', val, '| events.value:', events.value, '| error:', error.value)
+}, { immediate: true })
+
+watch(events, (val) => {
+  console.log('[index] events changed →', Array.isArray(val) ? `${val.length} eventos` : val)
+}, { immediate: true })
 
 // Filtered events - local filtering (no API calls)
 const filteredEvents = computed(() => {
+  console.log('[index] filteredEvents computed — events.value:', events.value === null ? 'null' : Array.isArray(events.value) ? `Array(${(events.value as any[]).length})` : events.value)
   if (!events.value) return []
 
   let result = events.value as any[]
@@ -214,6 +242,7 @@ const filteredEvents = computed(() => {
     result = result.filter(event => event.cluster_type === selectedType.value)
   }
 
+  console.log('[index] filteredEvents result:', result.length)
   return result
 })
 
@@ -231,17 +260,25 @@ const eventsWithPromotions = computed(() => {
 const futureEvents = computed(() => {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  return filteredEvents.value
+  const result = filteredEvents.value
     .filter(event => new Date(event.start_date) >= today)
     .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
+  console.log('[index] futureEvents:', result.length, '| today:', today.toISOString())
+  return result
 })
 
 const pastEvents = computed(() => {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  return filteredEvents.value
+  const result = filteredEvents.value
     .filter(event => new Date(event.start_date) < today)
     .sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime())
+  console.log('[index] pastEvents:', result.length)
+  return result
+})
+
+onMounted(() => {
+  console.log('[index] onMounted — pending:', pending.value, '| events.value:', events.value === null ? 'null' : `Array(${(events.value as any[])?.length ?? '?'})`)
 })
 
 </script>
