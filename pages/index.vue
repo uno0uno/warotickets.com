@@ -240,17 +240,25 @@ const eventsWithPromotions = computed(() => {
 const futureEvents = computed(() => {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  return filteredEvents.value
+  const result = filteredEvents.value
     .filter(event => new Date(event.start_date) >= today)
     .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
+  console.log('[index] futureEvents:', result.length)
+  return result
 })
 
 const pastEvents = computed(() => {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  return filteredEvents.value
+  const result = filteredEvents.value
     .filter(event => new Date(event.start_date) < today)
     .sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime())
+  console.log('[index] pastEvents:', result.length)
+  return result
 })
+
+watch(events, (val) => {
+  console.log('[index] events changed → length:', Array.isArray(val) ? val.length : val, 'value:', val)
+}, { immediate: true })
 
 </script>
