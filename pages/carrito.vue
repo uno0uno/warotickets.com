@@ -551,39 +551,77 @@
 
   <!-- Confirm Modal -->
   <Teleport to="body">
-    <div
-      v-if="confirmModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-      @click.self="!confirmLoading && (confirmModal = null)"
+    <Transition
+      enter-active-class="transition-opacity duration-200 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-150 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
     >
-      <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-        <p class="text-secondary-900 font-medium text-base mb-6">{{ confirmModal.message }}</p>
+      <div
+        v-if="confirmModal"
+        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/50 backdrop-blur-sm"
+        @click.self="!confirmLoading && (confirmModal = null)"
+      >
+        <!-- Panel -->
+        <div class="bg-white w-full sm:max-w-sm rounded-t-3xl sm:rounded-2xl shadow-xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-200">
 
-        <!-- Spinner while loading -->
-        <div v-if="confirmLoading" class="flex justify-center py-2">
-          <svg class="animate-spin w-6 h-6 text-red-500" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-        </div>
+          <!-- Header -->
+          <div class="flex items-start gap-4 px-6 pt-6 pb-4">
+            <!-- Destructive icon -->
+            <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <ExclamationTriangleIcon class="w-5 h-5 text-destructive" />
+            </div>
 
-        <!-- Buttons -->
-        <div v-else class="flex gap-3">
-          <button
-            @click="confirmModal = null"
-            class="flex-1 py-2.5 rounded-xl border border-secondary-200 text-secondary-600 font-semibold text-sm hover:bg-secondary-50 transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            @click="handleConfirm"
-            class="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold text-sm transition-colors"
-          >
-            Confirmar
-          </button>
+            <!-- Title + message -->
+            <div class="flex-1 min-w-0">
+              <h3 class="font-heading font-semibold text-base text-secondary-900 leading-snug">¿Confirmar acción?</h3>
+              <p class="text-sm text-secondary-500 mt-1 leading-relaxed">{{ confirmModal.message }}</p>
+            </div>
+
+            <!-- Close button -->
+            <button
+              v-if="!confirmLoading"
+              @click="confirmModal = null"
+              class="w-8 h-8 flex items-center justify-center rounded-lg text-secondary-400 hover:text-secondary-700 hover:bg-secondary-100 transition-colors flex-shrink-0"
+              aria-label="Cerrar"
+            >
+              <XMarkIcon class="w-4 h-4" />
+            </button>
+          </div>
+
+          <!-- Actions -->
+          <div class="px-6 pb-6">
+            <!-- Loading state -->
+            <div v-if="confirmLoading" class="flex items-center justify-center gap-2 py-3.5 text-sm text-secondary-500">
+              <svg class="animate-spin w-4 h-4 text-destructive" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <span>Eliminando...</span>
+            </div>
+
+            <!-- Buttons -->
+            <div v-else class="flex gap-3">
+              <button
+                @click="confirmModal = null"
+                class="flex-1 min-h-[44px] rounded-xl border border-secondary-200 text-secondary-700 font-semibold text-sm hover:bg-secondary-50 active:bg-secondary-100 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                @click="handleConfirm"
+                class="flex-1 min-h-[44px] rounded-xl bg-destructive text-destructive-foreground font-semibold text-sm hover:opacity-90 active:opacity-80 transition-opacity flex items-center justify-center gap-1.5"
+              >
+                <TrashIcon class="w-4 h-4" />
+                Eliminar
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </Teleport>
 </template>
 
