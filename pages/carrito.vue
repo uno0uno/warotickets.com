@@ -554,11 +554,21 @@
     <div
       v-if="confirmModal"
       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-      @click.self="confirmModal = null"
+      @click.self="!confirmLoading && (confirmModal = null)"
     >
       <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
         <p class="text-secondary-900 font-medium text-base mb-6">{{ confirmModal.message }}</p>
-        <div class="flex gap-3">
+
+        <!-- Spinner while loading -->
+        <div v-if="confirmLoading" class="flex justify-center py-2">
+          <svg class="animate-spin w-6 h-6 text-red-500" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+        </div>
+
+        <!-- Buttons -->
+        <div v-else class="flex gap-3">
           <button
             @click="confirmModal = null"
             class="flex-1 py-2.5 rounded-xl border border-secondary-200 text-secondary-600 font-semibold text-sm hover:bg-secondary-50 transition-colors"
@@ -610,14 +620,20 @@ const isCartBlocked = computed(() => {
 
 // Confirm modal state
 const confirmModal = ref<{ message: string; onConfirm: () => Promise<void> | void } | null>(null)
+const confirmLoading = ref(false)
 
 function openConfirm(message: string, onConfirm: () => Promise<void> | void) {
   confirmModal.value = { message, onConfirm }
+  confirmLoading.value = false
 }
 
 async function handleConfirm() {
-  if (confirmModal.value) {
+  if (!confirmModal.value) return
+  confirmLoading.value = true
+  try {
     await confirmModal.value.onConfirm()
+  } finally {
+    confirmLoading.value = false
     confirmModal.value = null
   }
 }
