@@ -524,7 +524,7 @@
               <!-- Blocked event warning -->
               <div v-if="isCartBlocked" class="flex items-start gap-3 px-4 py-3 mb-3 rounded-xl bg-amber-50 border border-amber-200">
                 <ExclamationTriangleIcon class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                <p class="text-sm font-medium text-amber-700">Este evento ya no está disponible. Vacía el carrito para continuar.</p>
+                <p class="text-sm font-medium text-amber-700">Este evento no está disponible para la venta de boletas.</p>
               </div>
 
               <button
@@ -548,6 +548,33 @@
     </main>
     </div>
   </div>
+
+  <!-- Confirm Modal -->
+  <Teleport to="body">
+    <div
+      v-if="confirmModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+      @click.self="confirmModal = null"
+    >
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+        <p class="text-secondary-900 font-medium text-base mb-6">{{ confirmModal.message }}</p>
+        <div class="flex gap-3">
+          <button
+            @click="confirmModal = null"
+            class="flex-1 py-2.5 rounded-xl border border-secondary-200 text-secondary-600 font-semibold text-sm hover:bg-secondary-50 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            @click="handleConfirm"
+            class="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold text-sm transition-colors"
+          >
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -580,6 +607,20 @@ const isCartBlocked = computed(() => {
   if (eventDetails.value.end_date && new Date(eventDetails.value.end_date) < new Date()) return true
   return false
 })
+
+// Confirm modal state
+const confirmModal = ref<{ message: string; onConfirm: () => Promise<void> | void } | null>(null)
+
+function openConfirm(message: string, onConfirm: () => Promise<void> | void) {
+  confirmModal.value = { message, onConfirm }
+}
+
+async function handleConfirm() {
+  if (confirmModal.value) {
+    await confirmModal.value.onConfirm()
+    confirmModal.value = null
+  }
+}
 
 // Checkout modal state
 const showCheckoutModal = ref(false)
@@ -800,10 +841,10 @@ async function applyPromoUpdate(promotionId: string, currentQty: number) {
   if (newQty === currentQty) return
 
   if (newQty <= 0) {
-    if (confirm('¿Estás seguro de quitar este paquete?')) {
+    openConfirm('¿Quieres quitar este combo del carrito?', async () => {
       await cartStore.removePromotionPackage(promotionId)
       delete pendingPromoQuantities.value[promotionId]
-    }
+    })
     return
   }
 
@@ -838,8 +879,8 @@ async function applyItemUpdate(areaId: number, currentQty: number) {
 }
 
 // Remove individual ticket item
-async function removeIndividualItem(areaId: number) {
-  if (confirm('¿Estás seguro de quitar esta boleta?')) {
+function removeIndividualItem(areaId: number) {
+  openConfirm('¿Quieres quitar esta boleta del carrito?', async () => {
     updatingItem.value = areaId
     try {
       await cartStore.removeItem(areaId)
@@ -847,22 +888,22 @@ async function removeIndividualItem(areaId: number) {
     } finally {
       updatingItem.value = null
     }
-  }
+  })
 }
 
 // Remove promotion package
-async function removePromotion(promotionId: string) {
-  if (confirm('¿Estás seguro de quitar este paquete?')) {
+function removePromotion(promotionId: string) {
+  openConfirm('¿Quieres quitar este combo del carrito?', async () => {
     await cartStore.removePromotionPackage(promotionId)
     delete pendingPromoQuantities.value[promotionId]
-  }
+  })
 }
 
 // Clear cart
-async function clearCart() {
-  if (confirm('Estas seguro de vaciar el carrito?')) {
+function clearCart() {
+  openConfirm('¿Quieres vaciar el carrito? Esta acción no se puede deshacer.', async () => {
     await cartStore.clearCart()
-  }
+  })
 }
 
 // Open checkout modal
