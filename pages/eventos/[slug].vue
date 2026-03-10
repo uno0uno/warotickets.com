@@ -119,8 +119,12 @@
             :linkable="false"
           />
 
-          <!-- Deactivated event banner -->
-          <div v-if="!isEventActive" class="flex items-center gap-3 px-5 py-4 rounded-2xl bg-amber-50 border border-amber-200">
+          <!-- Event status banner (past or deactivated) -->
+          <div v-if="isPastEvent" class="flex items-center gap-3 px-5 py-4 rounded-2xl bg-secondary-100 border border-secondary-200">
+            <span class="text-secondary-400 text-xl">🎟️</span>
+            <p class="text-sm font-semibold text-secondary-600">Este evento ya finalizó. La venta de boletas está cerrada.</p>
+          </div>
+          <div v-else-if="!isEventActive" class="flex items-center gap-3 px-5 py-4 rounded-2xl bg-amber-50 border border-amber-200">
             <span class="text-amber-500 text-xl">⚠️</span>
             <p class="text-sm font-semibold text-amber-700">Este evento no está disponible para la venta de boletas en este momento.</p>
           </div>
@@ -263,12 +267,6 @@
                       </button>
                     </div>
 
-                    <!-- Past/inactive event message (replaces action row) -->
-                    <div v-if="isPastEvent || !isEventActive" class="pt-3 border-t border-secondary-100">
-                      <div class="flex items-center justify-center py-3 bg-secondary-100 rounded-xl">
-                        <span class="text-sm font-semibold text-secondary-500">{{ isPastEvent ? 'Este evento ya finalizó' : 'No disponible' }}</span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -397,10 +395,6 @@
                         </span>
                       </button>
 
-                      <!-- Past/inactive event message (replaces controls) -->
-                      <div v-if="isPastEvent || !isEventActive" class="w-full py-2.5 px-4 rounded-xl bg-secondary-100 text-center">
-                        <span class="text-sm font-semibold text-secondary-500">{{ isPastEvent ? 'Este evento ya finalizó' : 'No disponible' }}</span>
-                      </div>
                     </div>
                   </div>
                 </div>
