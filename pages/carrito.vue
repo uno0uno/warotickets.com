@@ -996,6 +996,16 @@ async function handleCheckout() {
       window.location.href = result.checkoutUrl
     } else {
       checkoutError.value = cartStore.error || 'Error al procesar el pago. Intenta de nuevo.'
+
+      // Refresh event details so isCartBlocked reflects current state
+      await loadEventDetails()
+
+      // If event is now blocked, close modal — the page will show the warning
+      if (isCartBlocked.value) {
+        showCheckoutModal.value = false
+        return
+      }
+
       // If cart was already processed, close modal and refresh
       if (cartStore.error?.includes('no encontrado') || cartStore.error?.includes('procesado')) {
         showCheckoutModal.value = false
