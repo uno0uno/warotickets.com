@@ -189,10 +189,11 @@ useHead({
 const searchQuery = ref('')
 const selectedType = ref('')
 
-// Fetch events — sin await para no suspender el componente durante navegación
-// getCachedData: () => undefined fuerza refetch en cada navegación
+// await → resuelve con caché en return-navigation (sin suspender el DOM)
+// server: false → no fetch en SSR
+// onMounted refresh() → fuerza datos frescos después de montar
 console.log('[index] SCRIPT SETUP — registrando useAsyncData')
-const { data: events, pending, error, refresh } = useAsyncData(
+const { data: events, pending, error, refresh } = await useAsyncData(
   'public-events',
   () => {
     console.log('[index] useAsyncData FETCHER RUNNING')
@@ -203,19 +204,13 @@ const { data: events, pending, error, refresh } = useAsyncData(
       }
     })
   },
-  {
-    server: false,
-    getCachedData: () => {
-      console.log('[index] getCachedData called — returning undefined to force refetch')
-      return undefined
-    }
-  }
+  { server: false }
 )
 
-console.log('[index] after useAsyncData — events.value:', events.value, 'pending:', pending.value, 'error:', error.value)
+console.log('[index] after await useAsyncData — events.value:', Array.isArray(events.value) ? `Array(${events.value.length})` : events.value, 'pending:', pending.value, 'error:', error.value)
 
 watch(pending, (val) => {
-  console.log('[index] pending changed →', val, '| events.value:', events.value, '| error:', error.value)
+  console.log('[index] pending changed →', val, '| events count:', Array.isArray(events.value) ? events.value.length : events.value)
 }, { immediate: true })
 
 watch(events, (val) => {
@@ -278,8 +273,11 @@ const pastEvents = computed(() => {
   return result
 })
 
-onMounted(() => {
+onMounted(async () => {
   console.log('[index] onMounted — pending:', pending.value, '| events.value:', events.value === null ? 'null' : `Array(${(events.value as any[])?.length ?? '?'})`)
+  console.log('[index] onMounted — calling refresh() para datos frescos')
+  await refresh()
+  console.log('[index] onMounted — refresh done, events:', Array.isArray(events.value) ? events.value.length : events.value)
 })
 
 </script>

@@ -51,8 +51,13 @@
         </select>
       </div>
 
+      <!-- Loading State -->
+      <div v-if="pending" class="text-center py-16">
+        <p class="text-text-secondary">[DEBUG bogota] pending=true — cargando...</p>
+      </div>
+
       <!-- Error State -->
-      <div v-if="error" class="text-center py-16">
+      <div v-else-if="error" class="text-center py-16">
         <div class="w-16 h-16 mx-auto mb-4 bg-destructive/10 rounded-full flex items-center justify-center">
           <ExclamationTriangleIcon class="w-8 h-8 text-destructive" />
         </div>
@@ -68,6 +73,7 @@
 
       <!-- Empty State -->
       <div v-else-if="filteredEvents.length === 0" class="text-center py-16">
+        <p class="text-xs text-red-500 mb-2">[DEBUG bogota] filteredEvents=0, events={{ events ? JSON.stringify(events).slice(0,80) : 'null' }}</p>
         <div class="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
           <CalendarDaysIcon class="w-8 h-8 text-muted-foreground" />
         </div>
@@ -96,10 +102,10 @@
       </div>
 
       <!-- Future Events -->
-      <div v-else-if="futureEvents.length > 0" class="space-y-8">
+      <div v-else class="space-y-8">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <EventListCard
-            v-for="event in futureEvents"
+            v-for="event in futureEvents.length > 0 ? futureEvents : filteredEvents"
             :key="event.id"
             :event="event"
           />
@@ -141,6 +147,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import {
   MagnifyingGlassIcon,
   CalendarDaysIcon,
@@ -204,16 +211,29 @@ useHead({
 const searchQuery = ref('')
 const selectedType = ref('')
 
-// Fetch all events once - SSR (no API calls on filter changes)
-const { data: events, error, refresh } = await useAsyncData(
+// server: false + onMounted refresh() = datos siempre frescos en return-navigation
+console.log('[bogota] SCRIPT SETUP')
+const { data: events, pending, error, refresh } = await useAsyncData(
   'bogota-events',
-  () => $fetch('/api/public/events', {
-    params: {
-      limit: 50,
-      city: 'Bogotá'
-    }
-  })
+  () => {
+    console.log('[bogota] FETCHER RUNNING')
+    return $fetch('/api/public/events', {
+      params: {
+        limit: 50,
+        city: 'Bogotá'
+      }
+    })
+  },
+  { server: false }
 )
+
+console.log('[bogota] after await — events:', Array.isArray(events.value) ? `Array(${events.value.length})` : events.value, 'pending:', pending.value)
+
+onMounted(async () => {
+  console.log('[bogota] onMounted — pending:', pending.value, '| events:', events.value === null ? 'null' : `Array(${(events.value as any[])?.length ?? '?'})`)
+  await refresh()
+  console.log('[bogota] onMounted — refresh done, events:', Array.isArray(events.value) ? events.value.length : events.value)
+})
 
 // Filtered events - local filtering (no API calls)
 const filteredEvents = computed(() => {
