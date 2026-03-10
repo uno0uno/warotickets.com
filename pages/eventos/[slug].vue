@@ -213,8 +213,8 @@
                       </span>
                     </div>
 
-                    <!-- Action Row: Quantity + Button -->
-                    <div v-if="area.units_available > 0" class="flex items-center justify-between gap-3 pt-3 border-t border-secondary-100">
+                    <!-- Action Row: Quantity + Button (hidden for past events) -->
+                    <div v-if="area.units_available > 0 && !isPastEvent" class="flex items-center justify-between gap-3 pt-3 border-t border-secondary-100">
                       <!-- Quantity Controls -->
                       <div class="flex items-center gap-2">
                         <button
@@ -255,6 +255,13 @@
                           Agregar
                         </span>
                       </button>
+                    </div>
+
+                    <!-- Past event message (replaces action row) -->
+                    <div v-if="isPastEvent" class="pt-3 border-t border-secondary-100">
+                      <div class="flex items-center justify-center py-3 bg-secondary-100 rounded-xl">
+                        <span class="text-sm font-semibold text-secondary-500">Este evento ya finalizó</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -341,8 +348,8 @@
                         </p>
                       </div>
 
-                      <!-- Quantity Controls -->
-                      <div class="flex items-center gap-3 mb-3">
+                      <!-- Quantity Controls (hidden for past events) -->
+                      <div v-if="!isPastEvent" class="flex items-center gap-3 mb-3">
                         <button
                           @click="decrementPromoQuantity(promo.id)"
                           :disabled="getSelectedPromoQuantity(promo.id) <= 0"
@@ -362,8 +369,9 @@
                         </button>
                       </div>
 
-                      <!-- Add to Cart Button -->
+                      <!-- Add to Cart Button (hidden for past events) -->
                       <button
+                        v-if="!isPastEvent"
                         @click="addPromoToCart(promo)"
                         :disabled="getSelectedPromoQuantity(promo.id) <= 0 || addingPromoId === promo.id"
                         class="w-full py-2.5 px-4 rounded-xl font-semibold text-sm transition-all
@@ -382,6 +390,11 @@
                           Agregar
                         </span>
                       </button>
+
+                      <!-- Past event message (replaces controls) -->
+                      <div v-if="isPastEvent" class="w-full py-2.5 px-4 rounded-xl bg-secondary-100 text-center">
+                        <span class="text-sm font-semibold text-secondary-500">Este evento ya finalizó</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -495,6 +508,12 @@ const areas = computed(() => data.value?.areas as any[] || [])
 const summary = computed(() => data.value?.summary)
 const promotions = computed(() => data.value?.promotions as any[] || [])
 const saleStages = computed(() => data.value?.saleStages as any[] || [])
+
+// True when the event's end_date is in the past (ticket purchase disabled)
+const isPastEvent = computed(() => {
+  if (!event.value?.end_date) return false
+  return new Date(event.value.end_date) < new Date()
+})
 
 // Desktop banner URL (banner or fallback to cover)
 const desktopBannerUrl = computed(() => {
