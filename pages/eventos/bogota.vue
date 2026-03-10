@@ -105,7 +105,7 @@
       <div v-else class="space-y-8">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <EventListCard
-            v-for="event in futureEvents.length > 0 ? futureEvents : filteredEvents"
+            v-for="event in futureEvents"
             :key="event.id"
             :event="event"
           />
