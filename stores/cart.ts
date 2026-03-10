@@ -442,19 +442,16 @@ export const useCartStore = defineStore('cart', () => {
 
   // Clear cart
   async function clearCart() {
-    console.log('[cart:store] clearCart() called — cart.value:', cart.value?.id ?? 'null')
     if (!cart.value) return
 
     isLoading.value = true
     error.value = null
 
     try {
-      console.log('[cart:store] DELETE /api/cart/', cart.value.id)
       await $fetch(`/api/cart/${cart.value.id}`, {
         method: 'DELETE',
         credentials: 'include'
       })
-      console.log('[cart:store] DELETE success — resetting state')
 
       cart.value = null
       summary.value = {
@@ -463,9 +460,7 @@ export const useCartStore = defineStore('cart', () => {
         ticketsCount: 0,
         total: 0
       }
-      console.log('[cart:store] clearCart done — summary.cartId:', summary.value.cartId)
     } catch (e: any) {
-      console.error('[cart:store] clearCart ERROR:', e)
       error.value = e?.data?.detail || 'Error al vaciar carrito'
     } finally {
       isLoading.value = false

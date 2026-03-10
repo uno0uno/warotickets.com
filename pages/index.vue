@@ -31,6 +31,7 @@
             v-model="searchQuery"
             type="text"
             placeholder="Buscar eventos..."
+            aria-label="Buscar eventos"
             class="w-full pl-12 pr-4 py-3 bg-surface border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-all text-text-primary placeholder:text-text-tertiary"
           />
         </div>
@@ -53,7 +54,7 @@
 
       <!-- Loading State -->
       <div v-if="pending" class="text-center py-16">
-        <p class="text-text-secondary">[DEBUG] pending=true — cargando eventos...</p>
+        <p class="text-text-secondary">Cargando eventos...</p>
       </div>
 
       <!-- Error State -->
@@ -73,7 +74,6 @@
 
       <!-- Empty State -->
       <div v-else-if="filteredEvents.length === 0" class="text-center py-16">
-        <p class="text-xs text-red-500 mb-2">[DEBUG] filteredEvents=0, events.value={{ events ? JSON.stringify(events).slice(0,80) : 'null' }}</p>
         <div class="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
           <CalendarDaysIcon class="w-8 h-8 text-muted-foreground" />
         </div>
@@ -189,14 +189,11 @@ useHead({
 const searchQuery = ref('')
 const selectedType = ref('')
 
-// $fetch directo en onMounted — bypassa useAsyncData/Suspense completamente
-// Evita el bug donde onMounted nunca se ejecuta en return-navigation (Nuxt 3 Suspense)
 const events = ref<any[] | null>(null)
 const pending = ref(false)
 const error = ref<any>(null)
 
 async function fetchEvents() {
-  console.log('[index] fetchEvents START')
   pending.value = true
   error.value = null
   try {
@@ -204,23 +201,19 @@ async function fetchEvents() {
       params: { limit: 50, city: 'Bogotá' }
     })
     events.value = data as any[]
-    console.log('[index] fetchEvents DONE — events:', events.value.length)
   } catch (e: any) {
     error.value = e
-    console.error('[index] fetchEvents ERROR:', e)
   } finally {
     pending.value = false
   }
 }
 
 onMounted(() => {
-  console.log('[index] onMounted — llamando fetchEvents()')
   fetchEvents()
 })
 
 // Filtered events - local filtering (no API calls)
 const filteredEvents = computed(() => {
-  console.log('[index] filteredEvents computed — events:', events.value === null ? 'null' : `Array(${events.value.length})`)
   if (!events.value) return []
 
   let result = events.value as any[]
@@ -239,7 +232,6 @@ const filteredEvents = computed(() => {
     result = result.filter(event => event.cluster_type === selectedType.value)
   }
 
-  console.log('[index] filteredEvents result:', result.length)
   return result
 })
 
@@ -257,26 +249,17 @@ const eventsWithPromotions = computed(() => {
 const futureEvents = computed(() => {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const result = filteredEvents.value
+  return filteredEvents.value
     .filter(event => new Date(event.start_date) >= today)
     .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
-  console.log('[index] futureEvents:', result.length, '| today:', today.toISOString())
-  return result
 })
 
 const pastEvents = computed(() => {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const result = filteredEvents.value
+  return filteredEvents.value
     .filter(event => new Date(event.start_date) < today)
     .sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime())
-  console.log('[index] pastEvents:', result.length)
-  return result
-})
-
-onMounted(() => {
-  console.log('[index] onMounted — llamando fetchEvents()')
-  fetchEvents()
 })
 
 </script>

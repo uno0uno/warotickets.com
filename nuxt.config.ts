@@ -59,7 +59,7 @@ export default defineNuxtConfig({
   },
 
   app: {
-    pageTransition: { name: 'page', mode: 'out-in' },
+    pageTransition: { name: 'page' },
     head: {
       title: process.env.NUXT_PUBLIC_SEO_TITLE || 'WaRo Tickets - Sistema de Boletería para Eventos',
       htmlAttrs: {

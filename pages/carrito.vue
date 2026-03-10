@@ -819,25 +819,18 @@ definePageMeta({
 
 // Load cart on mount
 onMounted(async () => {
-  console.log('[carrito] onMounted START')
   await cartStore.fetchSummary()
-  console.log('[carrito] fetchSummary done — cartId:', cartStore.summary.cartId)
 
   if (!cartStore.summary.cartId) {
-    console.log('[carrito] no cartId — calling navigateTo("/")')
     await navigateTo('/')
-    console.log('[carrito] navigateTo("/") returned')
     return
   }
 
-  console.log('[carrito] loading cart', cartStore.summary.cartId)
   await cartStore.fetchCart(cartStore.summary.cartId)
-  console.log('[carrito] fetchCart done — items:', cartStore.cart?.items?.length)
   await loadEventDetails()
 
   stopPhraseRotation()
   loading.value = false
-  console.log('[carrito] onMounted DONE')
 })
 
 // Format price
@@ -965,12 +958,8 @@ function removePromotion(promotionId: string) {
 // Clear cart
 function clearCart() {
   openConfirm('¿Quieres vaciar el carrito? Esta acción no se puede deshacer.', async () => {
-    console.log('[carrito] clearCart — calling cartStore.clearCart()')
     await cartStore.clearCart()
-    console.log('[carrito] clearCart — done, summary:', JSON.stringify(cartStore.summary))
-    console.log('[carrito] clearCart — calling navigateTo("/")')
     await navigateTo('/')
-    console.log('[carrito] clearCart — navigateTo returned')
   })
 }
 
