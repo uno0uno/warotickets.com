@@ -189,9 +189,10 @@ useHead({
 const searchQuery = ref('')
 const selectedType = ref('')
 
-// Fetch events — getCachedData: () => undefined forces refetch on every navigation
+// Fetch events — sin await para no suspender el componente durante navegación
+// getCachedData: () => undefined fuerza refetch en cada navegación
 console.log('[index] SCRIPT SETUP — registrando useAsyncData')
-const { data: events, pending, error, refresh } = await useAsyncData(
+const { data: events, pending, error, refresh } = useAsyncData(
   'public-events',
   () => {
     console.log('[index] useAsyncData FETCHER RUNNING')
