@@ -217,14 +217,24 @@
                     </div>
                   </div>
 
-                  <!-- Right: Price -->
-                  <div class="text-right flex-shrink-0">
-                    <p class="text-xl sm:text-2xl font-black text-secondary-900">${{ formatPrice(pkg.subtotal) }}</p>
-                    <template v-if="pkg.originalTotal > pkg.subtotal">
-                      <p class="text-xs text-secondary-400 line-through">${{ formatPrice(pkg.originalTotal) }}</p>
-                      <p class="text-xs font-semibold text-green-600">-${{ formatPrice(pkg.originalTotal - pkg.subtotal) }}</p>
-                    </template>
-                    <p v-else class="text-[10px] text-secondary-400 uppercase">por combo</p>
+                  <!-- Right: Price + Remove -->
+                  <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                    <div class="text-right">
+                      <p class="text-xl sm:text-2xl font-black text-secondary-900">${{ formatPrice(pkg.subtotal) }}</p>
+                      <template v-if="pkg.originalTotal > pkg.subtotal">
+                        <p class="text-xs text-secondary-400 line-through">${{ formatPrice(pkg.originalTotal) }}</p>
+                        <p class="text-xs font-semibold text-green-600">-${{ formatPrice(pkg.originalTotal - pkg.subtotal) }}</p>
+                      </template>
+                      <p v-else class="text-[10px] text-secondary-400 uppercase">por combo</p>
+                    </div>
+                    <button
+                      @click="removePromotion(pkg.promotionId)"
+                      :disabled="cartStore.isLoading || updatingPromo === pkg.promotionId"
+                      class="w-8 h-8 flex items-center justify-center rounded-lg text-secondary-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      aria-label="Eliminar combo del carrito"
+                    >
+                      <TrashIcon class="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
 
@@ -328,24 +338,34 @@
                       </div>
                     </div>
 
-                    <!-- Right: Price -->
-                    <div class="text-right flex-shrink-0">
-                      <template v-if="item.bundleSize > 1">
-                        <p class="text-xl sm:text-2xl font-black text-secondary-900">${{ formatPrice(item.bundlePrice ?? (item.unitPrice * item.bundleSize)) }}</p>
-                        <template v-if="(item.originalPrice * item.bundleSize) > (item.bundlePrice ?? (item.unitPrice * item.bundleSize))">
-                          <p class="text-xs text-secondary-400 line-through">${{ formatPrice(item.originalPrice * item.bundleSize) }}</p>
-                          <p class="text-xs font-semibold text-green-600">-${{ formatPrice((item.originalPrice * item.bundleSize) - (item.bundlePrice ?? (item.unitPrice * item.bundleSize))) }}</p>
+                    <!-- Right: Price + Remove -->
+                    <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                      <div class="text-right">
+                        <template v-if="item.bundleSize > 1">
+                          <p class="text-xl sm:text-2xl font-black text-secondary-900">${{ formatPrice(item.bundlePrice ?? (item.unitPrice * item.bundleSize)) }}</p>
+                          <template v-if="(item.originalPrice * item.bundleSize) > (item.bundlePrice ?? (item.unitPrice * item.bundleSize))">
+                            <p class="text-xs text-secondary-400 line-through">${{ formatPrice(item.originalPrice * item.bundleSize) }}</p>
+                            <p class="text-xs font-semibold text-green-600">-${{ formatPrice((item.originalPrice * item.bundleSize) - (item.bundlePrice ?? (item.unitPrice * item.bundleSize))) }}</p>
+                          </template>
+                          <p v-else class="text-[10px] text-secondary-400 uppercase">por paquete</p>
                         </template>
-                        <p v-else class="text-[10px] text-secondary-400 uppercase">por paquete</p>
-                      </template>
-                      <template v-else>
-                        <p class="text-xl sm:text-2xl font-black text-secondary-900">${{ formatPrice(item.unitPrice) }}</p>
-                        <template v-if="item.originalPrice > item.unitPrice">
-                          <p class="text-xs text-secondary-400 line-through">${{ formatPrice(item.originalPrice) }}</p>
-                          <p class="text-xs font-semibold text-green-600">-${{ formatPrice(item.originalPrice - item.unitPrice) }}</p>
+                        <template v-else>
+                          <p class="text-xl sm:text-2xl font-black text-secondary-900">${{ formatPrice(item.unitPrice) }}</p>
+                          <template v-if="item.originalPrice > item.unitPrice">
+                            <p class="text-xs text-secondary-400 line-through">${{ formatPrice(item.originalPrice) }}</p>
+                            <p class="text-xs font-semibold text-green-600">-${{ formatPrice(item.originalPrice - item.unitPrice) }}</p>
+                          </template>
+                          <p v-else class="text-[10px] text-secondary-400 uppercase">por boleta</p>
                         </template>
-                        <p v-else class="text-[10px] text-secondary-400 uppercase">por boleta</p>
-                      </template>
+                      </div>
+                      <button
+                        @click="removeIndividualItem(item.areaId)"
+                        :disabled="cartStore.isLoading || updatingItem === item.areaId"
+                        class="w-8 h-8 flex items-center justify-center rounded-lg text-secondary-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        aria-label="Eliminar boleta del carrito"
+                      >
+                        <TrashIcon class="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
 
@@ -814,6 +834,19 @@ async function applyItemUpdate(areaId: number, currentQty: number) {
     delete pendingItemQuantities.value[areaId]
   } finally {
     updatingItem.value = null
+  }
+}
+
+// Remove individual ticket item
+async function removeIndividualItem(areaId: number) {
+  if (confirm('¿Estás seguro de quitar esta boleta?')) {
+    updatingItem.value = areaId
+    try {
+      await cartStore.removeItem(areaId)
+      delete pendingItemQuantities.value[areaId]
+    } finally {
+      updatingItem.value = null
+    }
   }
 }
 
