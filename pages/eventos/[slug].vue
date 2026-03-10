@@ -121,11 +121,11 @@
 
           <!-- Event status banner (past or deactivated) -->
           <div v-if="isPastEvent" class="flex items-center gap-3 px-5 py-4 rounded-2xl bg-secondary-100 border border-secondary-200">
-            <span class="text-secondary-400 text-xl">🎟️</span>
+            <TicketIcon class="w-5 h-5 text-secondary-400 flex-shrink-0" />
             <p class="text-sm font-semibold text-secondary-600">Este evento ya finalizó. La venta de boletas está cerrada.</p>
           </div>
           <div v-else-if="!isEventActive" class="flex items-center gap-3 px-5 py-4 rounded-2xl bg-amber-50 border border-amber-200">
-            <span class="text-amber-500 text-xl">⚠️</span>
+            <ExclamationTriangleIcon class="w-5 h-5 text-amber-500 flex-shrink-0" />
             <p class="text-sm font-semibold text-amber-700">Este evento no está disponible para la venta de boletas en este momento.</p>
           </div>
 
