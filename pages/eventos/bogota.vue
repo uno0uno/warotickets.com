@@ -211,9 +211,11 @@ useHead({
 const searchQuery = ref('')
 const selectedType = ref('')
 
-// server: false + onMounted refresh() = datos siempre frescos en return-navigation
+// SIN await — evita que <Suspense> quede atascado en return-navigation (bug Nuxt 3)
+// server: false — no fetch en SSR
+// onMounted refresh() — datos frescos después de montar
 console.log('[bogota] SCRIPT SETUP')
-const { data: events, pending, error, refresh } = await useAsyncData(
+const { data: events, pending, error, refresh } = useAsyncData(
   'bogota-events',
   () => {
     console.log('[bogota] FETCHER RUNNING')
@@ -227,10 +229,14 @@ const { data: events, pending, error, refresh } = await useAsyncData(
   { server: false }
 )
 
-console.log('[bogota] after await — events:', Array.isArray(events.value) ? `Array(${events.value.length})` : events.value, 'pending:', pending.value)
+console.log('[bogota] after useAsyncData (sync) — events:', Array.isArray(events.value) ? `Array(${events.value.length})` : events.value, 'pending:', pending.value)
+
+watch(pending, (val) => {
+  console.log('[bogota] pending →', val, '| events:', Array.isArray(events.value) ? events.value.length : events.value)
+}, { immediate: true })
 
 onMounted(async () => {
-  console.log('[bogota] onMounted — pending:', pending.value, '| events:', events.value === null ? 'null' : `Array(${(events.value as any[])?.length ?? '?'})`)
+  console.log('[bogota] onMounted START — pending:', pending.value, '| events:', events.value === null ? 'null' : `Array(${(events.value as any[])?.length ?? '?'})`)
   await refresh()
   console.log('[bogota] onMounted — refresh done, events:', Array.isArray(events.value) ? events.value.length : events.value)
 })

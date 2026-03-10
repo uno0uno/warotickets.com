@@ -189,11 +189,11 @@ useHead({
 const searchQuery = ref('')
 const selectedType = ref('')
 
-// await → resuelve con caché en return-navigation (sin suspender el DOM)
-// server: false → no fetch en SSR
-// onMounted refresh() → fuerza datos frescos después de montar
+// SIN await — evita que <Suspense> quede atascado en return-navigation (bug Nuxt 3)
+// server: false — no fetch en SSR
+// onMounted refresh() — datos frescos después de montar
 console.log('[index] SCRIPT SETUP — registrando useAsyncData')
-const { data: events, pending, error, refresh } = await useAsyncData(
+const { data: events, pending, error, refresh } = useAsyncData(
   'public-events',
   () => {
     console.log('[index] useAsyncData FETCHER RUNNING')
@@ -207,7 +207,7 @@ const { data: events, pending, error, refresh } = await useAsyncData(
   { server: false }
 )
 
-console.log('[index] after await useAsyncData — events.value:', Array.isArray(events.value) ? `Array(${events.value.length})` : events.value, 'pending:', pending.value, 'error:', error.value)
+console.log('[index] after useAsyncData (sync) — events.value:', Array.isArray(events.value) ? `Array(${events.value.length})` : events.value, 'pending:', pending.value, 'error:', error.value)
 
 watch(pending, (val) => {
   console.log('[index] pending changed →', val, '| events count:', Array.isArray(events.value) ? events.value.length : events.value)
