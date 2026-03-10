@@ -821,11 +821,13 @@ definePageMeta({
 onMounted(async () => {
   await cartStore.fetchSummary()
 
-  if (cartStore.summary.cartId) {
-    await cartStore.fetchCart(cartStore.summary.cartId)
-    // Load event details for date display
-    await loadEventDetails()
+  if (!cartStore.summary.cartId) {
+    await navigateTo('/')
+    return
   }
+
+  await cartStore.fetchCart(cartStore.summary.cartId)
+  await loadEventDetails()
 
   stopPhraseRotation()
   loading.value = false
