@@ -119,6 +119,12 @@
             :linkable="false"
           />
 
+          <!-- Deactivated event banner -->
+          <div v-if="!isEventActive" class="flex items-center gap-3 px-5 py-4 rounded-2xl bg-amber-50 border border-amber-200">
+            <span class="text-amber-500 text-xl">⚠️</span>
+            <p class="text-sm font-semibold text-amber-700">Este evento no está disponible para la venta de boletas en este momento.</p>
+          </div>
+
           <!-- Description Card -->
           <div v-if="event.description" class="bg-white rounded-2xl border border-secondary-100 p-6 lg:p-8">
             <h2 class="text-xl font-bold text-secondary-900 mb-4">Acerca del evento</h2>
@@ -213,8 +219,8 @@
                       </span>
                     </div>
 
-                    <!-- Action Row: Quantity + Button (hidden for past events) -->
-                    <div v-if="area.units_available > 0 && !isPastEvent" class="flex items-center justify-between gap-3 pt-3 border-t border-secondary-100">
+                    <!-- Action Row: Quantity + Button (hidden for past/inactive events) -->
+                    <div v-if="area.units_available > 0 && !isPastEvent && isEventActive" class="flex items-center justify-between gap-3 pt-3 border-t border-secondary-100">
                       <!-- Quantity Controls -->
                       <div class="flex items-center gap-2">
                         <button
@@ -257,10 +263,10 @@
                       </button>
                     </div>
 
-                    <!-- Past event message (replaces action row) -->
-                    <div v-if="isPastEvent" class="pt-3 border-t border-secondary-100">
+                    <!-- Past/inactive event message (replaces action row) -->
+                    <div v-if="isPastEvent || !isEventActive" class="pt-3 border-t border-secondary-100">
                       <div class="flex items-center justify-center py-3 bg-secondary-100 rounded-xl">
-                        <span class="text-sm font-semibold text-secondary-500">Este evento ya finalizó</span>
+                        <span class="text-sm font-semibold text-secondary-500">{{ isPastEvent ? 'Este evento ya finalizó' : 'No disponible' }}</span>
                       </div>
                     </div>
                   </div>
@@ -348,8 +354,8 @@
                         </p>
                       </div>
 
-                      <!-- Quantity Controls (hidden for past events) -->
-                      <div v-if="!isPastEvent" class="flex items-center gap-3 mb-3">
+                      <!-- Quantity Controls (hidden for past/inactive events) -->
+                      <div v-if="!isPastEvent && isEventActive" class="flex items-center gap-3 mb-3">
                         <button
                           @click="decrementPromoQuantity(promo.id)"
                           :disabled="getSelectedPromoQuantity(promo.id) <= 0"
@@ -369,9 +375,9 @@
                         </button>
                       </div>
 
-                      <!-- Add to Cart Button (hidden for past events) -->
+                      <!-- Add to Cart Button (hidden for past/inactive events) -->
                       <button
-                        v-if="!isPastEvent"
+                        v-if="!isPastEvent && isEventActive"
                         @click="addPromoToCart(promo)"
                         :disabled="getSelectedPromoQuantity(promo.id) <= 0 || addingPromoId === promo.id"
                         class="w-full py-2.5 px-4 rounded-xl font-semibold text-sm transition-all
@@ -391,9 +397,9 @@
                         </span>
                       </button>
 
-                      <!-- Past event message (replaces controls) -->
-                      <div v-if="isPastEvent" class="w-full py-2.5 px-4 rounded-xl bg-secondary-100 text-center">
-                        <span class="text-sm font-semibold text-secondary-500">Este evento ya finalizó</span>
+                      <!-- Past/inactive event message (replaces controls) -->
+                      <div v-if="isPastEvent || !isEventActive" class="w-full py-2.5 px-4 rounded-xl bg-secondary-100 text-center">
+                        <span class="text-sm font-semibold text-secondary-500">{{ isPastEvent ? 'Este evento ya finalizó' : 'No disponible' }}</span>
                       </div>
                     </div>
                   </div>
@@ -513,6 +519,11 @@ const saleStages = computed(() => data.value?.saleStages as any[] || [])
 const isPastEvent = computed(() => {
   if (!event.value?.end_date) return false
   return new Date(event.value.end_date) < new Date()
+})
+
+// True when the event is active (admin-controlled flag)
+const isEventActive = computed(() => {
+  return event.value?.is_active !== false
 })
 
 // Desktop banner URL (banner or fallback to cover)
