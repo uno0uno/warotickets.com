@@ -64,7 +64,7 @@
         <h3 class="text-lg font-semibold text-text-primary mb-2">Error al cargar eventos</h3>
         <p class="text-text-secondary mb-4">No pudimos cargar los eventos. Intenta de nuevo.</p>
         <button
-          @click="refresh"
+          @click="fetchEvents"
           class="px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors font-medium"
         >
           Reintentar
@@ -189,37 +189,38 @@ useHead({
 const searchQuery = ref('')
 const selectedType = ref('')
 
-// SIN await — evita que <Suspense> quede atascado en return-navigation (bug Nuxt 3)
-// server: false — no fetch en SSR
-// onMounted refresh() — datos frescos después de montar
-console.log('[index] SCRIPT SETUP — registrando useAsyncData')
-const { data: events, pending, error, refresh } = useAsyncData(
-  'public-events',
-  () => {
-    console.log('[index] useAsyncData FETCHER RUNNING')
-    return $fetch('/api/public/events', {
-      params: {
-        limit: 50,
-        city: 'Bogotá'
-      }
+// $fetch directo en onMounted — bypassa useAsyncData/Suspense completamente
+// Evita el bug donde onMounted nunca se ejecuta en return-navigation (Nuxt 3 Suspense)
+const events = ref<any[] | null>(null)
+const pending = ref(false)
+const error = ref<any>(null)
+
+async function fetchEvents() {
+  console.log('[index] fetchEvents START')
+  pending.value = true
+  error.value = null
+  try {
+    const data = await $fetch('/api/public/events', {
+      params: { limit: 50, city: 'Bogotá' }
     })
-  },
-  { server: false }
-)
+    events.value = data as any[]
+    console.log('[index] fetchEvents DONE — events:', events.value.length)
+  } catch (e: any) {
+    error.value = e
+    console.error('[index] fetchEvents ERROR:', e)
+  } finally {
+    pending.value = false
+  }
+}
 
-console.log('[index] after useAsyncData (sync) — events.value:', Array.isArray(events.value) ? `Array(${events.value.length})` : events.value, 'pending:', pending.value, 'error:', error.value)
-
-watch(pending, (val) => {
-  console.log('[index] pending changed →', val, '| events count:', Array.isArray(events.value) ? events.value.length : events.value)
-}, { immediate: true })
-
-watch(events, (val) => {
-  console.log('[index] events changed →', Array.isArray(val) ? `${val.length} eventos` : val)
-}, { immediate: true })
+onMounted(() => {
+  console.log('[index] onMounted — llamando fetchEvents()')
+  fetchEvents()
+})
 
 // Filtered events - local filtering (no API calls)
 const filteredEvents = computed(() => {
-  console.log('[index] filteredEvents computed — events.value:', events.value === null ? 'null' : Array.isArray(events.value) ? `Array(${(events.value as any[]).length})` : events.value)
+  console.log('[index] filteredEvents computed — events:', events.value === null ? 'null' : `Array(${events.value.length})`)
   if (!events.value) return []
 
   let result = events.value as any[]
@@ -273,11 +274,9 @@ const pastEvents = computed(() => {
   return result
 })
 
-onMounted(async () => {
-  console.log('[index] onMounted — pending:', pending.value, '| events.value:', events.value === null ? 'null' : `Array(${(events.value as any[])?.length ?? '?'})`)
-  console.log('[index] onMounted — calling refresh() para datos frescos')
-  await refresh()
-  console.log('[index] onMounted — refresh done, events:', Array.isArray(events.value) ? events.value.length : events.value)
+onMounted(() => {
+  console.log('[index] onMounted — llamando fetchEvents()')
+  fetchEvents()
 })
 
 </script>
