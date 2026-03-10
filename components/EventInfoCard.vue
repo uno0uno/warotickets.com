@@ -49,11 +49,11 @@ function formatNumber(num: number) {
           <NuxtLink
             v-if="linkable"
             :to="`/eventos/${eventSlug}`"
-            class="text-sm sm:text-lg font-semibold text-secondary-900 hover:text-primary-600"
+            class="text-base sm:text-xl font-bold font-heading text-secondary-900 hover:text-primary-600 leading-tight"
           >
             {{ eventName }}
           </NuxtLink>
-          <h1 v-else class="text-sm sm:text-lg font-semibold text-secondary-900">
+          <h1 v-else class="text-base sm:text-xl font-bold font-heading text-secondary-900 leading-tight">
             {{ eventName }}
           </h1>
         </div>

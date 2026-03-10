@@ -105,6 +105,13 @@
         />
         <!-- Gradient overlay -->
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none"></div>
+        <!-- Past event badge -->
+        <div v-if="isPastEvent" class="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black/70 backdrop-blur-sm text-white rounded-full text-xs font-bold uppercase tracking-widest">
+            <CheckCircleIcon class="w-3.5 h-3.5" />
+            Finalizado
+          </span>
+        </div>
       </div>
 
       <!-- Main Content -->
@@ -120,9 +127,30 @@
           />
 
           <!-- Event status banner (past or deactivated) -->
-          <div v-if="isPastEvent" class="flex items-center gap-3 px-5 py-4 rounded-2xl bg-secondary-100 border border-secondary-200">
-            <TicketIcon class="w-5 h-5 text-secondary-400 flex-shrink-0" />
-            <p class="text-sm font-semibold text-secondary-600">Este evento ya finalizó. La venta de boletas está cerrada.</p>
+          <div v-if="isPastEvent" class="rounded-2xl bg-white border border-secondary-100 border-l-4 border-l-primary-600 p-5">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center">
+                <ClockIcon class="w-5 h-5 text-primary-600" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-secondary-900 font-bold text-base leading-tight mb-1">Este evento ya finalizó</p>
+                <p class="text-secondary-500 text-sm">La venta de boletas está cerrada. ¡Hay más eventos esperándote!</p>
+              </div>
+              <NuxtLink
+                to="/"
+                class="flex-shrink-0 hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-semibold transition-colors"
+              >
+                Ver eventos
+                <ArrowLeftIcon class="w-4 h-4 rotate-180" />
+              </NuxtLink>
+            </div>
+            <NuxtLink
+              to="/"
+              class="mt-4 flex sm:hidden items-center justify-center gap-2 py-2.5 px-4 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-semibold transition-colors"
+            >
+              Ver otros eventos
+              <ArrowLeftIcon class="w-4 h-4 rotate-180" />
+            </NuxtLink>
           </div>
           <div v-else-if="!isEventActive" class="flex items-center gap-3 px-5 py-4 rounded-2xl bg-amber-50 border border-amber-200">
             <ExclamationTriangleIcon class="w-5 h-5 text-amber-500 flex-shrink-0" />
@@ -141,9 +169,11 @@
           <div class="space-y-6">
             <!-- Section Header -->
             <div class="flex items-center justify-between">
-              <h2 class="text-2xl font-extrabold text-secondary-900 tracking-tight">Boletas individuales</h2>
+              <h2 class="text-2xl font-extrabold text-secondary-900 tracking-tight">
+                {{ isPastEvent ? 'Localidades del evento' : 'Boletas individuales' }}
+              </h2>
               <p class="text-sm text-secondary-500 font-medium hidden sm:block">
-                Compra por localidad
+                {{ isPastEvent ? 'Referencia de precios' : 'Compra por localidad' }}
               </p>
             </div>
 
@@ -223,6 +253,10 @@
                       </span>
                     </div>
 
+                    <!-- Past event: venta cerrada note -->
+                    <div v-if="isPastEvent && area.units_available > 0" class="pt-3 border-t border-secondary-100">
+                      <p class="text-[11px] text-secondary-400 font-semibold text-center py-0.5 uppercase tracking-widest">Venta cerrada</p>
+                    </div>
                     <!-- Action Row: Quantity + Button (hidden for past/inactive events) -->
                     <div v-if="area.units_available > 0 && !isPastEvent && isEventActive" class="flex items-center justify-between gap-3 pt-3 border-t border-secondary-100">
                       <!-- Quantity Controls -->
@@ -295,8 +329,11 @@
               <!-- Section Header -->
               <div class="flex items-center justify-between">
                 <h2 class="text-2xl font-extrabold text-secondary-900 tracking-tight">Combos y Paquetes</h2>
-                <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
+                <span v-if="!isPastEvent" class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
                   Ahorra mas
+                </span>
+                <span v-else class="px-3 py-1 bg-secondary-100 text-secondary-500 text-xs font-bold rounded-full">
+                  Referencia
                 </span>
               </div>
 
@@ -472,7 +509,8 @@ import {
   MinusIcon,
   ShoppingCartIcon,
   GiftIcon,
-  FireIcon
+  FireIcon,
+  CheckCircleIcon
 } from '@heroicons/vue/24/outline'
 
 const route = useRoute()
