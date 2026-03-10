@@ -96,10 +96,10 @@
       </div>
 
       <!-- Future Events -->
-      <div v-else-if="futureEvents.length > 0" class="space-y-8">
+      <div v-else class="space-y-8">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <EventListCard
-            v-for="event in futureEvents"
+            v-for="event in futureEvents.length > 0 ? futureEvents : filteredEvents"
             :key="event.id"
             :event="event"
           />
@@ -182,31 +182,23 @@ useHead({
 const searchQuery = ref('')
 const selectedType = ref('')
 
-// Fetch all events once - SSR (no API calls on filter changes)
+// Fetch events on every client navigation (server: false ensures fresh data on return)
 const { data: events, error, refresh } = await useAsyncData(
   'public-events',
-  () => {
-    console.log('[index] useAsyncData fetcher running')
-    return $fetch('/api/public/events', {
-      params: {
-        limit: 50,
-        city: 'Bogotá'
-      }
-    })
-  }
+  () => $fetch('/api/public/events', {
+    params: {
+      limit: 50,
+      city: 'Bogotá'
+    }
+  }),
+  { server: false }
 )
-
-console.log('[index] useAsyncData result — events.value:', events.value, 'error:', error.value)
 
 // Filtered events - local filtering (no API calls)
 const filteredEvents = computed(() => {
-  if (!events.value) {
-    console.log('[index] filteredEvents: events.value is null/undefined')
-    return []
-  }
+  if (!events.value) return []
 
   let result = events.value as any[]
-  console.log('[index] filteredEvents: total from API =', result.length)
 
   // Filter by search query
   if (searchQuery.value) {
@@ -222,7 +214,6 @@ const filteredEvents = computed(() => {
     result = result.filter(event => event.cluster_type === selectedType.value)
   }
 
-  console.log('[index] filteredEvents: after filters =', result.length)
   return result
 })
 
@@ -240,25 +231,17 @@ const eventsWithPromotions = computed(() => {
 const futureEvents = computed(() => {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const result = filteredEvents.value
+  return filteredEvents.value
     .filter(event => new Date(event.start_date) >= today)
     .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
-  console.log('[index] futureEvents:', result.length)
-  return result
 })
 
 const pastEvents = computed(() => {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const result = filteredEvents.value
+  return filteredEvents.value
     .filter(event => new Date(event.start_date) < today)
     .sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime())
-  console.log('[index] pastEvents:', result.length)
-  return result
 })
-
-watch(events, (val) => {
-  console.log('[index] events changed → length:', Array.isArray(val) ? val.length : val, 'value:', val)
-}, { immediate: true })
 
 </script>

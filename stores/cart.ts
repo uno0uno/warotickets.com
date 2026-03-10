@@ -444,7 +444,6 @@ export const useCartStore = defineStore('cart', () => {
   async function clearCart() {
     if (!cart.value) return
 
-    console.log('[cart] clearCart — deleting cart', cart.value.id)
     isLoading.value = true
     error.value = null
 
@@ -454,7 +453,6 @@ export const useCartStore = defineStore('cart', () => {
         credentials: 'include'
       })
 
-      console.log('[cart] clearCart — DELETE success, resetting state')
       cart.value = null
       summary.value = {
         cartId: null,
@@ -462,9 +460,7 @@ export const useCartStore = defineStore('cart', () => {
         ticketsCount: 0,
         total: 0
       }
-      console.log('[cart] clearCart — done, summary:', JSON.stringify(summary.value))
     } catch (e: any) {
-      console.error('[cart] clearCart — error:', e)
       error.value = e?.data?.detail || 'Error al vaciar carrito'
     } finally {
       isLoading.value = false
