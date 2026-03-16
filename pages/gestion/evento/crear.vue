@@ -175,6 +175,26 @@
                 </select>
               </div>
 
+              <!-- Commission Percentage -->
+              <div>
+                <label for="commission_pct" class="block text-sm font-medium text-secondary-900 mb-2">
+                  Comisión para promotores
+                </label>
+                <div class="relative">
+                  <input
+                    id="commission_pct"
+                    v-model.number="form.commission_percentage"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.5"
+                    class="w-full px-4 py-2 pr-8 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 text-secondary-900"
+                  />
+                  <span class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-500 text-sm font-medium pointer-events-none">%</span>
+                </div>
+                <p class="text-xs text-secondary-500 mt-1">Sobre el precio base, sin fee de servicio</p>
+              </div>
+
               <!-- Start Date -->
               <div>
                 <label class="block text-sm font-medium text-secondary-900 mb-2">
@@ -402,6 +422,45 @@
             </div>
           </div>
 
+          <!-- Commission & Fee Info -->
+          <div class="px-4 sm:px-6 md:px-8 py-4 sm:py-6 border-b border-secondary-200 bg-secondary-50">
+            <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wide mb-3 sm:mb-4">
+              Comisión y Fee de Servicio
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4">
+              <div>
+                <p class="text-sm text-secondary-600 mb-1">Comisión para promotores</p>
+                <p class="text-lg font-bold text-secondary-900">{{ form.commission_percentage }}%</p>
+              </div>
+              <div>
+                <p class="text-sm text-secondary-600 mb-1">Tier de fee de servicio</p>
+                <p class="text-sm text-secondary-500 italic">Se asignará automáticamente según la capacidad total de áreas</p>
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm border border-secondary-200 rounded-lg overflow-hidden">
+                <thead>
+                  <tr class="bg-secondary-100">
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wide">Capacidad</th>
+                    <th class="px-3 py-2 text-right text-xs font-semibold text-secondary-600 uppercase tracking-wide">Fee fijo</th>
+                    <th class="px-3 py-2 text-right text-xs font-semibold text-secondary-600 uppercase tracking-wide">% adicional</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="tier in SERVICE_FEE_TIERS"
+                    :key="tier.label"
+                    class="border-t border-secondary-200"
+                  >
+                    <td class="px-3 py-2 text-secondary-700">{{ tier.label }}</td>
+                    <td class="px-3 py-2 text-right text-secondary-700">{{ formatCOP(tier.fixedFee) }}</td>
+                    <td class="px-3 py-2 text-right text-secondary-700">{{ tier.percentage }}%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <!-- Images Preview -->
           <div v-if="form.banner_url || form.cover_url" class="px-4 sm:px-6 md:px-8 py-4 sm:py-6">
             <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wide mb-3 sm:mb-4">
@@ -502,6 +561,9 @@ const isSubmitting = ref(false)
 // Locations store
 const locationsStore = useLocationsStore()
 
+// Service fee
+const { getTierForCapacity, formatCOP, SERVICE_FEE_TIERS } = useServiceFee()
+
 // Form state
 const form = reactive({
   cluster_name: '',
@@ -514,6 +576,7 @@ const form = reactive({
   city: '',
   country: 'CO', // Default to Colombia
   is_active: false,
+  commission_percentage: 10,
   // Images
   banner_url: null as string | null,
   cover_url: null as string | null
@@ -677,7 +740,8 @@ async function submitEvent() {
       cluster_type: form.cluster_type,
       slug_cluster: generateSlug(form.cluster_name), // Auto-generate slug
       start_date: form.start_date ? new Date(form.start_date).toISOString() : null,
-      is_active: form.is_active
+      is_active: form.is_active,
+      commission_percentage: form.commission_percentage
     }
 
     // Optional fields

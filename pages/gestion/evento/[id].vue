@@ -197,6 +197,64 @@
                   <p class="text-xs text-secondary-500 mt-1">El slug no se puede modificar</p>
                 </div>
 
+                <!-- Commission Percentage -->
+                <div>
+                  <label for="commission_pct" class="block text-sm font-medium text-secondary-900 mb-2">
+                    Comisión para promotores
+                  </label>
+                  <div class="relative">
+                    <input
+                      id="commission_pct"
+                      v-model.number="form.commission_percentage"
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.5"
+                      class="w-full px-4 py-2 pr-8 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 text-secondary-900"
+                    />
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-500 text-sm font-medium pointer-events-none">%</span>
+                  </div>
+                  <p class="text-xs text-secondary-500 mt-1">Sobre el precio base, sin fee de servicio</p>
+                </div>
+
+                <!-- Fee Tier Preview -->
+                <div class="md:col-span-2">
+                  <p class="text-sm font-medium text-secondary-900 mb-3">Fee de servicio por tier</p>
+                  <div v-if="!eventData?.total_capacity" class="text-sm text-secondary-500 italic mb-3">
+                    Agrega áreas al evento para determinar el tier automáticamente.
+                  </div>
+                  <div v-else class="text-sm text-secondary-600 mb-3">
+                    Capacidad total: <span class="font-semibold text-secondary-900">{{ eventData.total_capacity.toLocaleString('es-CO') }} personas</span>
+                    &mdash; Tier activo: <span class="font-semibold text-primary-700">{{ activeTier.label }}</span>
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-sm border border-secondary-200 rounded-lg overflow-hidden">
+                      <thead>
+                        <tr class="bg-secondary-100">
+                          <th class="px-3 py-2 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wide">Capacidad</th>
+                          <th class="px-3 py-2 text-right text-xs font-semibold text-secondary-600 uppercase tracking-wide">Fee fijo</th>
+                          <th class="px-3 py-2 text-right text-xs font-semibold text-secondary-600 uppercase tracking-wide">% adicional</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          v-for="tier in SERVICE_FEE_TIERS"
+                          :key="tier.label"
+                          class="border-t border-secondary-200 transition-colors"
+                          :class="tier.label === activeTier.label && eventData?.total_capacity ? 'bg-primary-50' : ''"
+                        >
+                          <td class="px-3 py-2" :class="tier.label === activeTier.label && eventData?.total_capacity ? 'text-primary-800 font-semibold' : 'text-secondary-700'">
+                            {{ tier.label }}
+                            <span v-if="tier.label === activeTier.label && eventData?.total_capacity" class="ml-2 text-xs bg-primary-600 text-white px-1.5 py-0.5 rounded">activo</span>
+                          </td>
+                          <td class="px-3 py-2 text-right" :class="tier.label === activeTier.label && eventData?.total_capacity ? 'text-primary-800 font-semibold' : 'text-secondary-700'">{{ formatCOP(tier.fixedFee) }}</td>
+                          <td class="px-3 py-2 text-right" :class="tier.label === activeTier.label && eventData?.total_capacity ? 'text-primary-800 font-semibold' : 'text-secondary-700'">{{ tier.percentage }}%</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
                 <!-- Start Date -->
                 <div>
                   <label class="block text-sm font-medium text-secondary-900 mb-2">
@@ -446,6 +504,9 @@ const isSubmitting = ref(false)
 // Locations store
 const locationsStore = useLocationsStore()
 
+// Service fee
+const { getTierForCapacity, formatCOP, SERVICE_FEE_TIERS } = useServiceFee()
+
 // Form state
 const form = reactive({
   cluster_name: '',
@@ -459,6 +520,7 @@ const form = reactive({
   city: '',
   country: '', // Stores country code (e.g., 'CO')
   is_active: false,
+  commission_percentage: 10,
   // Image URLs
   banner_url: '' as string | null,
   cover_url: '' as string | null
@@ -498,6 +560,9 @@ const { data: eventData, pending: isLoading, error: fetchError } = useAsyncData(
   }
 )
 
+// Active tier based on loaded event's total_capacity
+const activeTier = computed(() => getTierForCapacity(eventData.value?.total_capacity ?? 0))
+
 // Watch for event data to populate form
 watch(eventData, async (newData) => {
   if (newData) {
@@ -508,6 +573,7 @@ watch(eventData, async (newData) => {
     form.end_date = newData.end_date ? formatDateForInput(newData.end_date) : ''
     form.description = newData.description || ''
     form.is_active = newData.is_active || false
+    form.commission_percentage = newData.commission_percentage ?? 10
 
     // Extra attributes
     const extra = newData.extra_attributes || {}
@@ -646,7 +712,8 @@ async function submitEvent() {
       cluster_name: form.cluster_name,
       cluster_type: form.cluster_type,
       start_date: form.start_date ? new Date(form.start_date).toISOString() : null,
-      is_active: form.is_active
+      is_active: form.is_active,
+      commission_percentage: form.commission_percentage
     }
 
     // Optional fields
