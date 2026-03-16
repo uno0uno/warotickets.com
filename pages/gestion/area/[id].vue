@@ -287,28 +287,26 @@
                   <p class="text-xs text-secondary-400 mt-1">No editable - configuracion de mesas/palcos</p>
                 </div>
 
-                <!-- Dynamic Service Cost Info -->
-                <div v-if="form.price && form.price > 0" class="md:col-span-2 bg-secondary-50 rounded-lg p-4 border border-secondary-200">
+                <!-- Inherited Fee Banner -->
+                <div v-if="eventData && form.price && form.price > 0" class="md:col-span-2 bg-secondary-50 rounded-lg p-4 border border-secondary-200">
                   <div class="flex items-center gap-2 mb-3">
                     <InformationCircleIcon class="w-5 h-5 text-primary-600" />
-                    <p class="text-sm font-medium text-secondary-900">Costo de Servicio Waro Tickets</p>
+                    <p class="text-sm font-medium text-secondary-900">Fee de servicio heredado del evento</p>
                   </div>
-                  <p class="text-xs text-secondary-600 mb-3">El costo de servicio varia segun el volumen de boletas vendidas:</p>
-                  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div
-                      v-for="tier in serviceTiers"
-                      :key="tier.label"
-                      class="rounded-lg p-3 transition-all"
-                      :class="tier.isActive ? 'bg-primary-50 border-2 border-primary-500 ring-2 ring-primary-100' : 'bg-white border border-secondary-200'"
-                    >
-                      <p class="text-xs font-medium mb-1" :class="tier.isActive ? 'text-primary-700' : 'text-secondary-700'">{{ tier.label }}</p>
-                      <p class="text-xs text-secondary-500 mb-2">2.39% + ${{ tier.fixedFee.toLocaleString('es-CO') }}</p>
-                      <p class="text-sm font-bold" :class="tier.isActive ? 'text-primary-700' : 'text-secondary-900'">${{ tier.serviceCost.toLocaleString('es-CO') }}</p>
-                      <p class="text-xs text-secondary-500">Publico: ${{ tier.publicPrice.toLocaleString('es-CO') }}</p>
-                      <span v-if="tier.isActive" class="inline-block mt-2 text-xs font-medium text-primary-600 bg-primary-100 px-2 py-0.5 rounded">Aplica</span>
+                  <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                      <p class="text-xs text-secondary-500">Capacidad total del evento</p>
+                      <p class="text-sm font-semibold text-secondary-900">{{ clusterTotalCapacity }} personas</p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-secondary-500">Tier activo</p>
+                      <p class="text-sm font-semibold text-primary-700">{{ currentTier.label }}</p>
                     </div>
                   </div>
-                  <p class="text-xs text-secondary-500 mt-3 italic">* Tu recibes: ${{ Number(form.price).toLocaleString('es-CO') }} por boleta. Tarifas incluyen IVA.</p>
+                  <div class="bg-primary-50 border border-primary-200 rounded-lg p-3">
+                    <p class="text-xs text-secondary-600">Tarifa: {{ currentTier.percentage }}% + {{ formatCOP(currentTier.fixedFee) }} → Precio público: <strong>{{ formatCOP(currentFee.publicPrice) }}</strong></p>
+                  </div>
+                  <p class="text-xs text-secondary-500 mt-3 italic">* Tu recibes: {{ formatCOP(form.price) }} por boleta. Tarifas incluyen IVA.</p>
                 </div>
               </div>
             </div>
@@ -402,42 +400,18 @@ const form = reactive({
   status: 'available'
 })
 
-// Service cost tiers based on volume (from COTIZACION_WARO_TICKETS_2026.pdf)
-// Formula: price * 2.39% + fixed fee (varies by volume, already includes IVA)
-const RATE = 0.0239
+const { getTierForCapacity, computeServiceFee, formatCOP } = useServiceFee()
 
-const serviceTiers = computed(() => {
-  const price = form.price || 0
-  if (price <= 0) return []
+const clusterTotalCapacity = computed(() => (eventData.value as any)?.total_capacity ?? 0)
+const currentTier = computed(() => getTierForCapacity(clusterTotalCapacity.value))
+const currentFee = computed(() => computeServiceFee(form.price ?? 0, clusterTotalCapacity.value))
 
-  const tiers = [
-    { label: '1 - 500', fixedFee: 1290 },
-    { label: '501 - 2,000', fixedFee: 1190 },
-    { label: '2,001 - 5,000', fixedFee: 1090 },
-    { label: '+ 5,000', fixedFee: 990 }
-  ]
-
-  const capacity = form.capacity || 0
-
-  return tiers.map((tier, index) => {
-    const serviceCost = Math.round(price * RATE + tier.fixedFee)
-    // Determine if this tier is active based on capacity
-    let isActive = false
-    if (capacity > 0) {
-      if (index === 0 && capacity <= 500) isActive = true
-      else if (index === 1 && capacity > 500 && capacity <= 2000) isActive = true
-      else if (index === 2 && capacity > 2000 && capacity <= 5000) isActive = true
-      else if (index === 3 && capacity > 5000) isActive = true
-    }
-    return {
-      label: tier.label,
-      fixedFee: tier.fixedFee,
-      serviceCost,
-      publicPrice: price + serviceCost,
-      isActive
-    }
-  })
-})
+// Fetch event data for cluster total_capacity
+const { data: eventData } = useAsyncData(
+  `event-for-area-${eventId.value}`,
+  () => eventId.value ? $fetch(`/api/events/${eventId.value}`, { credentials: 'include' }) : Promise.resolve(null),
+  { server: false, transform: (r: any) => r?.data || r }
+)
 
 // Fetch area data
 const { data: areaData, pending: isLoading, error: fetchError } = useAsyncData(

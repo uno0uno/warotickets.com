@@ -234,28 +234,34 @@
                   />
                 </div>
 
-                <!-- Dynamic Service Cost Info -->
-                <div v-if="form.price && form.price > 0" class="md:col-span-2 bg-secondary-50 rounded-lg p-4 border border-secondary-200">
+                <!-- Inherited Fee Banner -->
+                <div v-if="eventData && form.price && form.price > 0" class="md:col-span-2 bg-secondary-50 rounded-lg p-4 border border-secondary-200">
                   <div class="flex items-center gap-2 mb-3">
                     <InformationCircleIcon class="w-5 h-5 text-primary-600" />
-                    <p class="text-sm font-medium text-secondary-900">Costo de Servicio Waro Tickets</p>
+                    <p class="text-sm font-medium text-secondary-900">Fee de servicio heredado del evento</p>
                   </div>
-                  <p class="text-xs text-secondary-600 mb-3">El costo de servicio varia segun el volumen de boletas vendidas:</p>
-                  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div
-                      v-for="tier in serviceTiers"
-                      :key="tier.label"
-                      class="rounded-lg p-3 transition-all"
-                      :class="tier.isActive ? 'bg-primary-50 border-2 border-primary-500 ring-2 ring-primary-100' : 'bg-white border border-secondary-200'"
-                    >
-                      <p class="text-xs font-medium mb-1" :class="tier.isActive ? 'text-primary-700' : 'text-secondary-700'">{{ tier.label }}</p>
-                      <p class="text-xs text-secondary-500 mb-2">2.39% + ${{ tier.fixedFee.toLocaleString('es-CO') }}</p>
-                      <p class="text-sm font-bold" :class="tier.isActive ? 'text-primary-700' : 'text-secondary-900'">${{ tier.serviceCost.toLocaleString('es-CO') }}</p>
-                      <p class="text-xs text-secondary-500">Publico: ${{ tier.publicPrice.toLocaleString('es-CO') }}</p>
-                      <span v-if="tier.isActive" class="inline-block mt-2 text-xs font-medium text-primary-600 bg-primary-100 px-2 py-0.5 rounded">Aplica</span>
+                  <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                      <p class="text-xs text-secondary-500">Capacidad actual del evento</p>
+                      <p class="text-sm font-semibold text-secondary-900">{{ clusterTotalCapacity }} personas</p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-secondary-500">Capacidad proyectada (+ esta área)</p>
+                      <p class="text-sm font-semibold text-secondary-900">{{ projectedCapacity }} personas</p>
                     </div>
                   </div>
-                  <p class="text-xs text-secondary-500 mt-3 italic">* Tu recibes: ${{ Number(form.price).toLocaleString('es-CO') }} por boleta. Tarifas incluyen IVA.</p>
+                  <div class="bg-primary-50 border border-primary-200 rounded-lg p-3 mb-3">
+                    <p class="text-xs text-secondary-600 mb-1">Tier activo (proyectado): <strong class="text-primary-700">{{ projectedTier.label }}</strong></p>
+                    <p class="text-xs text-secondary-600">Tarifa: {{ projectedTier.percentage }}% + {{ formatCOP(projectedTier.fixedFee) }} → Precio público: <strong>{{ formatCOP(projectedFee.publicPrice) }}</strong></p>
+                  </div>
+                  <div v-if="tierChanges" class="bg-yellow-50 border border-yellow-300 rounded-lg p-3 flex items-start gap-2 mb-3">
+                    <ExclamationTriangleIcon class="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                    <p class="text-xs text-yellow-800">
+                      Al agregar esta área, el tier cambiará de <strong>{{ currentTier.label }}</strong> a <strong>{{ projectedTier.label }}</strong>.
+                      El fee de todas las áreas del evento se actualizará automáticamente.
+                    </p>
+                  </div>
+                  <p class="text-xs text-secondary-500 italic">* Tu recibes: {{ formatCOP(form.price) }} por boleta. Tarifas incluyen IVA.</p>
                 </div>
               </div>
             </div>
@@ -310,24 +316,24 @@
               </div>
             </div>
 
-            <!-- Service Cost - Active Tier Only -->
-            <div v-if="activeTier" class="px-4 sm:px-6 md:px-8 py-4 sm:py-6 border-t border-secondary-200">
+            <!-- Service Cost - Cluster Tier -->
+            <div v-if="projectedFee.totalFee > 0" class="px-4 sm:px-6 md:px-8 py-4 sm:py-6 border-t border-secondary-200">
               <p class="text-xs font-semibold text-secondary-500 uppercase tracking-wide mb-3 sm:mb-4">
                 Costo de Servicio Aplicado
               </p>
               <div class="bg-primary-50 border-2 border-primary-500 rounded-lg p-4">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <p class="text-sm font-medium text-primary-700 mb-1">Volumen: {{ activeTier.label }} boletas</p>
-                    <p class="text-xs text-secondary-600">Tarifa: 2.39% + ${{ activeTier.fixedFee.toLocaleString('es-CO') }}</p>
+                    <p class="text-sm font-medium text-primary-700 mb-1">Tier: {{ projectedTier.label }} boletas</p>
+                    <p class="text-xs text-secondary-600">Tarifa: {{ projectedTier.percentage }}% + {{ formatCOP(projectedTier.fixedFee) }}</p>
                   </div>
                   <div class="text-left sm:text-right">
                     <p class="text-xs text-secondary-500">Costo servicio</p>
-                    <p class="text-lg font-bold text-primary-700">${{ activeTier.serviceCost.toLocaleString('es-CO') }}</p>
+                    <p class="text-lg font-bold text-primary-700">{{ formatCOP(projectedFee.totalFee) }}</p>
                   </div>
                   <div class="text-left sm:text-right">
                     <p class="text-xs text-secondary-500">Precio publico</p>
-                    <p class="text-xl font-bold text-secondary-900">${{ activeTier.publicPrice.toLocaleString('es-CO') }}</p>
+                    <p class="text-xl font-bold text-secondary-900">{{ formatCOP(projectedFee.publicPrice) }}</p>
                   </div>
                 </div>
               </div>
@@ -420,47 +426,14 @@ const form = reactive({
   unit_capacity: null as number | null
 })
 
-// Service cost tiers based on volume (from COTIZACION_WARO_TICKETS_2026.pdf)
-// Formula: price * 2.39% + fixed fee (varies by volume, already includes IVA)
-const RATE = 0.0239
+const { getTierForCapacity, computeServiceFee, formatCOP } = useServiceFee()
 
-const serviceTiers = computed(() => {
-  const price = form.price || 0
-  if (price <= 0) return []
-
-  const tiers = [
-    { label: '1 - 500', fixedFee: 1290 },
-    { label: '501 - 2,000', fixedFee: 1190 },
-    { label: '2,001 - 5,000', fixedFee: 1090 },
-    { label: '+ 5,000', fixedFee: 990 }
-  ]
-
-  const capacity = form.capacity || 0
-
-  return tiers.map((tier, index) => {
-    const serviceCost = Math.round(price * RATE + tier.fixedFee)
-    // Determine if this tier is active based on capacity
-    let isActive = false
-    if (capacity > 0) {
-      if (index === 0 && capacity <= 500) isActive = true
-      else if (index === 1 && capacity > 500 && capacity <= 2000) isActive = true
-      else if (index === 2 && capacity > 2000 && capacity <= 5000) isActive = true
-      else if (index === 3 && capacity > 5000) isActive = true
-    }
-    return {
-      label: tier.label,
-      fixedFee: tier.fixedFee,
-      serviceCost,
-      publicPrice: price + serviceCost,
-      isActive
-    }
-  })
-})
-
-// Get only the active tier for the review section
-const activeTier = computed(() => {
-  return serviceTiers.value.find(tier => tier.isActive) || null
-})
+const clusterTotalCapacity = computed(() => (eventData.value as any)?.total_capacity ?? 0)
+const projectedCapacity = computed(() => clusterTotalCapacity.value + (form.capacity ?? 0))
+const currentTier = computed(() => getTierForCapacity(clusterTotalCapacity.value))
+const projectedTier = computed(() => getTierForCapacity(projectedCapacity.value))
+const projectedFee = computed(() => computeServiceFee(form.price ?? 0, projectedCapacity.value))
+const tierChanges = computed(() => currentTier.value !== projectedTier.value && (form.capacity ?? 0) > 0)
 
 // Fetch event data for display
 const { data: eventData } = useAsyncData(
