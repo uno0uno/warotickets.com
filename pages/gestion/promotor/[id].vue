@@ -159,7 +159,9 @@
                   <div class="flex items-end justify-between pt-2 border-t border-border">
                     <div>
                       <p class="text-xs text-text-tertiary mb-0.5">Comision</p>
-                      <p class="text-base font-semibold text-crocus-600">{{ event.commission_percentage }}%</p>
+                      <p class="text-base font-semibold text-crocus-600">{{ event.override_commission_percentage }}%</p>
+                      <p v-if="event.has_override" class="text-[10px] text-text-tertiary line-through">{{ event.cluster_commission_percentage }}% base</p>
+                      <p v-else class="text-[10px] text-text-tertiary">del evento</p>
                     </div>
                     <div class="text-right">
                       <p class="text-xs text-text-tertiary mb-0.5">Comision Generada</p>
@@ -193,7 +195,13 @@
                 <tr v-for="event in assignedEvents" :key="event.cluster_id" class="hover:bg-surface-secondary/50 transition-colors">
                   <td class="px-4 py-3 text-sm font-bold text-text-primary">{{ event.cluster_name }}</td>
                   <td class="px-4 py-3 text-sm text-text-secondary">{{ formatDate(event.start_date) }}</td>
-                  <td class="px-4 py-3 text-sm font-bold text-crocus-600 text-center">{{ event.commission_percentage }}%</td>
+                  <td class="px-4 py-3 text-center">
+                    <div class="flex flex-col items-center gap-0.5">
+                      <span class="text-sm font-bold text-crocus-600">{{ event.override_commission_percentage }}%</span>
+                      <span v-if="event.has_override" class="text-[10px] text-text-tertiary line-through">{{ event.cluster_commission_percentage }}% base</span>
+                      <span v-else class="text-[10px] text-text-tertiary">del evento</span>
+                    </div>
+                  </td>
                   <td class="px-4 py-3 text-sm text-text-primary text-right">{{ event.sales_count }}</td>
                   <td class="px-4 py-3 text-sm text-text-primary text-right">{{ formatCurrencyFull(event.revenue) }}</td>
                   <td class="px-4 py-3 text-sm font-bold text-text-primary text-right">{{ formatCurrencyFull(event.commission_earned) }}</td>
@@ -224,7 +232,7 @@
               </button>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               <div>
                 <label class="block text-xs font-medium text-text-secondary mb-1">Fecha</label>
                 <div class="px-3 py-2 text-sm bg-surface border border-border rounded-lg text-text-secondary">
@@ -232,15 +240,31 @@
                 </div>
               </div>
               <div>
-                <label class="block text-xs font-medium text-text-secondary mb-1">Comision %</label>
+                <label class="block text-xs font-medium text-text-secondary mb-1">Comision base</label>
+                <div class="px-3 py-2 text-sm bg-surface-secondary border border-border rounded-lg text-text-secondary">
+                  {{ event.cluster_commission_percentage }}%
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-text-secondary mb-1">Override (opcional)</label>
                 <input
                   v-model.number="event.commission_percentage"
                   type="number"
                   step="0.5"
                   min="0"
                   max="100"
+                  :placeholder="`${event.cluster_commission_percentage} (base)`"
                   class="w-full px-3 py-2 text-sm border border-border rounded-lg bg-surface text-text-primary focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
+                <div class="flex justify-between mt-0.5">
+                  <span class="text-[10px] text-text-tertiary">Vacío = usar base del evento</span>
+                  <button
+                    v-if="event.commission_percentage !== null"
+                    type="button"
+                    @click="event.commission_percentage = null"
+                    class="text-[10px] text-primary hover:underline"
+                  >Restablecer</button>
+                </div>
               </div>
               <div>
                 <label class="block text-xs font-medium text-text-secondary mb-1">Ventas</label>
@@ -300,22 +324,30 @@
                 </select>
               </div>
 
-              <div class="grid grid-cols-2 gap-4 mb-4">
+              <div class="grid grid-cols-3 gap-3 mb-4">
                 <div>
-                  <label class="block text-xs font-medium text-text-secondary mb-1">Comision % *</label>
+                  <label class="block text-xs font-medium text-text-secondary mb-1">Base del evento</label>
+                  <div class="px-3 py-2 text-sm bg-surface-secondary border border-border rounded-lg text-text-secondary">
+                    {{ selectedEventData?.commission_percentage ?? '—' }}%
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-text-secondary mb-1">Override (opcional)</label>
                   <input
                     v-model.number="newEventForm.commission_percentage"
                     type="number"
                     step="0.5"
                     min="0"
                     max="100"
-                    class="w-full px-3 py-2 text-sm border border-border rounded-lg bg-surface text-text-primary focus:ring-2 focus:ring-primary focus:border-transparent"
+                    :placeholder="selectedEventData ? `${selectedEventData.commission_percentage}` : ''"
+                    :disabled="!newEventForm.event_id"
+                    class="w-full px-3 py-2 text-sm border border-border rounded-lg bg-surface text-text-primary focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50"
                   />
                 </div>
                 <div>
-                  <label class="block text-xs font-medium text-text-secondary mb-1">Preview</label>
+                  <label class="block text-xs font-medium text-text-secondary mb-1">Efectiva</label>
                   <div class="px-3 py-2 text-sm bg-primary/10 text-primary font-bold border border-border rounded-lg">
-                    {{ newEventForm.commission_percentage || promoter.commission_percentage }}%
+                    {{ newEventForm.commission_percentage ?? selectedEventData?.commission_percentage ?? '—' }}%
                   </div>
                 </div>
               </div>
@@ -475,9 +507,16 @@ const totalCommission = computed(() => {
   return assignedEvents.value.reduce((sum: number, e: any) => sum + (e.commission_earned || 0), 0)
 })
 
+const selectedEventData = computed(() =>
+  availableEvents.value.find((e: any) => String(e.id) === String(newEventForm.event_id))
+)
+
 // Edit mode
 function enterEditMode() {
-  editEvents.value = assignedEvents.value.map((e: any) => ({ ...e }))
+  editEvents.value = assignedEvents.value.map((e: any) => ({
+    ...e,
+    commission_percentage: e.has_override ? e.override_commission_percentage : null
+  }))
   isEditMode.value = true
 }
 
@@ -530,7 +569,9 @@ function addEvent() {
     cluster_id: selected.id,
     cluster_name: selected.name,
     start_date: selected.start_date,
-    commission_percentage: newEventForm.commission_percentage || promoter.value?.commission_percentage || 10,
+    cluster_commission_percentage: selected.commission_percentage ?? 10,
+    commission_percentage: newEventForm.commission_percentage,
+    has_override: newEventForm.commission_percentage !== null && newEventForm.commission_percentage !== selected.commission_percentage,
     sales_count: 0,
     revenue: 0,
     commission_earned: 0
