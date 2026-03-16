@@ -1,5 +1,57 @@
 <template>
   <div>
+    <!-- Toggle Promotion Confirmation Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="cancelToggle"></div>
+          <div class="relative bg-surface rounded-2xl shadow-xl max-w-md w-full p-6 border border-border">
+            <div class="flex justify-center mb-4">
+              <div
+                class="w-16 h-16 rounded-full flex items-center justify-center"
+                :class="promoToToggle?.is_active ? 'bg-warning/10' : 'bg-success/10'"
+              >
+                <EyeSlashIcon v-if="promoToToggle?.is_active" class="w-8 h-8 text-warning" />
+                <EyeIcon v-else class="w-8 h-8 text-success" />
+              </div>
+            </div>
+            <h3 class="text-xl font-bold text-text-primary text-center mb-2">
+              {{ promoToToggle?.is_active ? 'Desactivar promoción' : 'Activar promoción' }}
+            </h3>
+            <p class="text-text-secondary text-center mb-6">
+              <template v-if="promoToToggle?.is_active">
+                La promoción <strong class="text-text-primary">{{ promoToToggle?.promotion_name }}</strong>
+                dejará de estar disponible para los compradores.
+              </template>
+              <template v-else>
+                La promoción <strong class="text-text-primary">{{ promoToToggle?.promotion_name }}</strong>
+                estará disponible para los compradores.
+              </template>
+            </p>
+            <div class="flex gap-3">
+              <button
+                @click="cancelToggle"
+                class="flex-1 px-4 py-2.5 border border-border rounded-xl text-text-primary hover:bg-surface-secondary transition-colors font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                @click="confirmToggle"
+                :disabled="isTogglingPromo"
+                class="flex-1 px-4 py-2.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                :class="promoToToggle?.is_active
+                  ? 'bg-warning text-warning-foreground hover:bg-warning/90'
+                  : 'bg-success text-success-foreground hover:bg-success/90'"
+              >
+                <div v-if="isTogglingPromo" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                <span>{{ promoToToggle?.is_active ? 'Desactivar' : 'Activar' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
     <!-- Loading Events State -->
     <UiGestionLoader v-if="isLoadingEvents" />
 
@@ -188,9 +240,16 @@
               {{ formatUses(row) }}
             </template>
 
-            <!-- Custom cell: Date range -->
-            <template #cell-start_time="{ row }">
-              {{ formatDateRange(row.start_time, row.end_time) }}
+            <!-- Custom cell: Start date -->
+            <template #cell-start_time="{ value }">
+              <span v-if="!value" class="text-text-tertiary">—</span>
+              <span v-else class="text-sm text-text-secondary">{{ formatDate(value) }}</span>
+            </template>
+
+            <!-- Custom cell: End date -->
+            <template #cell-end_time="{ value }">
+              <span v-if="!value" class="text-text-tertiary">—</span>
+              <span v-else class="text-sm text-text-secondary">{{ formatDate(value) }}</span>
             </template>
 
             <!-- Custom cell: Status badge -->
@@ -206,6 +265,17 @@
             <!-- Custom cell: Actions -->
             <template #cell-actions="{ row }">
               <div class="flex items-center gap-2 justify-center">
+                <button
+                  @click.prevent="togglePromoStatus(row)"
+                  class="p-1.5 rounded-lg transition-colors"
+                  :class="row.is_active ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'"
+                  :title="row.is_active ? 'Desactivar promoción' : 'Activar promoción'"
+                  :disabled="togglingPromoId === row.id"
+                >
+                  <div v-if="togglingPromoId === row.id" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                  <EyeSlashIcon v-else-if="row.is_active" class="w-4 h-4" />
+                  <EyeIcon v-else class="w-4 h-4" />
+                </button>
                 <NuxtLink
                   :to="`/gestion/promocion/${row.id}?event=${selectedEventId}`"
                   class="p-1.5 text-primary hover:bg-primary/10 rounded-lg"
@@ -256,13 +326,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import {
   TicketIcon,
   MagnifyingGlassIcon,
   PlusIcon,
   PencilIcon,
-  TrashIcon
+  TrashIcon,
+  EyeIcon,
+  EyeSlashIcon
 } from '@heroicons/vue/24/outline'
 
 definePageMeta({
@@ -287,6 +360,12 @@ const sortDirection = ref<'asc' | 'desc'>('asc')
 const showDeleteModal = ref(false)
 const promotionToDelete = ref<any>(null)
 const isDeleting = ref(false)
+
+// Toggle promo state
+const showConfirmModal = ref(false)
+const promoToToggle = ref<any>(null)
+const isTogglingPromo = ref(false)
+const togglingPromoId = ref<string | null>(null)
 
 // Load events for selector - use immediate: false to wait for auth
 const { data: eventsData, pending: isLoadingEvents, refresh: refreshEvents } = useAsyncData('promotions-events-list', () =>
@@ -358,17 +437,18 @@ async function loadPromotions() {
   }
 }
 
-// Table columns - updated for combo system
+// Table columns
 const columns = [
   { key: 'promotion_name', title: 'Nombre', sortable: true, align: 'left' as const },
-  { key: 'combo', title: 'Combo', sortable: false, align: 'left' as const },
+  { key: 'combo', title: 'Paquete', sortable: false, align: 'left' as const },
   { key: 'total_tickets', title: 'Boletas', sortable: true, align: 'center' as const },
   { key: 'pricing_type', title: 'Tipo', sortable: true, align: 'center' as const },
-  { key: 'pricing_value', title: 'Valor', sortable: true, align: 'center' as const },
-  { key: 'uses_count', title: 'Usos', sortable: true, align: 'center' as const },
-  { key: 'start_time', title: 'Vigencia', sortable: true, align: 'center' as const },
+  { key: 'pricing_value', title: 'Precio/Descuento', sortable: true, align: 'center' as const },
+  { key: 'start_time', title: 'Inicio', sortable: true, align: 'center' as const },
+  { key: 'end_time', title: 'Fin', sortable: true, align: 'center' as const },
+  { key: 'uses_count', title: 'Disponibilidad', sortable: true, align: 'center' as const },
   { key: 'is_currently_valid', title: 'Estado', sortable: true, align: 'center' as const },
-  { key: 'actions', title: 'Acciones', sortable: false, align: 'center' as const }
+  { key: 'actions', title: '', sortable: false, align: 'center' as const }
 ]
 
 // Filtered and sorted promotions
@@ -417,6 +497,18 @@ function handleSort(field: string) {
     sortField.value = field
     sortDirection.value = 'asc'
   }
+}
+
+function formatDate(dateString: string) {
+  if (!dateString) return '-'
+  const date = new Date(dateString)
+  return date.toLocaleDateString('es-CO', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
 function formatDateRange(start: string, end: string | null) {
@@ -502,7 +594,6 @@ async function deletePromotion() {
       credentials: 'include'
     })
 
-    // Actualizar lista local
     promotions.value = promotions.value.filter(p => p.id !== promotionToDelete.value.id)
     showDeleteModal.value = false
     promotionToDelete.value = null
@@ -513,4 +604,64 @@ async function deletePromotion() {
     isDeleting.value = false
   }
 }
+
+// Toggle promotion active status
+function togglePromoStatus(promo: any) {
+  promoToToggle.value = promo
+  showConfirmModal.value = true
+}
+
+function cancelToggle() {
+  showConfirmModal.value = false
+  promoToToggle.value = null
+}
+
+async function confirmToggle() {
+  if (!promoToToggle.value || isTogglingPromo.value) return
+
+  const promo = promoToToggle.value
+  togglingPromoId.value = promo.id
+  isTogglingPromo.value = true
+
+  try {
+    await $fetch(`/api/promotions/event/${selectedEventId.value}/${promo.id}`, {
+      method: 'PATCH',
+      body: { is_active: !promo.is_active },
+      credentials: 'include'
+    })
+
+    promo.is_active = !promo.is_active
+    showConfirmModal.value = false
+    promoToToggle.value = null
+  } catch (err: any) {
+    console.error('Error toggling promotion status:', err)
+    alert(err?.data?.detail || err?.message || 'Error al cambiar el estado de la promoción')
+  } finally {
+    isTogglingPromo.value = false
+    togglingPromoId.value = null
+  }
+}
 </script>
+
+<style scoped>
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active .relative,
+.modal-leave-active .relative {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.modal-enter-from .relative,
+.modal-leave-to .relative {
+  transform: scale(0.95);
+  opacity: 0;
+}
+</style>

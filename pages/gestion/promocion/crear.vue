@@ -125,9 +125,9 @@
               </div>
               <div class="ml-2 sm:ml-3 flex-1 min-w-0">
                 <p class="text-xs sm:text-sm font-medium truncate" :class="currentStep >= 2 ? 'text-secondary-900' : 'text-secondary-500'">
-                  Combo
+                  Precio
                 </p>
-                <p class="text-xs text-secondary-400 hidden sm:block truncate">Areas y cantidades</p>
+                <p class="text-xs text-secondary-400 hidden sm:block truncate">Tipo y valor</p>
               </div>
               <div class="flex-1 h-0.5 mx-2 sm:mx-4" :class="currentStep > 2 ? 'bg-secondary-600' : 'bg-secondary-200'"></div>
             </div>
@@ -147,9 +147,9 @@
               </div>
               <div class="ml-2 sm:ml-3 flex-1 min-w-0">
                 <p class="text-xs sm:text-sm font-medium truncate" :class="currentStep >= 3 ? 'text-secondary-900' : 'text-secondary-500'">
-                  Precio
+                  Combo
                 </p>
-                <p class="text-xs text-secondary-400 hidden sm:block truncate">Tipo y valor</p>
+                <p class="text-xs text-secondary-400 hidden sm:block truncate">Areas y cantidades</p>
               </div>
               <div class="flex-1 h-0.5 mx-2 sm:mx-4" :class="currentStep > 3 ? 'bg-secondary-600' : 'bg-secondary-200'"></div>
             </div>
@@ -216,8 +216,8 @@
             </div>
           </div>
 
-          <!-- Step 2: Combo Builder -->
-          <div v-else-if="currentStep === 2" key="step-2" class="bg-white border-secondary-200 border rounded-lg">
+          <!-- Step 3: Combo Builder -->
+          <div v-else-if="currentStep === 3" key="step-3" class="bg-white border-secondary-200 border rounded-lg">
             <div class="p-4 sm:p-6">
               <h3 class="text-base sm:text-lg font-semibold text-secondary-900 mb-2">Armar el Combo</h3>
               <p class="text-sm text-secondary-500 mb-4 sm:mb-6">Selecciona las areas y cantidad de boletas que incluye este combo/paquete</p>
@@ -308,8 +308,8 @@
             </div>
           </div>
 
-          <!-- Step 3: Pricing -->
-          <div v-else-if="currentStep === 3" key="step-3" class="bg-white border-secondary-200 border rounded-lg">
+          <!-- Step 2: Pricing -->
+          <div v-else-if="currentStep === 2" key="step-2" class="bg-white border-secondary-200 border rounded-lg">
             <div class="p-4 sm:p-6">
               <h3 class="text-base sm:text-lg font-semibold text-secondary-900 mb-2">Configuracion del Precio</h3>
               <p class="text-sm text-secondary-500 mb-4 sm:mb-6">Define como se calcula el precio del combo</p>
@@ -886,12 +886,12 @@ const canProceed = computed(() => {
     return form.promotion_name.trim().length > 0
   }
   if (currentStep.value === 2) {
-    return form.items.length > 0
-  }
-  if (currentStep.value === 3) {
     return form.pricing_type &&
       form.pricing_value > 0 &&
       form.start_time
+  }
+  if (currentStep.value === 3) {
+    return form.items.length > 0
   }
   return true
 })

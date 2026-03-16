@@ -1,5 +1,57 @@
 <template>
   <div>
+    <!-- Toggle Stage Confirmation Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="cancelToggle"></div>
+          <div class="relative bg-surface rounded-2xl shadow-xl max-w-md w-full p-6 border border-border">
+            <div class="flex justify-center mb-4">
+              <div
+                class="w-16 h-16 rounded-full flex items-center justify-center"
+                :class="stageToToggle?.is_active ? 'bg-warning/10' : 'bg-success/10'"
+              >
+                <EyeSlashIcon v-if="stageToToggle?.is_active" class="w-8 h-8 text-warning" />
+                <EyeIcon v-else class="w-8 h-8 text-success" />
+              </div>
+            </div>
+            <h3 class="text-xl font-bold text-text-primary text-center mb-2">
+              {{ stageToToggle?.is_active ? 'Desactivar etapa' : 'Activar etapa' }}
+            </h3>
+            <p class="text-text-secondary text-center mb-6">
+              <template v-if="stageToToggle?.is_active">
+                La etapa <strong class="text-text-primary">{{ stageToToggle?.stage_name }}</strong>
+                dejará de estar disponible para los compradores.
+              </template>
+              <template v-else>
+                La etapa <strong class="text-text-primary">{{ stageToToggle?.stage_name }}</strong>
+                estará disponible para los compradores.
+              </template>
+            </p>
+            <div class="flex gap-3">
+              <button
+                @click="cancelToggle"
+                class="flex-1 px-4 py-2.5 border border-border rounded-xl text-text-primary hover:bg-surface-secondary transition-colors font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                @click="confirmToggle"
+                :disabled="isTogglingStage"
+                class="flex-1 px-4 py-2.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                :class="stageToToggle?.is_active
+                  ? 'bg-warning text-warning-foreground hover:bg-warning/90'
+                  : 'bg-success text-success-foreground hover:bg-success/90'"
+              >
+                <div v-if="isTogglingStage" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                <span>{{ stageToToggle?.is_active ? 'Desactivar' : 'Activar' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
     <!-- Loading Events State -->
     <UiGestionLoader v-if="isLoadingEvents" />
 
@@ -184,6 +236,18 @@
               </span>
             </template>
 
+            <!-- Custom cell: Start date -->
+            <template #cell-start_time="{ value }">
+              <span v-if="!value" class="text-text-tertiary">—</span>
+              <span v-else class="text-sm text-text-secondary">{{ formatDate(value) }}</span>
+            </template>
+
+            <!-- Custom cell: End date -->
+            <template #cell-end_time="{ value }">
+              <span v-if="!value" class="text-text-tertiary">—</span>
+              <span v-else class="text-sm text-text-secondary">{{ formatDate(value) }}</span>
+            </template>
+
             <!-- Custom cell: Availability -->
             <template #cell-quantity_available="{ row }">
               {{ row.quantity_available - row.quantity_sold }} / {{ row.quantity_available }}
@@ -202,6 +266,17 @@
             <!-- Custom cell: Actions -->
             <template #cell-actions="{ row }">
               <div class="flex items-center gap-2 justify-center">
+                <button
+                  @click.prevent="toggleStageStatus(row)"
+                  class="p-1.5 rounded-lg transition-colors"
+                  :class="row.is_active ? 'text-warning hover:bg-warning/10' : 'text-success hover:bg-success/10'"
+                  :title="row.is_active ? 'Desactivar etapa' : 'Activar etapa'"
+                  :disabled="togglingStageId === row.id"
+                >
+                  <div v-if="togglingStageId === row.id" class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                  <EyeSlashIcon v-else-if="row.is_active" class="w-4 h-4" />
+                  <EyeIcon v-else class="w-4 h-4" />
+                </button>
                 <NuxtLink
                   :to="`/gestion/etapa/${row.id}?event=${selectedEventId}`"
                   class="p-1.5 text-primary hover:bg-primary/10 rounded-lg"
@@ -259,7 +334,9 @@ import {
   PlusIcon,
   PencilIcon,
   TicketIcon,
-  TrashIcon
+  TrashIcon,
+  EyeIcon,
+  EyeSlashIcon
 } from '@heroicons/vue/24/outline'
 
 definePageMeta({
@@ -284,6 +361,12 @@ const sortDirection = ref<'asc' | 'desc'>('asc')
 const showDeleteModal = ref(false)
 const stageToDelete = ref<any>(null)
 const isDeleting = ref(false)
+
+// Toggle stage state
+const showConfirmModal = ref(false)
+const stageToToggle = ref<any>(null)
+const isTogglingStage = ref(false)
+const togglingStageId = ref<number | null>(null)
 
 // Load events for selector - use immediate: false to wait for auth
 const { data: eventsData, pending: isLoadingEvents, refresh: refreshEvents } = useAsyncData('etapas-events-list', () =>
@@ -311,7 +394,6 @@ selectedEventId.value = initialEventId
 // Watch for auth to be ready before fetching data
 watch(() => authStore.user, (user) => {
   if (user) {
-    // Auth is ready, fetch events
     refreshEvents()
   }
 }, { immediate: true })
@@ -322,7 +404,6 @@ watch(selectedEventId, async (newEventId, oldEventId) => {
 
   if (newEventId) {
     await loadStages()
-    // Solo actualizar URL si es cambio del usuario (no carga inicial)
     if (oldEventId !== undefined && oldEventId !== '') {
       router.replace({ query: { event: String(newEventId) } })
     }
@@ -362,6 +443,8 @@ const columns = [
   { key: 'total_tickets', title: 'Boletas', sortable: false, align: 'center' as const },
   { key: 'pricing_type', title: 'Tipo', sortable: false, align: 'center' as const },
   { key: 'discount', title: 'Precio/Descuento', sortable: false, align: 'center' as const },
+  { key: 'start_time', title: 'Inicio', sortable: true, align: 'center' as const },
+  { key: 'end_time', title: 'Fin', sortable: true, align: 'center' as const },
   { key: 'quantity_available', title: 'Disponibilidad', sortable: true, align: 'center' as const },
   { key: 'is_active', title: 'Estado', sortable: true, align: 'center' as const },
   { key: 'actions', title: '', sortable: false, align: 'center' as const }
@@ -407,6 +490,18 @@ function handleSort(field: string) {
     sortField.value = field
     sortDirection.value = 'asc'
   }
+}
+
+function formatDate(dateString: string) {
+  if (!dateString) return '-'
+  const date = new Date(dateString)
+  return date.toLocaleDateString('es-CO', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
 function formatDateRange(start: string, end: string | null) {
@@ -489,7 +584,6 @@ async function deleteStage() {
       credentials: 'include'
     })
 
-    // Actualizar lista local
     stages.value = stages.value.filter(s => s.id !== stageToDelete.value.id)
     showDeleteModal.value = false
     stageToDelete.value = null
@@ -500,4 +594,65 @@ async function deleteStage() {
     isDeleting.value = false
   }
 }
+
+// Toggle stage active status
+function toggleStageStatus(stage: any) {
+  stageToToggle.value = stage
+  showConfirmModal.value = true
+}
+
+function cancelToggle() {
+  showConfirmModal.value = false
+  stageToToggle.value = null
+}
+
+async function confirmToggle() {
+  if (!stageToToggle.value || isTogglingStage.value) return
+
+  const stage = stageToToggle.value
+  togglingStageId.value = stage.id
+  isTogglingStage.value = true
+
+  try {
+    await $fetch(`/api/sale-stages/event/${selectedEventId.value}/${stage.id}`, {
+      method: 'PATCH',
+      body: { is_active: !stage.is_active },
+      credentials: 'include'
+    })
+
+    // Optimistic update
+    stage.is_active = !stage.is_active
+    showConfirmModal.value = false
+    stageToToggle.value = null
+  } catch (err: any) {
+    console.error('Error toggling stage status:', err)
+    alert(err?.data?.detail || err?.message || 'Error al cambiar el estado de la etapa')
+  } finally {
+    isTogglingStage.value = false
+    togglingStageId.value = null
+  }
+}
 </script>
+
+<style scoped>
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active .relative,
+.modal-leave-active .relative {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.modal-enter-from .relative,
+.modal-leave-to .relative {
+  transform: scale(0.95);
+  opacity: 0;
+}
+</style>
