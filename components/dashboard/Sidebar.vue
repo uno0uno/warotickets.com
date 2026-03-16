@@ -174,7 +174,7 @@
             <span class="text-[10px] text-titan-500/70 uppercase tracking-widest font-medium group-hover:text-titan-400 transition-colors">Administracion</span>
             <ChevronDownIcon :class="['w-3 h-3 text-titan-500/70 transition-transform duration-200', sections.administracion ? '' : '-rotate-90']" />
           </button>
-          <div :class="['overflow-hidden transition-all duration-200 space-y-1', isExpanded && !sections.administracion ? 'max-h-0 opacity-0' : 'max-h-40 opacity-100']">
+          <div :class="['overflow-hidden transition-all duration-200 space-y-1', isExpanded && !sections.administracion ? 'max-h-0 opacity-0' : 'max-h-52 opacity-100']">
             <NuxtLink
               to="/gestion"
               :class="[
@@ -188,6 +188,21 @@
             >
               <CalendarDaysIcon :class="['w-5 h-5 flex-shrink-0', isActive('/gestion') ? 'text-primary-500' : 'text-titan-500 group-hover:text-titan-300']" />
               <span v-if="isExpanded" class="whitespace-nowrap">Gestion de Eventos</span>
+            </NuxtLink>
+
+            <NuxtLink
+              to="/gestion/comisiones"
+              :class="[
+                'flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-sm group',
+                isExpanded ? '' : 'justify-center',
+                isActive('/gestion/comisiones')
+                  ? 'bg-primary-600/20 text-primary-400 font-medium'
+                  : 'text-titan-300 hover:bg-secondary-800 hover:text-white'
+              ]"
+              :title="!isExpanded ? 'Comisiones' : ''"
+            >
+              <BanknotesIcon :class="['w-5 h-5 flex-shrink-0', isActive('/gestion/comisiones') ? 'text-primary-500' : 'text-titan-500 group-hover:text-titan-300']" />
+              <span v-if="isExpanded" class="whitespace-nowrap">Comisiones</span>
             </NuxtLink>
 
             <NuxtLink
@@ -287,6 +302,7 @@
 <script setup lang="ts">
 import {
   ArrowRightOnRectangleIcon,
+  BanknotesIcon,
   CalendarDaysIcon,
   ChartBarIcon,
   ChevronDownIcon,

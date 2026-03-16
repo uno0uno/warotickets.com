@@ -34,7 +34,7 @@
           format="currency"
           variant="primary"
           size="sm"
-          subtitle="Comisiones generadas"
+          :subtitle="activeEventCommission ? `Comisión del evento: ${activeEventCommission}%` : 'Comisiones generadas'"
         />
         <SharedMetricCard
           title="Por Pagar"
@@ -69,6 +69,22 @@
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
             <div>
               <h3 class="text-base sm:text-lg font-bold text-text-primary">Historial de Ventas</h3>
+            </div>
+            <!-- Filtro por evento -->
+            <div v-if="assignedEvents.length > 0">
+              <select
+                v-model="selectedClusterId"
+                class="px-3 py-2 text-sm border border-border rounded-lg bg-surface text-text-primary focus:ring-2 focus:ring-primary focus:border-transparent"
+              >
+                <option value="">Todos los eventos</option>
+                <option
+                  v-for="event in assignedEvents"
+                  :key="event.cluster_id"
+                  :value="event.cluster_id"
+                >
+                  {{ event.cluster_name }} — {{ event.cluster_commission_percentage ?? event.commission_percentage }}% comisión
+                </option>
+              </select>
             </div>
           </div>
         </template>
@@ -133,8 +149,11 @@
         </template>
 
         <!-- Custom cell: Commission % -->
-        <template #cell-commission_percentage="{ value }">
-          <span class="text-sm text-text-primary font-medium">{{ value }}%</span>
+        <template #cell-commission_percentage="{ value, row }">
+          <span
+            class="text-sm text-text-primary font-medium cursor-help"
+            :title="`Comisión configurada para el evento ${row?.cluster_name || ''}`"
+          >{{ value }}%</span>
         </template>
 
         <!-- Custom cell: Commission amount -->
@@ -164,6 +183,15 @@ const isLoading = ref(true)
 const error = ref<string | null>(null)
 const sortField = ref('created_at')
 const sortDirection = ref<'asc' | 'desc'>('desc')
+const assignedEvents = ref<any[]>([])
+const selectedClusterId = ref<number | ''>('')
+
+// Comisión del evento activo (cuando hay filtro)
+const activeEventCommission = computed(() => {
+  if (!selectedClusterId.value) return null
+  const event = assignedEvents.value.find(e => e.cluster_id === selectedClusterId.value)
+  return event ? (event.cluster_commission_percentage ?? event.commission_percentage) : null
+})
 
 // Table columns
 const columns = [
@@ -177,18 +205,31 @@ const columns = [
   { key: 'status', title: 'Estado', sortable: false, align: 'center' as const }
 ]
 
+async function loadAssignedEvents() {
+  try {
+    const response = await $fetch<any>('/api/promoters/me/events', {
+      credentials: 'include'
+    })
+    assignedEvents.value = response.events || []
+  } catch {
+    assignedEvents.value = []
+  }
+}
+
 async function loadData() {
   isLoading.value = true
   error.value = null
 
   try {
+    const clusterId = selectedClusterId.value || undefined
     const [salesResponse, statsResponse] = await Promise.all([
       $fetch('/api/promoters/me/sales', {
         credentials: 'include',
-        query: { limit: 50, offset: 0 }
+        query: { limit: 50, offset: 0, ...(clusterId ? { cluster_id: clusterId } : {}) }
       }),
       $fetch('/api/promoters/me/stats', {
-        credentials: 'include'
+        credentials: 'include',
+        query: { ...(clusterId ? { cluster_id: clusterId } : {}) }
       })
     ])
     sales.value = (salesResponse as any).sales || []
@@ -203,9 +244,16 @@ async function loadData() {
   }
 }
 
-watch(() => authStore.user, (user) => {
-  if (user) loadData()
+watch(() => authStore.user, async (user) => {
+  if (user) {
+    await loadAssignedEvents()
+    loadData()
+  }
 }, { immediate: true })
+
+watch(selectedClusterId, () => {
+  loadData()
+})
 
 function handleSort(field: string) {
   if (sortField.value === field) {

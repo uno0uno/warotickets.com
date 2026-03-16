@@ -220,6 +220,23 @@
                   </NuxtLink>
 
                   <NuxtLink
+                    to="/gestion/comisiones"
+                    @click="showMenuModal = false"
+                    class="flex flex-col items-center gap-1"
+                  >
+                    <div
+                      class="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+                      :class="isActive('/gestion/comisiones') ? 'bg-primary-600/20' : 'bg-secondary-800 hover:bg-secondary-700'"
+                    >
+                      <BanknotesIcon
+                        class="w-6 h-6"
+                        :class="isActive('/gestion/comisiones') ? 'text-primary-400' : 'text-secondary-300'"
+                      />
+                    </div>
+                    <span class="text-[10px] text-secondary-300">Comisiones</span>
+                  </NuxtLink>
+
+                  <NuxtLink
                     to="/equipo/miembros"
                     @click="showMenuModal = false"
                     class="flex flex-col items-center gap-1"
@@ -434,6 +451,7 @@ import {
   ArrowPathIcon,
   ArrowRightOnRectangleIcon,
   ArrowsRightLeftIcon,
+  BanknotesIcon,
   Bars3Icon,
   CalendarDaysIcon,
   ChartBarIcon,
