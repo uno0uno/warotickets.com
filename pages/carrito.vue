@@ -517,7 +517,12 @@
                   <span class="text-2xl font-black text-secondary-900">${{ formatPrice(cartStore.total) }}</span>
                 </div>
                 <p v-if="cartStore.serviceFee > 0" class="text-[10px] text-secondary-400 text-right mt-1">
-                  Incluye cargo por servicio de ${{ formatPrice(Math.round(cartStore.serviceFee / cartStore.totalTickets)) }}/boleta
+                  <template v-if="uniformServiceFeePerTicket !== null">
+                    Incluye cargo por servicio de ${{ formatPrice(uniformServiceFeePerTicket) }}/boleta
+                  </template>
+                  <template v-else>
+                    Incluye cargo por servicio variable según tipo de boleta
+                  </template>
                 </p>
               </div>
 
@@ -810,6 +815,16 @@ const totalOriginal = computed(() => {
   return cartStore.cart.items.reduce((sum, item) => {
     return sum + (item.originalPrice * item.ticketsCount)
   }, 0)
+})
+
+// Service fee per ticket — only defined when all cart items share the same fee
+// (All areas in the same event share the same tier, but different base prices
+// produce different variable fees; we show exact value only when truly uniform)
+const uniformServiceFeePerTicket = computed(() => {
+  const items = cartStore.cart?.items
+  if (!items || items.length === 0) return null
+  const fees = [...new Set(items.map(i => i.serviceFeePerTicket))]
+  return fees.length === 1 ? fees[0] : null
 })
 
 // Page meta
