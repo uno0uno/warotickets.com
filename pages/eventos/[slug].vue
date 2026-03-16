@@ -912,17 +912,19 @@ function getAreaQuantityInStage(areaId: number, stageName: string): number {
   return areaInStage?.quantity || 1
 }
 
-// Get display price for an area (considering bundles)
+// Get display price for an area (considering bundles and cluster-tier service fee)
 function getAreaDisplayPrice(area: any): number {
   const bundleSize = getAreaQuantityInStage(area.id, area.active_sale_stage)
   const unitPrice = Number(area.current_price || area.price)
-  return unitPrice * bundleSize
+  const serviceFee = Number(area.service || 0)
+  return (unitPrice + serviceFee) * bundleSize
 }
 
-// Get original price for an area (considering bundles)
+// Get original price for an area (considering bundles and cluster-tier service fee)
 function getAreaOriginalPrice(area: any): number {
   const bundleSize = getAreaQuantityInStage(area.id, area.active_sale_stage)
-  return Number(area.price) * bundleSize
+  const serviceFee = Number(area.service || 0)
+  return (Number(area.price) + serviceFee) * bundleSize
 }
 
 </script>
