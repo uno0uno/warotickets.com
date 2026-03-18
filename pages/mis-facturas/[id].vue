@@ -149,7 +149,7 @@
                 <td class="px-5 py-3 text-right text-secondary-600">{{ formatCurrency(t.subtotal) }}</td>
                 <td class="px-5 py-3 text-right text-secondary-600">
                   {{ formatCurrency(t.service_total) }}
-                  <div v-if="invoice.cluster_total_capacity && t.quantity > 1" class="text-xs text-secondary-400 mt-0.5">
+                  <div v-if="t.quantity > 1" class="text-xs text-secondary-400 mt-0.5">
                     {{ formatCurrency(t.service_fee) }}/boleta
                   </div>
                   <div class="text-xs text-secondary-400 mt-0.5">
@@ -304,7 +304,6 @@ interface InvoiceDetail {
   event_name: string
   event_slug: string
   event_date: string | null
-  cluster_total_capacity: number
   reservation_id: string
   reservation_date: string | null
   ticket_count: number
