@@ -261,21 +261,21 @@
               <div class="w-10 h-10 bg-primary-700 rounded-xl flex items-center justify-center text-white font-bold font-heading text-base flex-shrink-0">1</div>
               <div>
                 <h3 class="text-white font-semibold text-base mb-1 font-heading">Creas el código del promotor</h3>
-                <p class="text-secondary-400 text-sm leading-relaxed">Asignas la comisión y los eventos que puede promover.</p>
+                <p class="text-secondary-300 text-sm leading-relaxed">Asignas la comisión y los eventos que puede promover.</p>
               </div>
             </div>
             <div class="flex items-start gap-5 bg-secondary-800 border border-secondary-700 rounded-2xl p-6">
               <div class="w-10 h-10 bg-primary-700 rounded-xl flex items-center justify-center text-white font-bold font-heading text-base flex-shrink-0">2</div>
               <div>
                 <h3 class="text-white font-semibold text-base mb-1 font-heading">El promotor comparte su link</h3>
-                <p class="text-secondary-400 text-sm leading-relaxed">Cada compra con su link queda registrada automáticamente.</p>
+                <p class="text-secondary-300 text-sm leading-relaxed">Cada compra con su link queda registrada automáticamente.</p>
               </div>
             </div>
             <div class="flex items-start gap-5 bg-secondary-800 border border-secondary-700 rounded-2xl p-6">
               <div class="w-10 h-10 bg-primary-700 rounded-xl flex items-center justify-center text-white font-bold font-heading text-base flex-shrink-0">3</div>
               <div>
                 <h3 class="text-white font-semibold text-base mb-1 font-heading">Apruebas y pagas la comisión</h3>
-                <p class="text-secondary-400 text-sm leading-relaxed">Desde tu dashboard apruebas las comisiones y registras el pago.</p>
+                <p class="text-secondary-300 text-sm leading-relaxed">Desde tu dashboard apruebas las comisiones y registras el pago.</p>
               </div>
             </div>
           </div>
@@ -433,21 +433,21 @@
               <span class="text-white font-bold font-heading">1</span>
             </div>
             <h3 class="text-white font-semibold text-base mb-1 font-heading">Crea el evento</h3>
-            <p class="text-secondary-400 text-sm leading-relaxed">Nombre, fecha, lugar, imagen</p>
+            <p class="text-secondary-300 text-sm leading-relaxed">Nombre, fecha, lugar, imagen</p>
           </div>
           <div class="text-center">
             <div class="w-12 h-12 bg-primary-700 rounded-xl flex items-center justify-center mx-auto mb-4">
               <span class="text-white font-bold font-heading">2</span>
             </div>
             <h3 class="text-white font-semibold text-base mb-1 font-heading">Configura áreas y etapas</h3>
-            <p class="text-secondary-400 text-sm leading-relaxed">VIP, General, early bird, preventa</p>
+            <p class="text-secondary-300 text-sm leading-relaxed">VIP, General, early bird, preventa</p>
           </div>
           <div class="text-center">
             <div class="w-12 h-12 bg-primary-700 rounded-xl flex items-center justify-center mx-auto mb-4">
               <span class="text-white font-bold font-heading">3</span>
             </div>
             <h3 class="text-white font-semibold text-base mb-1 font-heading">Comparte y vende</h3>
-            <p class="text-secondary-400 text-sm leading-relaxed">Activa promotores, recibe pagos</p>
+            <p class="text-secondary-300 text-sm leading-relaxed">Activa promotores, recibe pagos</p>
           </div>
         </div>
 
