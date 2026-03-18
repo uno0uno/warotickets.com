@@ -17,6 +17,7 @@ const navigationItems = [
   { to: '/gestion/areas', label: 'Áreas' },
   { to: '/gestion/etapas', label: 'Etapas' },
   { to: '/gestion/promociones', label: 'Promociones' },
-  { to: '/gestion/promotores', label: 'Promotores' }
+  { to: '/gestion/promotores', label: 'Promotores' },
+  { to: '/gestion/comisiones', label: 'Comisiones' }
 ]
 </script>

@@ -191,21 +191,6 @@
             </NuxtLink>
 
             <NuxtLink
-              to="/gestion/comisiones"
-              :class="[
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-sm group',
-                isExpanded ? '' : 'justify-center',
-                isActive('/gestion/comisiones')
-                  ? 'bg-primary-600/20 text-primary-400 font-medium'
-                  : 'text-titan-300 hover:bg-secondary-800 hover:text-white'
-              ]"
-              :title="!isExpanded ? 'Comisiones' : ''"
-            >
-              <BanknotesIcon :class="['w-5 h-5 flex-shrink-0', isActive('/gestion/comisiones') ? 'text-primary-500' : 'text-titan-500 group-hover:text-titan-300']" />
-              <span v-if="isExpanded" class="whitespace-nowrap">Comisiones</span>
-            </NuxtLink>
-
-            <NuxtLink
               to="/operaciones"
               :class="[
                 'flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-sm group',

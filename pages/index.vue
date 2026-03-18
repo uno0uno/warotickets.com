@@ -198,7 +198,7 @@ async function fetchEvents() {
   error.value = null
   try {
     const data = await $fetch('/api/public/events', {
-      params: { limit: 50, city: 'Bogotá' }
+      params: { limit: 50 }
     })
     events.value = data as any[]
   } catch (e: any) {
