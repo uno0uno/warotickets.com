@@ -19,7 +19,7 @@
               style="font-size: clamp(2.5rem, 1.5rem + 4vw, 4rem)"
             >
               Vende boletas, gestiona
-              <span class="text-gradient">tu evento.</span>
+              tu evento.
             </h1>
 
             <p class="text-lg text-secondary-300 leading-relaxed mb-8 max-w-xl">
@@ -78,7 +78,7 @@
     </section>
 
     <!-- 2. HIGHLIGHTS — Banda de color sólido -->
-    <section class="bg-primary-700 py-10" aria-label="Características principales">
+    <section class="bg-primary-900 py-10" aria-label="Características principales">
       <div class="container mx-auto px-4 md:px-8">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div>
