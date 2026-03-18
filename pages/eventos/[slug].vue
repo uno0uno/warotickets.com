@@ -912,7 +912,7 @@ function getAreaQuantityInStage(areaId: number, stageName: string): number {
   return areaInStage?.quantity || 1
 }
 
-// Get display price for an area (considering bundles and cluster-tier service fee)
+// Get display price for an area (considering bundles and flat service fee from backend)
 function getAreaDisplayPrice(area: any): number {
   const bundleSize = getAreaQuantityInStage(area.id, area.active_sale_stage)
   const unitPrice = Number(area.current_price || area.price)
@@ -920,7 +920,7 @@ function getAreaDisplayPrice(area: any): number {
   return (unitPrice + serviceFee) * bundleSize
 }
 
-// Get original price for an area (considering bundles and cluster-tier service fee)
+// Get original price for an area (considering bundles and flat service fee from backend)
 function getAreaOriginalPrice(area: any): number {
   const bundleSize = getAreaQuantityInStage(area.id, area.active_sale_stage)
   const serviceFee = Number(area.service || 0)

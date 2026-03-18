@@ -818,7 +818,7 @@ const totalOriginal = computed(() => {
 })
 
 // Service fee per ticket — only defined when all cart items share the same fee
-// (All areas in the same event share the same tier, but different base prices
+// (With the flat formula (price × 3.26% + $1,894), different base prices
 // produce different variable fees; we show exact value only when truly uniform)
 const uniformServiceFeePerTicket = computed(() => {
   const items = cartStore.cart?.items
