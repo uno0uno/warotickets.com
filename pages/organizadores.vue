@@ -341,7 +341,7 @@
         <div class="text-center mb-12">
           <h2 class="section-title mb-4">¿Cuánto cuesta?</h2>
           <p class="section-subtitle mx-auto">
-            Sin sorpresas. Solo pagas cuando vendes una boleta.
+            El fee se agrega al valor de la boleta — lo paga el comprador. Tú recibes el precio íntegro de cada boleta.
           </p>
         </div>
 
@@ -379,19 +379,23 @@
 
             <!-- Cálculo de ejemplo -->
             <div class="bg-secondary-50 border border-secondary-100 rounded-xl p-5 mb-8">
-              <p class="text-sm font-semibold text-secondary-500 mb-3 uppercase tracking-wide">Ejemplo</p>
+              <p class="text-sm font-semibold text-secondary-500 mb-3 uppercase tracking-wide">Ejemplo — boleta de $30,000 COP</p>
               <div class="space-y-2">
                 <div class="flex justify-between items-center text-base">
-                  <span class="text-secondary-600">500 boletas a $30,000 COP</span>
-                  <span class="font-semibold text-secondary-900">$15,000,000</span>
+                  <span class="text-secondary-600">Precio que defines tú</span>
+                  <span class="font-semibold text-secondary-900">$30,000</span>
                 </div>
                 <div class="flex justify-between items-center text-base">
-                  <span class="text-secondary-600">Fee WaRo</span>
-                  <span class="font-semibold text-secondary-700">≈ $1,437,000</span>
+                  <span class="text-secondary-600">Fee WaRo (se suma al precio)</span>
+                  <span class="font-semibold text-secondary-700">+ $2,872</span>
+                </div>
+                <div class="flex justify-between items-center text-base">
+                  <span class="text-secondary-600">El comprador paga</span>
+                  <span class="font-semibold text-secondary-900">$32,872</span>
                 </div>
                 <div class="border-t border-secondary-200 pt-2 flex justify-between items-center font-bold">
                   <span class="text-secondary-900 text-base">Tú recibes</span>
-                  <span class="text-secondary-900 text-lg">≈ $13,563,000</span>
+                  <span class="text-secondary-900 text-lg">$30,000</span>
                 </div>
               </div>
             </div>
