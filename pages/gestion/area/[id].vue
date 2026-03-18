@@ -291,17 +291,7 @@
                 <div v-if="eventData && form.price && form.price > 0" class="md:col-span-2 bg-secondary-50 rounded-lg p-4 border border-secondary-200">
                   <div class="flex items-center gap-2 mb-3">
                     <InformationCircleIcon class="w-5 h-5 text-primary-600" />
-                    <p class="text-sm font-medium text-secondary-900">Fee de servicio heredado del evento</p>
-                  </div>
-                  <div class="grid grid-cols-2 gap-4 mb-3">
-                    <div>
-                      <p class="text-xs text-secondary-500">Capacidad total del evento</p>
-                      <p class="text-sm font-semibold text-secondary-900">{{ clusterTotalCapacity }} personas</p>
-                    </div>
-                    <div>
-                      <p class="text-xs text-secondary-500">Tarifa de servicio</p>
-                      <p class="text-sm font-semibold text-primary-700">3.26% + $1,894</p>
-                    </div>
+                    <p class="text-sm font-medium text-secondary-900">Fee de servicio de plataforma</p>
                   </div>
                   <div class="bg-primary-50 border border-primary-200 rounded-lg p-3">
                     <p class="text-xs text-secondary-600">Tarifa: 3.26% + $1,894 → Precio público: <strong>{{ formatCOP(currentFee.publicPrice) }}</strong></p>
@@ -402,7 +392,6 @@ const form = reactive({
 
 const { computeServiceFee, formatCOP } = useServiceFee()
 
-const clusterTotalCapacity = computed(() => (eventData.value as any)?.total_capacity ?? 0)
 const currentFee = computed(() => computeServiceFee(form.price ?? 0))
 
 // Fetch event data for cluster total_capacity
