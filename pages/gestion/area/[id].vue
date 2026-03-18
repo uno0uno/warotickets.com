@@ -200,7 +200,7 @@
                     disabled
                     class="w-full px-4 py-2 border border-secondary-200 rounded-lg bg-secondary-50 text-secondary-500 cursor-not-allowed"
                   />
-                  <p class="text-xs text-secondary-400 mt-1">No editable - afecta tier de servicio</p>
+                  <p class="text-xs text-secondary-400 mt-1">No editable - calculado por el cluster</p>
                 </div>
 
                 <!-- Price (Read-only) -->
