@@ -113,7 +113,7 @@
       <!-- Detalle por Area -->
       <div class="bg-white border border-secondary-200 rounded-xl overflow-hidden">
         <div class="px-5 py-4 border-b border-secondary-100">
-          <h2 class="text-base font-bold text-secondary-900">Desglose por area</h2>
+          <h2 class="text-base font-bold text-secondary-900">Desglose por área</h2>
           <p class="text-xs text-secondary-500 mt-0.5">{{ invoice.ticket_count }} {{ invoice.ticket_count === 1 ? 'boleta' : 'boletas' }} en total</p>
         </div>
         <div class="overflow-x-auto">
@@ -147,7 +147,15 @@
                 </td>
                 <td class="px-5 py-3 text-right text-secondary-600 font-medium">{{ formatCurrency(t.unit_price) }}</td>
                 <td class="px-5 py-3 text-right text-secondary-600">{{ formatCurrency(t.subtotal) }}</td>
-                <td class="px-5 py-3 text-right text-secondary-600">{{ formatCurrency(t.service_total) }}</td>
+                <td class="px-5 py-3 text-right text-secondary-600">
+                  {{ formatCurrency(t.service_total) }}
+                  <div v-if="invoice.cluster_total_capacity && t.quantity > 1" class="text-xs text-secondary-400 mt-0.5">
+                    {{ formatCurrency(t.service_fee) }}/boleta
+                  </div>
+                  <div class="text-xs text-secondary-400 mt-0.5">
+                    Fee: 3.26% + $1,894
+                  </div>
+                </td>
                 <td class="px-5 py-3 text-right font-semibold text-secondary-900">{{ formatCurrency(t.subtotal + t.service_total) }}</td>
               </tr>
             </tbody>
@@ -237,7 +245,6 @@ import {
   ServerIcon,
   TicketIcon
 } from '@heroicons/vue/24/outline'
-
 definePageMeta({ layout: 'dashboard' })
 useHead({ title: 'Detalle Factura - WaRo Tickets' })
 
@@ -297,6 +304,7 @@ interface InvoiceDetail {
   event_name: string
   event_slug: string
   event_date: string | null
+  cluster_total_capacity: number
   reservation_id: string
   reservation_date: string | null
   ticket_count: number

@@ -299,12 +299,12 @@
                       <p class="text-sm font-semibold text-secondary-900">{{ clusterTotalCapacity }} personas</p>
                     </div>
                     <div>
-                      <p class="text-xs text-secondary-500">Tier activo</p>
-                      <p class="text-sm font-semibold text-primary-700">{{ currentTier.label }}</p>
+                      <p class="text-xs text-secondary-500">Tarifa de servicio</p>
+                      <p class="text-sm font-semibold text-primary-700">3.26% + $1,894</p>
                     </div>
                   </div>
                   <div class="bg-primary-50 border border-primary-200 rounded-lg p-3">
-                    <p class="text-xs text-secondary-600">Tarifa: {{ currentTier.percentage }}% + {{ formatCOP(currentTier.fixedFee) }} → Precio público: <strong>{{ formatCOP(currentFee.publicPrice) }}</strong></p>
+                    <p class="text-xs text-secondary-600">Tarifa: 3.26% + $1,894 → Precio público: <strong>{{ formatCOP(currentFee.publicPrice) }}</strong></p>
                   </div>
                   <p class="text-xs text-secondary-500 mt-3 italic">* Tu recibes: {{ formatCOP(form.price) }} por boleta. Tarifas incluyen IVA.</p>
                 </div>
@@ -400,11 +400,10 @@ const form = reactive({
   status: 'available'
 })
 
-const { getTierForCapacity, computeServiceFee, formatCOP } = useServiceFee()
+const { computeServiceFee, formatCOP } = useServiceFee()
 
 const clusterTotalCapacity = computed(() => (eventData.value as any)?.total_capacity ?? 0)
-const currentTier = computed(() => getTierForCapacity(clusterTotalCapacity.value))
-const currentFee = computed(() => computeServiceFee(form.price ?? 0, clusterTotalCapacity.value))
+const currentFee = computed(() => computeServiceFee(form.price ?? 0))
 
 // Fetch event data for cluster total_capacity
 const { data: eventData } = useAsyncData(

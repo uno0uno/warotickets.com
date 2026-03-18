@@ -129,6 +129,9 @@
                   <span><strong>{{ item.total_sold || 0 }}</strong> vendidas</span>
                   <span><strong>{{ item.total_checked_in || 0 }}</strong> check-in</span>
                 </div>
+                <div v-if="item.total_capacity" class="mt-2 text-xs text-text-tertiary">
+                  Fee: 3.26% + $1,894
+                </div>
               </div>
             </div>
           </NuxtLink>
@@ -153,6 +156,20 @@
         <!-- Custom cell: Date -->
         <template #cell-start_date="{ value }">
           {{ formatDate(value) }}
+        </template>
+
+        <!-- Custom cell: Capacity tier range -->
+        <template #cell-total_capacity="{ value }">
+          <span v-if="!value" class="text-text-tertiary">—</span>
+          <span v-else class="text-sm text-text-secondary">{{ value.toLocaleString('es-CO') }} personas</span>
+        </template>
+
+        <!-- Custom cell: Service fee -->
+        <template #cell-service_fee="{ row }">
+          <span v-if="!row.total_capacity" class="text-text-tertiary">—</span>
+          <span v-else class="text-sm text-text-secondary">
+            3.26% + $1,894
+          </span>
         </template>
 
         <!-- Custom cell: Status badge -->
@@ -394,6 +411,8 @@ const displayedPages = computed(() => {
 const columns = [
   { key: 'cluster_name', title: 'Nombre', sortable: true, align: 'left' as const },
   { key: 'start_date', title: 'Fecha', sortable: true, align: 'center' as const },
+  { key: 'total_capacity', title: 'Aforo', sortable: false, align: 'center' as const },
+  { key: 'service_fee', title: 'Fee servicio', sortable: false, align: 'center' as const },
   { key: 'total_sold', title: 'Vendidas', sortable: true, align: 'right' as const, format: 'number' as const },
   { key: 'total_checked_in', title: 'Check-in', sortable: true, align: 'right' as const, format: 'number' as const },
   { key: 'is_active', title: 'Estado', sortable: true, align: 'center' as const },

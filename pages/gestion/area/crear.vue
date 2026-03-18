@@ -251,15 +251,7 @@
                     </div>
                   </div>
                   <div class="bg-primary-50 border border-primary-200 rounded-lg p-3 mb-3">
-                    <p class="text-xs text-secondary-600 mb-1">Tier activo (proyectado): <strong class="text-primary-700">{{ projectedTier.label }}</strong></p>
-                    <p class="text-xs text-secondary-600">Tarifa: {{ projectedTier.percentage }}% + {{ formatCOP(projectedTier.fixedFee) }} → Precio público: <strong>{{ formatCOP(projectedFee.publicPrice) }}</strong></p>
-                  </div>
-                  <div v-if="tierChanges" class="bg-yellow-50 border border-yellow-300 rounded-lg p-3 flex items-start gap-2 mb-3">
-                    <ExclamationTriangleIcon class="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-                    <p class="text-xs text-yellow-800">
-                      Al agregar esta área, el tier cambiará de <strong>{{ currentTier.label }}</strong> a <strong>{{ projectedTier.label }}</strong>.
-                      El fee de todas las áreas del evento se actualizará automáticamente.
-                    </p>
+                    <p class="text-xs text-secondary-600">Tarifa: 3.26% + $1,894 → Precio público: <strong>{{ formatCOP(projectedFee.publicPrice) }}</strong></p>
                   </div>
                   <p class="text-xs text-secondary-500 italic">* Tu recibes: {{ formatCOP(form.price) }} por boleta. Tarifas incluyen IVA.</p>
                 </div>
@@ -324,8 +316,8 @@
               <div class="bg-primary-50 border-2 border-primary-500 rounded-lg p-4">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <p class="text-sm font-medium text-primary-700 mb-1">Tier: {{ projectedTier.label }} boletas</p>
-                    <p class="text-xs text-secondary-600">Tarifa: {{ projectedTier.percentage }}% + {{ formatCOP(projectedTier.fixedFee) }}</p>
+                    <p class="text-sm font-medium text-primary-700 mb-1">Costo de servicio</p>
+                    <p class="text-xs text-secondary-600">Tarifa: 3.26% + $1,894</p>
                   </div>
                   <div class="text-left sm:text-right">
                     <p class="text-xs text-secondary-500">Costo servicio</p>
@@ -426,14 +418,11 @@ const form = reactive({
   unit_capacity: null as number | null
 })
 
-const { getTierForCapacity, computeServiceFee, formatCOP } = useServiceFee()
+const { computeServiceFee, formatCOP } = useServiceFee()
 
 const clusterTotalCapacity = computed(() => (eventData.value as any)?.total_capacity ?? 0)
 const projectedCapacity = computed(() => clusterTotalCapacity.value + (form.capacity ?? 0))
-const currentTier = computed(() => getTierForCapacity(clusterTotalCapacity.value))
-const projectedTier = computed(() => getTierForCapacity(projectedCapacity.value))
-const projectedFee = computed(() => computeServiceFee(form.price ?? 0, projectedCapacity.value))
-const tierChanges = computed(() => currentTier.value !== projectedTier.value && (form.capacity ?? 0) > 0)
+const projectedFee = computed(() => computeServiceFee(form.price ?? 0))
 
 // Fetch event data for display
 const { data: eventData } = useAsyncData(

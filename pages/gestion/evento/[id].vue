@@ -217,38 +217,23 @@
                   <p class="text-xs text-secondary-500 mt-1">Sobre el precio base, sin fee de servicio</p>
                 </div>
 
-                <!-- Fee Tier Preview -->
+                <!-- Fee Preview -->
                 <div class="md:col-span-2">
-                  <p class="text-sm font-medium text-secondary-900 mb-3">Fee de servicio por tier</p>
-                  <div v-if="!eventData?.total_capacity" class="text-sm text-secondary-500 italic mb-3">
-                    Agrega áreas al evento para determinar el tier automáticamente.
-                  </div>
-                  <div v-else class="text-sm text-secondary-600 mb-3">
-                    Capacidad total: <span class="font-semibold text-secondary-900">{{ eventData.total_capacity.toLocaleString('es-CO') }} personas</span>
-                    &mdash; Tier activo: <span class="font-semibold text-primary-700">{{ activeTier.label }}</span>
-                  </div>
+                  <p class="text-sm font-medium text-secondary-900 mb-3">Fee de servicio (fórmula plana)</p>
                   <div class="overflow-x-auto">
                     <table class="w-full text-sm border border-secondary-200 rounded-lg overflow-hidden">
                       <thead>
                         <tr class="bg-secondary-100">
-                          <th class="px-3 py-2 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wide">Capacidad</th>
+                          <th class="px-3 py-2 text-left text-xs font-semibold text-secondary-600 uppercase tracking-wide">Tarifa</th>
                           <th class="px-3 py-2 text-right text-xs font-semibold text-secondary-600 uppercase tracking-wide">Fee fijo</th>
-                          <th class="px-3 py-2 text-right text-xs font-semibold text-secondary-600 uppercase tracking-wide">% adicional</th>
+                          <th class="px-3 py-2 text-right text-xs font-semibold text-secondary-600 uppercase tracking-wide">% variable</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr
-                          v-for="tier in SERVICE_FEE_TIERS"
-                          :key="tier.label"
-                          class="border-t border-secondary-200 transition-colors"
-                          :class="tier.label === activeTier.label && eventData?.total_capacity ? 'bg-primary-50' : ''"
-                        >
-                          <td class="px-3 py-2" :class="tier.label === activeTier.label && eventData?.total_capacity ? 'text-primary-800 font-semibold' : 'text-secondary-700'">
-                            {{ tier.label }}
-                            <span v-if="tier.label === activeTier.label && eventData?.total_capacity" class="ml-2 text-xs bg-primary-600 text-white px-1.5 py-0.5 rounded">activo</span>
-                          </td>
-                          <td class="px-3 py-2 text-right" :class="tier.label === activeTier.label && eventData?.total_capacity ? 'text-primary-800 font-semibold' : 'text-secondary-700'">{{ formatCOP(tier.fixedFee) }}</td>
-                          <td class="px-3 py-2 text-right" :class="tier.label === activeTier.label && eventData?.total_capacity ? 'text-primary-800 font-semibold' : 'text-secondary-700'">{{ tier.percentage }}%</td>
+                        <tr class="border-t border-secondary-200 bg-primary-50">
+                          <td class="px-3 py-2 text-primary-800 font-semibold">Fórmula plana</td>
+                          <td class="px-3 py-2 text-right text-primary-800 font-semibold">$1,894</td>
+                          <td class="px-3 py-2 text-right text-primary-800 font-semibold">3.26%</td>
                         </tr>
                       </tbody>
                     </table>
@@ -384,35 +369,24 @@
                   />
                 </div>
 
-                <!-- Country -->
+                <!-- Country (fixed: Colombia) -->
                 <div>
                   <label class="block text-sm font-medium text-secondary-900 mb-2">
-                    Pais
+                    País
                   </label>
-                  <select
-                    v-model="form.country"
-                    class="w-full px-4 py-2 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 text-secondary-900 bg-white"
-                  >
-                    <option value="">Seleccionar pais</option>
-                    <option
-                      v-for="country in locationsStore.countries"
-                      :key="country.code"
-                      :value="country.code"
-                    >
-                      {{ country.name }}
-                    </option>
-                  </select>
+                  <div class="w-full px-4 py-2 border border-secondary-200 rounded-lg bg-secondary-50 text-secondary-700 text-sm">
+                    Colombia
+                  </div>
                 </div>
 
                 <!-- City -->
                 <div>
                   <label class="block text-sm font-medium text-secondary-900 mb-2">
-                    Ciudad
+                    Ciudad / Municipio
                   </label>
                   <select
                     v-model="form.city"
                     class="w-full px-4 py-2 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 text-secondary-900 bg-white"
-                    :disabled="!form.country"
                   >
                     <option value="">Seleccionar ciudad</option>
                     <option
@@ -505,7 +479,7 @@ const isSubmitting = ref(false)
 const locationsStore = useLocationsStore()
 
 // Service fee
-const { getTierForCapacity, formatCOP, SERVICE_FEE_TIERS } = useServiceFee()
+const { formatCOP } = useServiceFee()
 
 // Form state
 const form = reactive({
@@ -544,8 +518,7 @@ const existingImageIds = reactive({
 
 // Get cities based on selected country
 const availableCities = computed(() => {
-  if (!form.country) return []
-  return locationsStore.getCitiesByCountry(form.country)
+  return locationsStore.getCitiesByCountry('CO')
 })
 
 // Fetch event data
@@ -559,9 +532,6 @@ const { data: eventData, pending: isLoading, error: fetchError } = useAsyncData(
     transform: (response: any) => response.data || response
   }
 )
-
-// Active tier based on loaded event's total_capacity
-const activeTier = computed(() => getTierForCapacity(eventData.value?.total_capacity ?? 0))
 
 // Watch for event data to populate form
 watch(eventData, async (newData) => {
@@ -580,9 +550,7 @@ watch(eventData, async (newData) => {
     form.venue_name = extra.venue_name || ''
     form.venue_address = extra.venue_address || ''
 
-    // Convert country name to code
-    const countryData = locationsStore.getCountryByName(extra.country || '')
-    form.country = countryData?.code || ''
+    form.country = 'CO'
     form.city = extra.city || ''
 
     // Fetch existing event images
@@ -644,12 +612,6 @@ watch(() => form.end_date, validateDates)
 // Track if form has been initialized to avoid clearing city on initial load
 const formInitialized = ref(false)
 
-// Clear city when country changes (but not on initial load)
-watch(() => form.country, () => {
-  if (formInitialized.value) {
-    form.city = ''
-  }
-})
 
 // Event types labels
 const eventTypeLabels: Record<string, string> = {

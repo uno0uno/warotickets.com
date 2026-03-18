@@ -312,35 +312,24 @@
                 />
               </div>
 
-              <!-- Country -->
+              <!-- Country (fixed: Colombia) -->
               <div>
                 <label class="block text-sm font-medium text-secondary-900 mb-2">
-                  Pais
+                  País
                 </label>
-                <select
-                  v-model="form.country"
-                  class="w-full px-4 py-2 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 text-secondary-900 bg-white"
-                >
-                  <option value="">Seleccionar pais</option>
-                  <option
-                    v-for="country in locationsStore.countries"
-                    :key="country.code"
-                    :value="country.code"
-                  >
-                    {{ country.name }}
-                  </option>
-                </select>
+                <div class="w-full px-4 py-2 border border-secondary-200 rounded-lg bg-secondary-50 text-secondary-700 text-sm">
+                  Colombia
+                </div>
               </div>
 
               <!-- City -->
               <div>
                 <label class="block text-sm font-medium text-secondary-900 mb-2">
-                  Ciudad
+                  Ciudad / Municipio
                 </label>
                 <select
                   v-model="form.city"
                   class="w-full px-4 py-2 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-500 text-secondary-900 bg-white"
-                  :disabled="!form.country"
                 >
                   <option value="">Seleccionar ciudad</option>
                   <option
@@ -447,14 +436,10 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr
-                    v-for="tier in SERVICE_FEE_TIERS"
-                    :key="tier.label"
-                    class="border-t border-secondary-200"
-                  >
-                    <td class="px-3 py-2 text-secondary-700">{{ tier.label }}</td>
-                    <td class="px-3 py-2 text-right text-secondary-700">{{ formatCOP(tier.fixedFee) }}</td>
-                    <td class="px-3 py-2 text-right text-secondary-700">{{ tier.percentage }}%</td>
+                  <tr class="border-t border-secondary-200">
+                    <td class="px-3 py-2 text-secondary-700">Fórmula plana</td>
+                    <td class="px-3 py-2 text-right text-secondary-700">$1,894</td>
+                    <td class="px-3 py-2 text-right text-secondary-700">3.26%</td>
                   </tr>
                 </tbody>
               </table>
@@ -562,7 +547,7 @@ const isSubmitting = ref(false)
 const locationsStore = useLocationsStore()
 
 // Service fee
-const { getTierForCapacity, formatCOP, SERVICE_FEE_TIERS } = useServiceFee()
+const { formatCOP } = useServiceFee()
 
 // Form state
 const form = reactive({
@@ -616,8 +601,7 @@ const isUploadingImages = computed(() => {
 
 // Get cities based on selected country
 const availableCities = computed(() => {
-  if (!form.country) return []
-  return locationsStore.getCitiesByCountry(form.country)
+  return locationsStore.getCitiesByCountry('CO')
 })
 
 // Min date for datetime-local input (current date/time)
@@ -690,10 +674,6 @@ function validateDates() {
 watch(() => form.start_date, validateDates)
 watch(() => form.end_date, validateDates)
 
-// Clear city when country changes
-watch(() => form.country, () => {
-  form.city = ''
-})
 
 // Validation per step
 const canProceed = computed(() => {
