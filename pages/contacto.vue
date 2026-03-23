@@ -142,10 +142,19 @@ async function handleSubmit() {
   if (!validate()) return
 
   loading.value = true
-  // Mock: simular envío sin backend
-  await new Promise(resolve => setTimeout(resolve, 800))
-  loading.value = false
-  submitted.value = true
+  try {
+    const res = await fetch('/api/leads/contacto', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: form.email, phone: form.phone }),
+    })
+    if (!res.ok) throw new Error(`${res.status}`)
+    submitted.value = true
+  } catch {
+    errors.email = 'Ocurrió un error al enviar tu solicitud. Intenta de nuevo.'
+  } finally {
+    loading.value = false
+  }
 }
 
 useHead({
