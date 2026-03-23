@@ -9,5 +9,7 @@ services:
         - NUXT_PUBLIC_SITE_URL=${NUXT_PUBLIC_SITE_URL:-https://dev.warotickets.com}
         - NODE_ENV=development
     container_name: warotickets-dev
+    ports:
+      - "127.0.0.1:3004:3003"
     env_file:
       - .env.dev
