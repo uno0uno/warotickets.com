@@ -15,6 +15,16 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'node-server',
     routeRules: {
+      // CORS para Figma plugin (solo desarrollo local)
+      ...(process.env.NODE_ENV === 'development' && {
+        '/**': {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          }
+        }
+      }),
       // Assets estáticos — cache 1 día en browser + CDN
       '/_nuxt/**': { headers: { 'cache-control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=3600' } },
       '/favicon.ico': { headers: { 'cache-control': 'public, max-age=86400' } },
